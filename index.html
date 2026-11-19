@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#03050b">
+<title>GéoQuiz Party</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#03050b;--panel:rgba(12,18,32,.84);--line:rgba(255,255,255,.1);--text:#e9edf5;--muted:#8e98ad;--accent:#f2c14e;--ok:#3ccf7a;--ko:#ff5a5f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#globe{touch-action:none;cursor:grab}
+.hidden{display:none!important}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:14px 18px;font:700 16px Inter,sans-serif;cursor:pointer;transition:transform .08s,filter .15s,opacity .2s;color:var(--text)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:linear-gradient(180deg,#f7cf68,#e9ad2c);color:#221802;box-shadow:0 6px 18px rgba(242,193,78,.25)}
+.btn.ghost{background:rgba(255,255,255,.07);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
+.card{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.lbl{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-bottom:8px}
+.seg{display:flex;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;color:var(--text);font:600 15px Inter,sans-serif;padding:9px 6px;border-radius:9px;cursor:pointer}
+.seg button.on{background:var(--accent);color:#1d1604}
+.brand{font-family:Fraunces,serif;font-weight:700;letter-spacing:-.5px}
+.brand span{color:var(--accent)}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--c);flex:none}
+#loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--bg);z-index:50;font-family:Fraunces,serif;font-size:22px;text-align:center;padding:20px;transition:opacity .6s}
+#loading .spin{width:46px;height:46px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:var(--accent);animation:sp 1s linear infinite}
+#loading small{font-family:Inter,sans-serif;font-size:13px;color:var(--muted)}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* ======== ÉCRAN (vidéoprojecteur) ======== */
+#lobby{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:3vh 3vw;z-index:5;background:radial-gradient(ellipse at center,rgba(3,5,11,.35),rgba(3,5,11,.75))}
+#lobby .card{display:grid;grid-template-columns:auto 1fr;gap:4vw;padding:4vh 3.5vw;max-width:1500px;width:100%;max-height:94vh}
+#lobby h1{font-size:clamp(40px,4.4vw,76px);margin:0 0 4px}
+#lobby .sub{color:#c3cad8;font-size:clamp(16px,1.35vw,22px);margin:0 0 3vh;line-height:1.4}
+.qrbox{background:#fff;border-radius:22px;padding:14px;width:clamp(240px,26vw,440px);aspect-ratio:1;display:flex}
+.qrbox svg{width:100%;height:100%}
+.joininfo{margin-top:16px;font-size:clamp(15px,1.2vw,20px);color:#c3cad8;line-height:1.5}
+.joininfo b{color:var(--text)}
+.roomcode{font:800 clamp(34px,3.2vw,56px) Inter,sans-serif;letter-spacing:.18em;color:var(--accent)}
+.warn{margin-top:12px;font-size:14px;color:#ffb0b2;background:rgba(255,90,95,.1);border:1px solid rgba(255,90,95,.35);border-radius:10px;padding:9px 12px;max-width:440px}
+.plist{display:flex;flex-wrap:wrap;gap:10px;min-height:56px;align-content:flex-start;max-height:34vh;overflow:auto}
+.chip{display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:30px;background:rgba(255,255,255,.06);border:1px solid var(--line);font:600 clamp(15px,1.25vw,21px) Inter,sans-serif;animation:pop .3s ease}
+.chip.off{opacity:.4}
+.chip.done{background:color-mix(in srgb,var(--c) 22%,transparent);border-color:var(--c)}
+.empty{color:var(--muted);font-size:clamp(15px,1.2vw,19px);font-style:italic}
+.settings{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:3vh 0}
+.rules{font-size:clamp(14px,1.05vw,17px);line-height:1.55;color:#c3cad8;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:3vh}
+.rules b{color:var(--accent)}
+#h-start{font-size:clamp(18px,1.5vw,24px);padding:18px 26px;width:100%}
+#h-status{font-size:13px;color:var(--muted);margin-top:10px;text-align:center}
+
+#h-top{position:fixed;top:14px;left:14px;right:438px;z-index:4;display:flex;align-items:center;gap:22px;padding:18px 26px}
+#h-top .qn{font:800 clamp(14px,1.1vw,18px) Inter,sans-serif;color:#1d1604;background:var(--accent);border-radius:30px;padding:8px 14px;white-space:nowrap}
+#h-top .qt{flex:1;font-family:Fraunces,serif;font-size:clamp(22px,2.2vw,40px);line-height:1.2;font-weight:500}
+.ring{position:relative;width:clamp(70px,6vw,104px);aspect-ratio:1;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:9}
+.ring .bg{stroke:rgba(255,255,255,.1)}
+.ring .fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .2s linear,stroke .3s}
+.ring span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 clamp(22px,2vw,34px) Inter,sans-serif;font-variant-numeric:tabular-nums}
+#h-side{position:fixed;top:14px;right:14px;bottom:14px;width:410px;z-index:4;display:flex;flex-direction:column;padding:20px;gap:14px}
+#h-sidebody{flex:1;overflow:auto;display:flex;flex-direction:column;gap:12px}
+#h-side .btn{font-size:20px;padding:16px}
+.answer{font-family:Fraunces,serif;font-size:34px;line-height:1.1;color:#9ff0c0}
+.anec{font-size:17px;line-height:1.5;color:#dfe4ee;background:rgba(242,193,78,.08);border:1px solid rgba(242,193,78,.3);border-radius:14px;padding:14px 16px}
+.anec b{color:var(--accent);display:block;margin-bottom:4px;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.04);font-size:17px}
+.row .r{width:28px;font-weight:800;color:var(--muted);text-align:center}
+.row .n{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .d{color:#c3cad8;font-size:15px;white-space:nowrap}
+.row .p{font-weight:800;color:var(--accent);min-width:70px;text-align:right;font-variant-numeric:tabular-nums}
+.row.me{outline:2px solid var(--c)}
+.waitgrid{display:flex;flex-wrap:wrap;gap:8px}
+#h-mini{position:fixed;left:14px;bottom:14px;z-index:4;display:flex;align-items:center;gap:12px;padding:10px 14px 10px 10px;font-size:14px;color:#c3cad8}
+#h-mini .qrbox{width:96px;padding:5px;border-radius:10px}
+#h-mini b{display:block;font-size:22px;letter-spacing:.15em;color:var(--accent)}
+#board{position:fixed;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;background:rgba(3,5,11,.6);padding:4vh}
+#board .card{width:min(900px,92vw);max-height:90vh;display:flex;flex-direction:column;padding:4vh 3vw;gap:2vh}
+#board h2{font-family:Fraunces,serif;font-size:clamp(30px,3vw,52px);margin:0;text-align:center}
+#board .rows{overflow:auto}
+#board .row{font-size:clamp(18px,1.6vw,26px);padding:12px 18px;animation:pop .35s ease both}
+#board .row .p{min-width:120px}
+#board .delta{color:var(--muted);font-size:.75em;margin-left:8px}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:2vw;margin:1vh 0 2vh}
+.podium .col{display:flex;flex-direction:column;align-items:center;gap:8px;width:clamp(120px,14vw,220px)}
+.podium .nm{font:700 clamp(18px,1.6vw,26px) Inter,sans-serif;text-align:center;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap}
+.podium .sc{color:var(--muted);font-size:clamp(14px,1.1vw,18px)}
+.podium .blk{width:100%;border-radius:14px 14px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;font:800 clamp(30px,3vw,52px) Inter,sans-serif;color:#1d1604}
+.boardbtns{display:flex;gap:12px;justify-content:center}
+.boardbtns .btn{font-size:20px;padding:16px 28px}
+kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;padding:2px 6px}
+
+/* ======== TÉLÉPHONE ======== */
+#p-join{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at top,rgba(11,20,40,.6),rgba(3,5,11,.92))}
+#p-join .card{width:100%;max-width:420px;padding:26px 22px;display:flex;flex-direction:column;gap:16px;text-align:center}
+#p-join h1{font-size:40px;margin:0}
+#p-join p{margin:0;color:#c3cad8;line-height:1.45}
+#p-join .roomcode{font-size:34px}
+#p-name{width:100%;font:600 20px Inter,sans-serif;padding:15px 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);outline:none;text-align:center}
+#p-name:focus{border-color:var(--accent)}
+#p-join .btn{width:100%;font-size:18px;padding:16px}
+#p-joinmsg{font-size:14px;color:#ffb0b2;min-height:18px}
+#p-top{position:fixed;top:0;left:0;right:0;z-index:4;padding:max(10px,env(safe-area-inset-top)) 10px 0}
+#p-top .card{padding:12px 14px;border-radius:16px}
+#p-top .meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);font-weight:600}
+#p-top .meta b{color:var(--text)}
+#p-q{font-family:Fraunces,serif;font-size:19px;line-height:1.25;margin-top:6px}
+#p-bar{height:5px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin-top:9px}
+#p-bar i{display:block;height:100%;width:100%;background:var(--accent);transition:width .2s linear}
+#p-time{font:800 16px Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--text)}
+#p-bottom{position:fixed;left:0;right:0;bottom:0;z-index:4;padding:0 10px max(10px,env(safe-area-inset-bottom))}
+#p-bottom .card{padding:14px;border-radius:18px;display:flex;flex-direction:column;gap:10px;max-height:52vh;overflow:auto}
+#p-bottom .btn{width:100%;font-size:18px;padding:16px}
+.pmsg{text-align:center;font-size:15px;color:#c3cad8;line-height:1.45}
+.pmsg b{color:var(--text)}
+.pmsg .big{display:block;font:800 26px Inter,sans-serif;color:var(--text);margin:2px 0}
+.me-badge{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px}
+.res-ok{color:var(--ok)} .res-ko{color:#ffb0b2}
+.panec{font-size:14px;line-height:1.5;color:#dfe4ee;background:rgba(242,193,78,.08);border:1px solid rgba(242,193,78,.3);border-radius:12px;padding:10px 12px;text-align:left}
+.panec b{color:var(--accent)}
+#p-conn{position:fixed;top:6px;left:50%;transform:translateX(-50%);z-index:20;font-size:12px;background:#7a1f22;color:#fff;padding:5px 12px;border-radius:20px}
+#h-phoneask{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(3,5,11,.92)}
+#h-phoneask .card{max-width:420px;width:100%;padding:24px 20px;display:flex;flex-direction:column;gap:14px;text-align:center}
+#h-phoneask h1{font-size:38px;margin:0} #h-phoneask p{margin:0;color:#c3cad8;line-height:1.45}
+#h-askcode{font:800 30px Inter,sans-serif;letter-spacing:.3em;text-align:center;text-transform:uppercase;padding:14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--accent);outline:none}
+#zoombox{position:fixed;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:3}
+#zoombox button{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(10px);color:var(--text);font:700 20px Inter,sans-serif}
+@media (max-width:1100px){ #h-side{width:330px} #h-top{right:356px} }
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<canvas id="globe"></canvas>
+
+<!-- ===== ÉCRAN ===== -->
+<div id="host" class="hidden">
+  <div id="lobby">
+    <div class="card">
+      <div>
+        <div class="qrbox" id="qr"></div>
+        <div class="joininfo">Scanne le QR code avec ton téléphone<br>ou tape l'adresse : <b id="h-url"></b><br>Code de la salle :</div>
+        <div class="roomcode" id="h-code">····</div>
+        <div class="warn hidden" id="h-filewarn">⚠️ Le jeu est ouvert depuis un fichier sur ce PC : les téléphones ne pourront pas le rejoindre. Ouvre-le depuis son adresse en ligne (https://…), voir le mode d'emploi.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;min-width:0">
+        <h1 class="brand">Géo<span>Quiz</span> Party</h1>
+        <p class="sub">Une question, un pays à trouver sur le globe : le plus près gagne !</p>
+        <div class="lbl">Joueurs connectés <span id="h-count"></span></div>
+        <div class="plist" id="h-players"><div class="empty">En attente des joueurs… 📱</div></div>
+        <div class="settings">
+          <div><div class="lbl">Questions</div><div class="seg" id="s-nq"><button data-v="5">5</button><button data-v="10" class="on">10</button><button data-v="15">15</button><button data-v="20">20</button></div></div>
+          <div><div class="lbl">Temps par question</div><div class="seg" id="s-dur"><button data-v="20">20 s</button><button data-v="30" class="on">30 s</button><button data-v="45">45 s</button><button data-v="60">60 s</button></div></div>
+        </div>
+        <div class="rules">Chaque joueur pose un repère sur le globe de son téléphone. <b>1 km d'écart = 1 point</b>, 0 si le repère est dans le bon pays, 20 000 si pas de réponse. <b>Le moins de points gagne !</b></div>
+        <button class="btn primary" id="h-start" disabled>Lancer la partie ▶</button>
+        <div id="h-status">Connexion au serveur…</div>
+      </div>
+    </div>
+  </div>
+  <header id="h-top" class="card hidden">
+    <div class="qn" id="h-qn">1 / 10</div>
+    <div class="qt" id="h-qt"></div>
+    <div class="ring" id="h-ring"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="44"/><circle class="fg" id="h-ringfg" cx="50" cy="50" r="44" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><span id="h-time">30</span></div>
+  </header>
+  <aside id="h-side" class="card hidden">
+    <div id="h-sidebody"></div>
+    <button class="btn primary" id="h-next">Suivant <kbd>Espace</kbd></button>
+  </aside>
+  <div id="h-mini" class="card hidden"><div class="qrbox" id="qr-mini"></div><div>Rejoindre :<b id="h-code-mini"></b></div></div>
+  <div id="board" class="hidden"><div class="card" id="board-card"></div></div>
+  <div id="h-phoneask" class="hidden"><div class="card">
+    <h1 class="brand">Géo<span>Quiz</span> Party</h1>
+    <p>Tu es sur un téléphone ? Entre le code affiché sur l'écran de jeu :</p>
+    <input id="h-askcode" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters">
+    <button class="btn primary" id="h-askgo">Rejoindre</button>
+    <button class="btn ghost" id="h-askno">Non, cet appareil est l'écran de jeu</button>
+  </div></div>
+</div>
+
+<!-- ===== TÉLÉPHONE ===== -->
+<div id="player" class="hidden">
+  <div id="p-join">
+    <div class="card">
+      <h1 class="brand">Géo<span>Quiz</span> Party</h1>
+      <p>Salle</p>
+      <div class="roomcode" id="p-room"></div>
+      <input id="p-name" maxlength="16" placeholder="Ton prénom" autocomplete="off" enterkeyhint="go">
+      <button class="btn primary" id="p-joinbtn">Rejoindre la partie</button>
+      <div id="p-joinmsg"></div>
+    </div>
+  </div>
+  <div id="p-top" class="hidden"><div class="card">
+    <div class="meta"><span id="p-qn">Question 1/10</span><span class="me-badge" id="p-me"></span><span id="p-time">30</span></div>
+    <div id="p-q"></div>
+    <div id="p-bar"><i></i></div>
+  </div></div>
+  <div id="zoombox" class="hidden"><button id="zin">+</button><button id="zout">−</button><button id="zreset">⟲</button></div>
+  <div id="p-bottom"><div class="card" id="p-panel"></div></div>
+  <div id="p-conn" class="hidden">Connexion perdue… reconnexion</div>
+</div>
+
+<div id="loading"><div class="spin"></div>Chargement de la planète…<small id="load-msg">Téléchargement des cartes</small></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+/* ================== DONNÉES : pays, capitales (lat, lon), région ================== */
+const COUNTRIES = [
+// Europe
+['ALB','Albanie','Tirana',41.33,19.82,'EU'],['AND','Andorre','Andorre-la-Vieille',42.51,1.52,'EU'],['AUT','Autriche','Vienne',48.21,16.37,'EU'],
+['BEL','Belgique','Bruxelles',50.85,4.35,'EU'],['BGR','Bulgarie','Sofia',42.70,23.32,'EU'],['BIH','Bosnie-Herzégovine','Sarajevo',43.86,18.41,'EU'],
+['BLR','Biélorussie','Minsk',53.90,27.57,'EU'],['CHE','Suisse','Berne',46.95,7.45,'EU'],['CYP','Chypre','Nicosie',35.17,33.36,'EU'],
+['CZE','Tchéquie','Prague',50.08,14.44,'EU'],['DEU','Allemagne','Berlin',52.52,13.40,'EU'],['DNK','Danemark','Copenhague',55.68,12.57,'EU'],
+['ESP','Espagne','Madrid',40.42,-3.70,'EU'],['EST','Estonie','Tallinn',59.44,24.75,'EU'],['FIN','Finlande','Helsinki',60.17,24.94,'EU'],
+['FRA','France','Paris',48.86,2.35,'EU'],['GBR','Royaume-Uni','Londres',51.51,-0.13,'EU'],['GRC','Grèce','Athènes',37.98,23.73,'EU'],
+['HRV','Croatie','Zagreb',45.81,15.98,'EU'],['HUN','Hongrie','Budapest',47.50,19.04,'EU'],['IRL','Irlande','Dublin',53.35,-6.26,'EU'],
+['ISL','Islande','Reykjavik',64.15,-21.94,'EU'],['ITA','Italie','Rome',41.90,12.50,'EU'],['XKX','Kosovo','Pristina',42.66,21.17,'EU'],
+['LIE','Liechtenstein','Vaduz',47.14,9.52,'EU'],['LTU','Lituanie','Vilnius',54.69,25.28,'EU'],['LUX','Luxembourg','Luxembourg',49.61,6.13,'EU'],
+['LVA','Lettonie','Riga',56.95,24.11,'EU'],['MCO','Monaco','Monaco',43.73,7.42,'EU'],['MDA','Moldavie','Chișinău',47.01,28.86,'EU'],
+['MKD','Macédoine du Nord','Skopje',42.00,21.43,'EU'],['MLT','Malte','La Valette',35.90,14.51,'EU'],['MNE','Monténégro','Podgorica',42.44,19.26,'EU'],
+['NLD','Pays-Bas','Amsterdam',52.37,4.90,'EU'],['NOR','Norvège','Oslo',59.91,10.75,'EU'],['POL','Pologne','Varsovie',52.23,21.01,'EU'],
+['PRT','Portugal','Lisbonne',38.72,-9.14,'EU'],['ROU','Roumanie','Bucarest',44.43,26.10,'EU'],['RUS','Russie','Moscou',55.76,37.62,'EU'],
+['SMR','Saint-Marin','Saint-Marin',43.94,12.45,'EU'],['SRB','Serbie','Belgrade',44.79,20.45,'EU'],['SVK','Slovaquie','Bratislava',48.15,17.11,'EU'],
+['SVN','Slovénie','Ljubljana',46.06,14.51,'EU'],['SWE','Suède','Stockholm',59.33,18.07,'EU'],['UKR','Ukraine','Kiev',50.45,30.52,'EU'],
+['VAT','Vatican','Vatican',41.90,12.45,'EU'],
+// Asie
+['AFG','Afghanistan','Kaboul',34.53,69.17,'AS'],['ARE','Émirats arabes unis','Abou Dabi',24.45,54.38,'AS'],['ARM','Arménie','Erevan',40.18,44.51,'AS'],
+['AZE','Azerbaïdjan','Bakou',40.41,49.87,'AS'],['BGD','Bangladesh','Dacca',23.81,90.41,'AS'],['BHR','Bahreïn','Manama',26.23,50.59,'AS'],
+['BRN','Brunei','Bandar Seri Begawan',4.89,114.94,'AS'],['BTN','Bhoutan','Thimphou',27.47,89.64,'AS'],['CHN','Chine','Pékin',39.90,116.41,'AS'],
+['GEO','Géorgie','Tbilissi',41.72,44.79,'AS'],['IDN','Indonésie','Jakarta',-6.21,106.85,'AS'],['IND','Inde','New Delhi',28.61,77.21,'AS'],
+['IRN','Iran','Téhéran',35.69,51.39,'AS'],['IRQ','Irak','Bagdad',33.31,44.36,'AS'],['ISR','Israël','Jérusalem',31.77,35.21,'AS'],
+['JOR','Jordanie','Amman',31.95,35.93,'AS'],['JPN','Japon','Tokyo',35.68,139.69,'AS'],['KAZ','Kazakhstan','Astana',51.17,71.45,'AS'],
+['KGZ','Kirghizistan','Bichkek',42.87,74.59,'AS'],['KHM','Cambodge','Phnom Penh',11.56,104.92,'AS'],['KOR','Corée du Sud','Séoul',37.57,126.98,'AS'],
+['KWT','Koweït','Koweït',29.38,47.99,'AS'],['LAO','Laos','Vientiane',17.98,102.63,'AS'],['LBN','Liban','Beyrouth',33.89,35.50,'AS'],
+['LKA','Sri Lanka','Sri Jayawardenapura Kotte',6.90,79.92,'AS'],['MDV','Maldives','Malé',4.18,73.51,'AS'],['MMR','Birmanie','Naypyidaw',19.76,96.08,'AS'],
+['MNG','Mongolie','Oulan-Bator',47.89,106.91,'AS'],['MYS','Malaisie','Kuala Lumpur',3.14,101.69,'AS'],['NPL','Népal','Katmandou',27.72,85.32,'AS'],
+['OMN','Oman','Mascate',23.59,58.41,'AS'],['PAK','Pakistan','Islamabad',33.68,73.05,'AS'],['PHL','Philippines','Manille',14.60,120.98,'AS'],
+['PRK','Corée du Nord','Pyongyang',39.04,125.76,'AS'],['PSE','Palestine','Ramallah',31.90,35.20,'AS'],['QAT','Qatar','Doha',25.29,51.53,'AS'],
+['SAU','Arabie saoudite','Riyad',24.71,46.68,'AS'],['SGP','Singapour','Singapour',1.29,103.85,'AS'],['SYR','Syrie','Damas',33.51,36.28,'AS'],
+['THA','Thaïlande','Bangkok',13.76,100.50,'AS'],['TJK','Tadjikistan','Douchanbé',38.56,68.79,'AS'],['TKM','Turkménistan','Achgabat',37.96,58.33,'AS'],
+['TLS','Timor oriental','Dili',-8.56,125.57,'AS'],['TUR','Turquie','Ankara',39.93,32.86,'AS'],['TWN','Taïwan','Taipei',25.03,121.57,'AS'],
+['UZB','Ouzbékistan','Tachkent',41.30,69.24,'AS'],['VNM','Viêt Nam','Hanoï',21.03,105.85,'AS'],['YEM','Yémen','Sanaa',15.37,44.19,'AS'],
+// Afrique
+['AGO','Angola','Luanda',-8.84,13.23,'AF'],['BDI','Burundi','Gitega',-3.43,29.93,'AF'],['BEN','Bénin','Porto-Novo',6.50,2.63,'AF'],
+['BFA','Burkina Faso','Ouagadougou',12.37,-1.52,'AF'],['BWA','Botswana','Gaborone',-24.63,25.92,'AF'],['CAF','Centrafrique','Bangui',4.39,18.56,'AF'],
+['CIV',"Côte d'Ivoire",'Yamoussoukro',6.83,-5.29,'AF'],['CMR','Cameroun','Yaoundé',3.85,11.50,'AF'],['COD','RD Congo','Kinshasa',-4.44,15.27,'AF'],
+['COG','Congo','Brazzaville',-4.27,15.28,'AF'],['COM','Comores','Moroni',-11.70,43.26,'AF'],['CPV','Cap-Vert','Praia',14.93,-23.51,'AF'],
+['DJI','Djibouti','Djibouti',11.59,43.15,'AF'],['DZA','Algérie','Alger',36.75,3.06,'AF'],['EGY','Égypte','Le Caire',30.04,31.24,'AF'],
+['ERI','Érythrée','Asmara',15.32,38.93,'AF'],['ETH','Éthiopie','Addis-Abeba',9.03,38.74,'AF'],['GAB','Gabon','Libreville',0.39,9.45,'AF'],
+['GHA','Ghana','Accra',5.60,-0.19,'AF'],['GIN','Guinée','Conakry',9.64,-13.58,'AF'],['GMB','Gambie','Banjul',13.45,-16.58,'AF'],
+['GNB','Guinée-Bissau','Bissau',11.86,-15.60,'AF'],['GNQ','Guinée équatoriale','Malabo',3.75,8.78,'AF'],['KEN','Kenya','Nairobi',-1.29,36.82,'AF'],
+['LBR','Liberia','Monrovia',6.30,-10.80,'AF'],['LBY','Libye','Tripoli',32.89,13.19,'AF'],['LSO','Lesotho','Maseru',-29.31,27.48,'AF'],
+['MAR','Maroc','Rabat',34.02,-6.84,'AF'],['MDG','Madagascar','Antananarivo',-18.88,47.51,'AF'],['MLI','Mali','Bamako',12.64,-8.00,'AF'],
+['MOZ','Mozambique','Maputo',-25.97,32.57,'AF'],['MRT','Mauritanie','Nouakchott',18.09,-15.98,'AF'],['MUS','Maurice','Port-Louis',-20.16,57.50,'AF'],
+['MWI','Malawi','Lilongwe',-13.96,33.79,'AF'],['NAM','Namibie','Windhoek',-22.56,17.08,'AF'],['NER','Niger','Niamey',13.51,2.11,'AF'],
+['NGA','Nigeria','Abuja',9.08,7.40,'AF'],['RWA','Rwanda','Kigali',-1.95,30.06,'AF'],['SDN','Soudan','Khartoum',15.50,32.56,'AF'],
+['SEN','Sénégal','Dakar',14.72,-17.47,'AF'],['SLE','Sierra Leone','Freetown',8.48,-13.23,'AF'],['SOM','Somalie','Mogadiscio',2.05,45.32,'AF'],
+['SSD','Soudan du Sud','Djouba',4.85,31.58,'AF'],['STP','Sao Tomé-et-Principe','São Tomé',0.34,6.73,'AF'],['SWZ','Eswatini','Mbabane',-26.31,31.14,'AF'],
+['SYC','Seychelles','Victoria',-4.62,55.45,'AF'],['TCD','Tchad',"N'Djaména",12.13,15.06,'AF'],['TGO','Togo','Lomé',6.13,1.22,'AF'],
+['TUN','Tunisie','Tunis',36.81,10.18,'AF'],['TZA','Tanzanie','Dodoma',-6.16,35.75,'AF'],['UGA','Ouganda','Kampala',0.35,32.58,'AF'],
+['ZAF','Afrique du Sud','Pretoria',-25.75,28.19,'AF'],['ZMB','Zambie','Lusaka',-15.39,28.32,'AF'],['ZWE','Zimbabwe','Harare',-17.83,31.05,'AF'],
+// Amérique du Nord, centrale, Caraïbes
+['ATG','Antigua-et-Barbuda',"Saint John's",17.12,-61.85,'NA'],['BHS','Bahamas','Nassau',25.05,-77.35,'NA'],['BLZ','Belize','Belmopan',17.25,-88.76,'NA'],
+['BRB','Barbade','Bridgetown',13.10,-59.62,'NA'],['CAN','Canada','Ottawa',45.42,-75.70,'NA'],['CRI','Costa Rica','San José',9.93,-84.08,'NA'],
+['CUB','Cuba','La Havane',23.11,-82.37,'NA'],['DMA','Dominique','Roseau',15.30,-61.39,'NA'],['DOM','République dominicaine','Saint-Domingue',18.49,-69.93,'NA'],
+['GRD','Grenade','Saint-Georges',12.06,-61.75,'NA'],['GTM','Guatemala','Guatemala',14.63,-90.51,'NA'],['HND','Honduras','Tegucigalpa',14.07,-87.19,'NA'],
+['HTI','Haïti','Port-au-Prince',18.54,-72.34,'NA'],['JAM','Jamaïque','Kingston',18.02,-76.80,'NA'],['KNA','Saint-Christophe-et-Niévès','Basseterre',17.30,-62.72,'NA'],
+['LCA','Sainte-Lucie','Castries',14.01,-60.99,'NA'],['MEX','Mexique','Mexico',19.43,-99.13,'NA'],['NIC','Nicaragua','Managua',12.11,-86.24,'NA'],
+['PAN','Panama','Panama',8.98,-79.52,'NA'],['SLV','Salvador','San Salvador',13.69,-89.22,'NA'],['TTO','Trinité-et-Tobago',"Port-d'Espagne",10.66,-61.51,'NA'],
+['USA','États-Unis','Washington',38.90,-77.04,'NA'],['VCT','Saint-Vincent-et-les-Grenadines','Kingstown',13.16,-61.23,'NA'],
+// Amérique du Sud
+['ARG','Argentine','Buenos Aires',-34.60,-58.38,'SA'],['BOL','Bolivie','Sucre',-19.04,-65.26,'SA'],['BRA','Brésil','Brasília',-15.79,-47.88,'SA'],
+['CHL','Chili','Santiago',-33.45,-70.67,'SA'],['COL','Colombie','Bogota',4.71,-74.07,'SA'],['ECU','Équateur','Quito',-0.18,-78.47,'SA'],
+['GUY','Guyana','Georgetown',6.80,-58.16,'SA'],['PER','Pérou','Lima',-12.05,-77.04,'SA'],['PRY','Paraguay','Asuncion',-25.26,-57.58,'SA'],
+['SUR','Suriname','Paramaribo',5.85,-55.20,'SA'],['URY','Uruguay','Montevideo',-34.90,-56.16,'SA'],['VEN','Venezuela','Caracas',10.48,-66.90,'SA'],
+// Océanie
+['AUS','Australie','Canberra',-35.28,149.13,'OC'],['FJI','Fidji','Suva',-18.14,178.44,'OC'],['FSM','Micronésie','Palikir',6.92,158.16,'OC'],
+['KIR','Kiribati','Tarawa',1.33,172.98,'OC'],['MHL','Îles Marshall','Majuro',7.09,171.38,'OC'],['NRU','Nauru','Yaren',-0.55,166.92,'OC'],
+['NZL','Nouvelle-Zélande','Wellington',-41.29,174.78,'OC'],['PLW','Palaos','Ngerulmud',7.50,134.62,'OC'],['PNG','Papouasie-Nouvelle-Guinée','Port Moresby',-9.44,147.18,'OC'],
+['SLB','Îles Salomon','Honiara',-9.43,159.95,'OC'],['TON','Tonga',"Nuku'alofa",-21.14,-175.20,'OC'],['TUV','Tuvalu','Funafuti',-8.52,179.20,'OC'],
+['VUT','Vanuatu','Port-Vila',-17.73,168.32,'OC'],['WSM','Samoa','Apia',-13.83,-171.76,'OC'],
+];
+const REGIONS = {EU:'Europe',AF:'Afrique',AS:'Asie',NA:'Amérique du Nord, centrale & Caraïbes',SA:'Amérique du Sud',OC:'Océanie'};
+const ALIAS = {KOS:'XKX',KSV:'XKX',XK:'XKX',ROM:'ROU',ZAR:'COD',TMP:'TLS',SDS:'SSD',SAH:'ESH'};
+const TERRITORIES = {GRL:'Groenland (Danemark)',ESH:'Sahara occidental',ATA:'Antarctique',PRI:'Porto Rico (États-Unis)',NCL:'Nouvelle-Calédonie (France)',
+  FLK:'Îles Malouines (Royaume-Uni)',ATF:'Terres australes françaises',PYF:'Polynésie française',GUF:'Guyane (France)',FRO:'Îles Féroé (Danemark)',
+  BMU:'Bermudes (Royaume-Uni)',HKG:'Hong Kong (Chine)',MAC:'Macao (Chine)',GUM:'Guam (États-Unis)',SGS:'Géorgie du Sud',CYN:'Chypre du Nord',SOL:'Somaliland'};
+
+/* ================== RELIEFS (lignes de crête principales, [lon, lat]) ================== */
+const RIDGES = [
+ {n:'Himalaya',w:1.8,c:[[73,35.5],[75,34.5],[77,33.3],[79,31],[81,30],[84,28.6],[87,27.9],[89,27.8],[92,27.8],[95,28.8],[97,28.3]]},
+ {n:'Karakoram',w:1.4,c:[[74,36.5],[76.5,35.8],[78,35]]},
+ {n:'Hindou Kouch',w:1.2,c:[[67,34.5],[69.5,35.5],[71.5,36.3],[73.5,36.8]]},
+ {n:'Pamir',w:1.2,c:[[71.5,38.8],[73,38.4],[75,38.6]]},
+ {n:'Tian Shan',w:1.3,c:[[69,41.5],[72,41.5],[76,42],[80,42.5],[84,43],[88,43.2],[93,43]]},
+ {n:'Kunlun',w:1.2,c:[[76,36.5],[80,36],[84,36],[88,36],[92,35.8],[97,35.5],[101,35]]},
+ {n:'Altaï',w:1,c:[[84,51],[87,49.5],[90,48.5],[94,47],[98,45.5]]},
+ {n:'Saïan',w:.8,c:[[89,52.5],[94,52.2],[98,51.8],[101,51.5]]},
+ {n:'Grand Khingan',w:.7,c:[[119,43],[120,46],[121.5,49],[122,52]]},
+ {n:'Qinling',w:.7,c:[[104,33.6],[107,33.8],[110,34],[112,33.8]]},
+ {n:'Hengduan',w:1,c:[[98,32],[99,29],[99.5,26],[99,24]]},
+ {n:'Zagros',w:1.1,c:[[44,37],[46,35],[48,33],[50,31],[52,29.5],[55,28],[57.5,27]]},
+ {n:'Elbourz',w:.9,c:[[48,37.5],[51,36.1],[54,36.5],[57,37.5]]},
+ {n:'Caucase',w:1.2,c:[[37.5,44.5],[40,43.5],[42.5,42.9],[45,42.3],[47.5,41.5],[49.5,40.8]]},
+ {n:'Taurus',w:.9,c:[[29,36.8],[32,36.6],[35,37.3],[38,38],[41,39.5],[43.5,39.7]]},
+ {n:'Alpes',w:1.2,c:[[7.0,43.9],[6.9,45.0],[7.2,45.9],[8.5,46.4],[10.5,46.6],[12.5,47.0],[14.5,47.3],[16,47.6]]},
+ {n:'Pyrénées',w:.9,c:[[-1.7,43.1],[0,42.8],[1.5,42.6],[3,42.4]]},
+ {n:'Carpates',w:.9,c:[[18.5,49.3],[20.5,49.3],[23,48.8],[25,47.8],[25.8,46.5],[25.5,45.5],[23.5,45.4],[22.5,44.8]]},
+ {n:'Apennins',w:.7,c:[[8.5,44.4],[10.5,44.2],[12.5,43.3],[13.8,42.2],[15.2,40.8],[16.2,39.5],[16.1,38.3]]},
+ {n:'Alpes dinariques',w:.7,c:[[14.5,45.5],[16.5,44.3],[18.5,43],[20,42],[21,40.8],[21.8,39.5]]},
+ {n:'Alpes scandinaves',w:.9,c:[[6.5,58.8],[8,61],[10,62.5],[13,64.5],[15.5,66.5],[18,68.3],[21,69.5]]},
+ {n:'Oural',w:.9,c:[[59,47.5],[59,51],[58.8,55],[59.3,59],[59.5,62],[60,65],[63,67.5],[66,68.5]]},
+ {n:'Atlas',w:1.1,c:[[-9.5,30.5],[-7,31.3],[-5,32.5],[-3,33.5],[-1,34.5],[2,35.5],[5,36],[8,36.2],[10,36.3]]},
+ {n:'Hauts plateaux éthiopiens',w:1,c:[[37.3,14],[38.5,12],[39.5,10],[38.5,8],[37.5,7]]},
+ {n:'Rift est-africain',w:.9,c:[[30,0.5],[29.4,-2],[30.5,-4.5],[32,-8],[34,-10.5],[34.7,-13]]},
+ {n:'Kilimandjaro',w:.9,c:[[36,1],[37,-0.2],[37.4,-3.1]]},
+ {n:'Drakensberg',w:.9,c:[[27,-31],[28.5,-29.5],[29.5,-28.5],[30.5,-27],[31,-25]]},
+ {n:'Tibesti',w:.7,c:[[16.8,21.6],[18.6,20.5]]},
+ {n:'Hoggar',w:.7,c:[[4.8,23.8],[6.2,22.6]]},
+ {n:'Montagnes Rocheuses',w:1.5,c:[[-148,61],[-140,60.5],[-134,59],[-128,57],[-123,53],[-118,50],[-114.5,48],[-111,45],[-108,42],[-106,39],[-105.5,36],[-106.5,33]]},
+ {n:'Chaîne de Brooks',w:.8,c:[[-162,68.3],[-155,68.2],[-148,68.3],[-142,68.8]]},
+ {n:'Chaîne d\'Alaska',w:1,c:[[-154,61.5],[-151,63],[-147,63.4],[-142,62.5]]},
+ {n:'Sierra Nevada & Cascades',w:.9,c:[[-121.5,48.8],[-121.7,46.8],[-121.8,44.5],[-122,42],[-121,40],[-119.5,38],[-118.3,36]]},
+ {n:'Sierra Madre occidentale',w:.9,c:[[-110,31],[-108,28],[-106,25],[-104.5,23],[-103.5,21]]},
+ {n:'Sierra Madre orientale',w:.8,c:[[-101,27],[-100,25],[-99.5,22.5],[-98,20]]},
+ {n:'Cordillère volcanique',w:.7,c:[[-104,19.5],[-101,19.4],[-98.5,19.1],[-97,19]]},
+ {n:'Appalaches',w:.8,c:[[-85.5,34],[-83.5,35.5],[-81,37],[-79,39],[-77,40.5],[-75,41.8],[-73,43],[-71,44.3],[-69,45.5]]},
+ {n:'Cordillère centraméricaine',w:.7,c:[[-91.5,15.2],[-88,14.5],[-86,13.3],[-85,11],[-83.5,9.5]]},
+ {n:'Cordillère des Andes',w:1.7,c:[[-73,8],[-75.5,5],[-77,2],[-78.5,-0.5],[-79,-3],[-77.5,-8],[-75.5,-11.5],[-72,-14.5],[-69,-16.5],[-68,-19],[-67.8,-23],[-68.5,-27],[-70,-31],[-70,-34],[-70.8,-37],[-71.5,-41],[-72.5,-46],[-73.3,-50],[-72.5,-53]]},
+ {n:'Andes vénézuéliennes',w:.9,c:[[-74,10.8],[-73,8],[-70.5,9],[-67,10.3]]},
+ {n:'Serra do Mar',w:.6,c:[[-49,-25],[-46,-23.3],[-43.5,-22.4],[-41.5,-20.5]]},
+ {n:'Cordillère australienne',w:.9,c:[[145.5,-15],[146,-18],[147.5,-21],[149,-24],[151,-27.5],[151.5,-30],[150,-33],[148.5,-36],[146.5,-37.5]]},
+ {n:'Alpes du Sud',w:.9,c:[[167.5,-45.8],[169,-44.2],[171,-43],[172.7,-41.8]]},
+ {n:'Alpes japonaises',w:.8,c:[[136.5,35.5],[137.6,36.5],[138.5,37.5],[140,39],[140.8,41]]},
+ {n:'Cordillère néo-guinéenne',w:1,c:[[136,-4],[138.5,-4.2],[141,-5],[143.5,-5.8],[146,-6.5]]},
+ {n:'Monts de Verkhoïansk',w:.9,c:[[127,62],[129,65],[131,67.5],[128,70]]},
+ {n:'Monts Tcherski',w:.8,c:[[138,66],[143,66.5],[148,66],[152,65]]},
+ {n:'Kamtchatka',w:.8,c:[[156.5,51],[158.5,54],[160,56],[161.5,58.5]]},
+ {n:'Ghâts occidentaux',w:.7,c:[[73.5,20],[74,16],[75,13],[76.5,10],[77.3,8.5]]},
+ {n:'Monts du Hedjaz',w:.8,c:[[35.5,28],[37.5,25],[39.5,22],[41.5,18],[43.5,14.5],[44,13]]},
+ {n:'Monts d\'Oman',w:.6,c:[[56.3,26],[57.5,23.3],[59,22.5]]},
+ {n:'Monts Transantarctiques',w:1.2,c:[[160,-71],[162,-75],[160,-78],[165,-82],[175,-85],[-160,-86],[-140,-86]]},
+];
+const PLATEAUS = [
+ {n:'Plateau tibétain',c:[[78,35],[84,35.6],[92,35],[98,33],[100,30],[98,28.5],[92,28.2],[86,28.5],[81,30],[78,32.5],[78,35]]},
+ {n:'Altiplano',c:[[-70,-14.5],[-67.5,-15.5],[-66,-19],[-66.5,-23],[-68.5,-23],[-69.5,-19],[-71,-16],[-70,-14.5]]},
+ {n:'Hauts plateaux éthiopiens',c:[[36,15],[39.5,14.5],[40.5,11],[42,9],[40,6.5],[37,6],[35.5,8.5],[36.5,12],[36,15]]},
+ {n:'Plateau iranien',c:[[46,38.5],[52,37],[58,37.5],[61,35],[61,30],[58,27.5],[53,29],[49,32],[46,35],[46,38.5]]},
+ {n:'Plateau mongol',c:[[90,49],[100,50],[110,49],[116,46],[112,43],[104,42],[96,44],[91,46],[90,49]]},
+];
+const DESERTS = [
+ {n:'Sahara',c:[[-16,21],[-13,27],[-9,29],[-3,31],[3,31.5],[9,31],[15,30],[20,30.5],[25,30],[30,29.5],[33,26],[35,22],[36,19],[33,17.5],[28,16],[22,15.5],[16,15.5],[10,16],[4,16],[-2,16],[-8,16.5],[-13,17.5],[-16,19],[-16,21]]},
+ {n:'Désert d\'Arabie',c:[[38,30],[44,31],[48,29],[51,26.5],[55,24],[57,21],[55,17.5],[52,17],[48,16],[44,17],[41,20],[38,25],[36.5,28],[38,30]]},
+ {n:'Thar',c:[[69,24.5],[70,29],[73,30],[75,28.5],[74,25.5],[71,24],[69,24.5]]},
+ {n:'Kalahari',c:[[13.5,-17],[17,-17],[21,-17.5],[24,-19],[25,-23],[23,-27],[19,-28.5],[15.5,-27],[15,-22],[13.5,-17]]},
+ {n:'Taklamakan',c:[[76,37.5],[78,40.5],[83,41.7],[88,41],[90,39],[86,37.5],[81,36.8],[76,37.5]]},
+ {n:'Gobi',c:[[94,40],[95,43.5],[100,44],[106,44.5],[111,44],[113,42.5],[109,41],[104,39.5],[98,39],[94,40]]},
+ {n:'Karakoum',c:[[53,41],[56,43.5],[61,44.5],[65,43.5],[66,41],[63,38.5],[59,37.8],[55,38.5],[53,41]]},
+ {n:'Déserts australiens',c:[[118,-20],[122,-18.5],[128,-19],[134,-21],[139,-23],[140,-27],[137,-30],[132,-31],[126,-30],[121,-28],[117,-25],[118,-20]]},
+ {n:'Atacama',c:[[-70.3,-18],[-69.2,-18.5],[-68.8,-24],[-69.5,-28],[-71.3,-27],[-70.5,-23],[-70.3,-18]]},
+ {n:'Déserts nord-américains',c:[[-120,41],[-114,42],[-111,40],[-110,35],[-109,31.5],[-112,29],[-114.5,30],[-116,33],[-118.5,35],[-119.5,38],[-120,41]]},
+ {n:'Patagonie',c:[[-71,-40],[-66,-40],[-65,-44],[-67,-47],[-69,-51],[-71.5,-50],[-71.5,-45],[-71,-40]]},
+];
+const SEAS = [
+ ['Océan Atlantique',-40,30,2],['Océan Atlantique',-15,-25,2],['Océan Pacifique',-145,15,2],['Océan Pacifique',-120,-30,2],['Océan Pacifique',165,22,2],
+ ['Océan Indien',78,-20,2],['Océan Arctique',-10,84,2],['Océan Austral',60,-60,2],['Océan Austral',-120,-64,2],
+ ['Mer Méditerranée',18,34.4,1],['Mer Noire',34.5,43.3,1],['Mer Caspienne',50.7,42,1],['Mer Rouge',38.5,20.5,1],['Golfe Persique',51,27.2,1],
+ ["Mer d'Arabie",64,15,1],['Golfe du Bengale',88,15,1],['Mer de Chine méridionale',114,13,1],['Mer de Chine orientale',126,29,1],
+ ['Mer du Japon',134,40.5,1],["Mer d'Okhotsk",149,55,1],['Mer de Béring',-178,58,1],["Golfe d'Alaska",-145,56,1],['Golfe du Mexique',-90,25,1],
+ ['Mer des Caraïbes',-75,15,1],["Baie d'Hudson",-85,60,1],['Mer du Labrador',-55,58,1],['Mer du Nord',3,56,1],['Mer Baltique',19,57.5,1],
+ ['Mer de Norvège',3,68,1],['Mer de Barents',40,73,1],['Mer de Corail',155,-17,1],['Mer de Tasman',161,-39,1],['Canal du Mozambique',41,-18,1],
+ ['Golfe de Guinée',3,1.5,1],['Mer des Philippines',132,18,1],["Mer d'Arafura",135,-9.8,1],['Mer de Weddell',-45,-71,1],['Mer de Ross',-175,-75,1],
+ ['Manche',-2.5,50,1],['Mer Égée',25,38.5,1],['Mer Adriatique',15.5,43,1],['Mer de Kara',70,75,1],['Mer de Sibérie orientale',165,73,1],
+];
+
+/* ================== QUESTIONS : [pays (code ISO3), question, anecdote] ================== */
+const QUESTIONS = [
+['ESP',"Dans quel pays se déroule chaque année la Tomatina, une gigantesque bataille de tomates ?","À Buñol, près de Valence, des milliers de participants se lancent environ 120 tonnes de tomates bien mûres le dernier mercredi d'août. La tradition serait née en 1945 d'une bagarre entre jeunes… sur un étal de légumes !"],
+['FRA',"Quel pays possède le plus de fuseaux horaires au monde, grâce à ses territoires d'outre-mer ?","Avec la Polynésie, la Réunion, la Nouvelle-Calédonie ou Saint-Pierre-et-Miquelon, ce pays s'étale sur 12 fuseaux horaires : quand il est midi à Paris en hiver, il est déjà 23 h à Wallis-et-Futuna."],
+['SWE',"Quel pays compte le plus d'îles au monde, plus de 267 000 ?","On y recense 267 570 îles, dont moins de 1 000 sont habitées. L'archipel de Stockholm à lui seul en compte environ 30 000 !"],
+['FIN',"Dans quel pays trouve-t-on environ 3 millions de saunas pour 5,6 millions d'habitants ?","Le sauna y est une institution : il y en a dans les appartements, les entreprises, et même un dans une cabine de grande roue à Helsinki et un autre dans un restaurant Burger King."],
+['CAN',"Quel pays compte plus de lacs que tout le reste du monde réuni, selon une estimation souvent citée ?","Le pays possède aussi le plus long littoral du monde : plus de 200 000 km de côtes."],
+['CHE',"Dans quel pays la barre de chocolat Toblerone a-t-elle dû retirer une montagne de son emballage ?","Le Cervin figurait sur le logo, mais une loi impose qu'un produit « suisse » soit fabriqué en Suisse. En 2023, une partie de la production étant partie en Slovaquie, la célèbre montagne a disparu de la boîte."],
+['AUS',"Dans quel pays y a-t-il plus de kangourous que d'habitants ?","On estime qu'il y a environ 40 à 50 millions de kangourous pour quelque 27 millions d'humains. Un kangourou ne sait pas marcher à reculons : on raconte que c'est pour cela qu'il figure sur les armoiries du pays, qui va « toujours de l'avant »."],
+['BEL',"Quel pays revendique l'invention des frites et leur a consacré un musée à Bruges ?","Selon la légende, les habitants de la vallée de la Meuse faisaient frire des petits poissons ; l'hiver, quand la rivière gelait, ils les remplaçaient par des pommes de terre taillées en forme de poisson."],
+['KHM',"Dans quel pays se trouve Angkor Vat, le plus grand monument religieux du monde ?","Ce temple du XIIᵉ siècle est si important pour le pays qu'il figure sur son drapeau national : c'est l'un des seuls drapeaux au monde à représenter un bâtiment."],
+['MDG',"Dans quel pays vivent les lémuriens, qu'on ne trouve nulle part ailleurs à l'état sauvage ?","Plus de 100 espèces de lémuriens n'existent que sur cette île. Le pays produit aussi environ 80 % de la vanille mondiale."],
+['SDN',"Quel pays compte plus de pyramides que l'Égypte ?","Les pyramides nubiennes de Méroé, construites par les rois de Koush, sont environ 200 : bien plus que les pyramides égyptiennes, mais plus petites et plus pointues."],
+['VEN',"Dans quel pays se trouve la plus haute chute d'eau du monde, le Salto Ángel ?","Elle plonge de 979 mètres, soit presque 3 fois la hauteur de la tour Eiffel. Elle porte le nom de l'aviateur américain Jimmie Angel, qui l'a survolée en 1933."],
+['NZL',"Quel pays a été le premier au monde à accorder le droit de vote aux femmes, en 1893 ?","C'était 51 ans avant la France (1944). Kate Sheppard, la militante qui a mené ce combat, figure aujourd'hui sur le billet de 10 dollars du pays."],
+['PER',"Dans quel pays se trouve le Machu Picchu, la cité inca perchée dans les Andes ?","Construite au XVᵉ siècle à 2 430 m d'altitude, la cité a été révélée au monde en 1911 par l'explorateur Hiram Bingham, qui aurait inspiré le personnage d'Indiana Jones."],
+['RWA',"Quel pays est surnommé « le pays des mille collines » ?","Ce petit pays d'Afrique de l'Est est aussi un pionnier de l'écologie : les sacs plastiques y sont interdits depuis 2008, et les valises sont parfois fouillées à l'aéroport pour les traquer !"],
+['SGP',"Dans quel pays la vente de chewing-gum est-elle interdite depuis 1992 ?","Le gouvernement en avait assez de retrouver des chewing-gums collés sur les portes du métro. Seuls les chewing-gums « thérapeutiques » sont vendus en pharmacie, depuis 2004."],
+['NGA',"Quel est le pays le plus peuplé d'Afrique ?","Avec environ 230 millions d'habitants, il est aussi le pays de « Nollywood », une industrie du cinéma qui produit plus de films par an qu'Hollywood !"],
+['IND',"Dans quel pays se trouve le Taj Mahal ?","Ce mausolée de marbre blanc a été construit au XVIIᵉ siècle par l'empereur Shah Jahan en mémoire de son épouse Mumtaz Mahal. Environ 20 000 ouvriers y ont travaillé pendant plus de 20 ans."],
+['IDN',"Quel pays compte le plus de volcans actifs au monde, environ 130 ?","En 1815, l'éruption du Tambora y a été si violente que ses cendres ont refroidi la planète : 1816 est restée dans l'histoire comme « l'année sans été » en Europe."],
+['RUS',"Dans quel pays se trouve le lac Baïkal, le plus profond du monde ?","Profond de 1 642 m et vieux d'environ 25 millions d'années, il contient à lui seul environ 20 % de l'eau douce liquide de la planète. L'hiver, on peut traverser sa glace en voiture."],
+['JOR',"Dans quel pays se trouve Pétra, la cité taillée dans la roche rose ?","Sculptée par les Nabatéens il y a plus de 2 000 ans, elle a servi de décor au film « Indiana Jones et la Dernière Croisade » en 1989."],
+['ARE',"Dans quel pays se dresse la Burj Khalifa, la plus haute tour du monde ?","Elle culmine à 828 mètres. Au sommet, le soleil se couche quelques minutes plus tard qu'au pied de la tour : certains habitants peuvent donc voir le coucher de soleil deux fois !"],
+['BOL',"Quel pays a son siège du gouvernement dans la ville la plus haute du monde ?","La Paz est perchée à environ 3 640 m d'altitude. On s'y déplace en téléphérique : son réseau urbain, Mi Teleférico, est le plus grand du monde."],
+['USA',"Dans quel pays se trouve la statue de la Liberté, offerte par la France ?","Offerte en 1886, elle a été dessinée par Bartholdi, et sa structure métallique intérieure a été conçue par… Gustave Eiffel. Sa couleur verte vient de l'oxydation du cuivre."],
+['JAM',"Quel pays tropical a envoyé une équipe de bobsleigh aux Jeux olympiques d'hiver de 1988 ?","Cette équipe improbable, venue d'une île où il ne neige jamais, a inspiré le film « Rasta Rockett ». C'est aussi le pays de Bob Marley et du reggae."],
+['CRI',"Quel pays a supprimé son armée en 1948 ?","L'argent économisé a été investi dans l'éducation et la santé. Le pays abrite environ 5 % de la biodiversité mondiale sur seulement 0,03 % des terres émergées."],
+['PAN',"Dans quel pays se trouve le canal qui relie l'Atlantique et le Pacifique ?","Les navires y paient selon leur poids. En 1928, l'aventurier Richard Halliburton l'a traversé à la nage et a payé le péage le plus bas de l'histoire : 36 centimes."],
+['BRA',"Dans quel pays se déroule le plus grand carnaval du monde ?","Le carnaval de Rio réunit environ 2 millions de personnes par jour dans les rues. Les écoles de samba préparent leur défilé pendant toute l'année !"],
+['ARG',"Dans quel pays se trouve Ushuaïa, surnommée « la ville du bout du monde » ?","C'est l'une des villes les plus australes du monde, point de départ de nombreuses expéditions vers l'Antarctique. Elle a donné son nom à une célèbre émission de télévision française."],
+['CHL',"Dans quel pays peut-on voir les moaïs de l'île de Pâques ?","Ces quelque 900 statues géantes ont été sculptées par le peuple Rapa Nui. L'île, perdue dans le Pacifique, est à plus de 3 500 km des côtes du pays."],
+['ECU',"Quel pays doit son nom à la ligne imaginaire qui coupe la Terre en deux ?","Son nom veut dire « équateur » en espagnol. C'est aussi le pays des îles Galápagos, où l'observation des pinsons a aidé Charles Darwin à imaginer sa théorie de l'évolution."],
+['URY',"Quel pays a remporté la toute première Coupe du monde de football, en 1930 ?","Il l'organisait aussi ! Avec environ 3,4 millions d'habitants, c'est le plus petit pays à avoir gagné une Coupe du monde."],
+['COL',"De quel pays proviennent la majorité des émeraudes du monde ?","Les mines de Muzo produisent des émeraudes réputées pour leur vert intense. Le pays est aussi l'un des plus grands producteurs de café et de fleurs coupées."],
+['MEX',"Dans quel pays les Aztèques utilisaient-ils les fèves de cacao comme monnaie ?","Avec une centaine de fèves, on pouvait s'offrir une dinde. Le mot « chocolat » vient d'ailleurs de la langue aztèque, le nahuatl."],
+['CUB',"Dans quel pays roulent encore de nombreuses voitures américaines des années 1950 ?","À cause de l'embargo américain, les habitants ont dû réparer leurs vieilles voitures pendant des décennies avec les moyens du bord. On les appelle les « almendrones »."],
+['EGY',"Dans quel pays se trouvent les pyramides de Gizeh ?","Cléopâtre a vécu plus près de nous dans le temps (et des premiers pas sur la Lune) que de la construction de la Grande Pyramide, bâtie vers 2560 avant J.-C. !"],
+['ETH',"Quel pays d'Afrique utilise un calendrier de 13 mois ?","Son calendrier a environ 7 à 8 ans de « retard » sur le nôtre. C'est aussi l'un des seuls pays d'Afrique à n'avoir jamais été colonisé, malgré une occupation italienne de 1936 à 1941."],
+['MOZ',"Quel pays a une kalachnikov sur son drapeau ?","L'arme, croisée avec une houe, rappelle la lutte pour l'indépendance obtenue en 1975. C'est le seul drapeau national au monde à représenter un fusil d'assaut moderne."],
+['LSO',"Quel pays est entièrement entouré par l'Afrique du Sud ?","C'est le seul pays au monde dont tout le territoire est situé à plus de 1 000 m d'altitude : son point le plus bas est à environ 1 400 m !"],
+['SEN',"Dans quel pays se trouve le Lac Rose, ancienne arrivée du rallye Paris-Dakar ?","Sa couleur rose vient d'une micro-algue qui adore l'eau très salée. On peut y flotter presque sans effort, comme dans la mer Morte."],
+['MAR',"Dans quel pays se trouve la plus ancienne université du monde encore en activité ?","L'université Al Quaraouiyine, à Fès, a été fondée en 859 par une femme, Fatima al-Fihriya. Elle est reconnue comme la plus ancienne par l'UNESCO et le Guinness des records."],
+['TUN',"Dans quel pays ont été tournées les scènes de la planète Tatooine de Star Wars ?","George Lucas a emprunté le nom à la ville de Tataouine. L'hôtel troglodyte de Matmata qui servait de maison à Luke Skywalker accueille toujours des visiteurs."],
+['KEN',"Dans quel pays se trouve la réserve du Masai Mara, théâtre de la Grande Migration ?","Chaque année, environ 1,5 million de gnous, accompagnés de zèbres et de gazelles, traversent la rivière Mara… sous l'œil des crocodiles."],
+['TZA',"Dans quel pays se dresse le Kilimandjaro, le plus haut sommet d'Afrique ?","Il culmine à 5 895 m. Bien qu'il soit presque sur l'équateur, son sommet est couvert de glaciers… qui fondent rapidement à cause du réchauffement climatique."],
+['NAM',"Dans quel pays se trouve le désert du Namib, avec certaines des plus hautes dunes du monde ?","Ces dunes rouges dépassent 300 m de haut. Le Namib serait le plus vieux désert de la planète : environ 55 millions d'années."],
+['MLI',"Dans quel pays se trouve la Grande Mosquée de Djenné, le plus grand édifice en terre crue du monde ?","Chaque année, toute la ville participe à une grande fête pour recouvrir ses murs d'une nouvelle couche de banco (argile), abîmée par les pluies."],
+['DEU',"Dans quel pays se déroule l'Oktoberfest, la plus grande fête de la bière du monde ?","Malgré son nom, elle commence… en septembre ! Elle est née en 1810 pour célébrer le mariage du prince Louis de Bavière."],
+['PRT',"Quel pays produit environ la moitié du liège mondial ?","Les chênes-lièges n'y sont pas abattus : on récolte leur écorce tous les 9 ans environ. Un même arbre peut vivre plus de 200 ans."],
+['IRL',"De quel pays vient la fête d'Halloween ?","Elle descend de Samain, une fête celte qui marquait le début de l'hiver. Avant les citrouilles, on sculptait des navets pour éloigner les mauvais esprits !"],
+['GBR',"Dans quel pays la licorne est-elle l'animal national d'une de ses nations ?","C'est l'animal national de l'Écosse. Sur les armoiries royales, la licorne est enchaînée : selon la légende, c'était le seul moyen de dompter cet animal fier et libre."],
+['NOR',"Dans quel pays près de 9 voitures neuves vendues sur 10 sont électriques ?","Grâce à de gros avantages fiscaux, ce pays producteur de pétrole est devenu le champion mondial de la voiture électrique."],
+['DNK',"Dans quel pays a été inventé le jeu LEGO ?","Créé à Billund en 1932 par un menuisier, son nom vient du danois « leg godt », qui veut dire « joue bien ». On a fabriqué plus de 400 milliards de briques depuis."],
+['ISL',"De quel pays vient le mot « geyser » ?","Il vient du Geysir, une source chaude qui projette de l'eau bouillante dans les airs. Le pays produit presque toute son électricité grâce aux volcans et aux rivières."],
+['GRC',"Dans quel pays sont nés les Jeux olympiques ?","Les premiers jeux connus ont eu lieu à Olympie en 776 avant J.-C. Les athlètes concouraient nus, et les femmes mariées n'avaient pas le droit d'y assister."],
+['ITA',"Dans quel pays est née la pizza Margherita, en l'honneur d'une reine ?","Selon la légende, un pizzaiolo de Naples l'aurait créée en 1889 pour la reine Marguerite, avec les couleurs du drapeau : tomate, mozzarella et basilic."],
+['AUT',"Dans quel pays est né Mozart ?","Né à Salzbourg en 1756, il composait déjà ses premiers morceaux à 5 ans. Il a écrit plus de 600 œuvres en seulement 35 ans de vie."],
+['CZE',"Quel pays possède l'une des plus fortes densités de châteaux au monde, plus de 2 000 ?","Le château de Prague est même considéré comme le plus grand château ancien du monde selon le Guinness des records."],
+['POL',"Dans quel pays est née Marie Curie ?","Née à Varsovie en 1867, elle est la seule personne à avoir reçu deux prix Nobel dans deux sciences différentes : la physique et la chimie."],
+['HUN',"Dans quel pays a été inventé le Rubik's Cube ?","Ernő Rubik, professeur d'architecture à Budapest, l'a inventé en 1974… et a mis un mois à résoudre son propre casse-tête !"],
+['ROU',"Dans quel pays se trouve le château de Bran, associé à Dracula ?","Bram Stoker, l'auteur de « Dracula », n'a jamais mis les pieds dans ce pays. Le personnage s'inspire en partie du prince Vlad l'Empaleur."],
+['TUR',"Dans quel pays se trouve Istanbul, ville à cheval sur deux continents ?","Le Bosphore sépare la ville entre l'Europe et l'Asie. Les tulipes, symbole des Pays-Bas, viennent à l'origine de l'Empire ottoman."],
+['NLD',"Dans quel pays un bulbe de tulipe a-t-il valu le prix d'une maison au XVIIᵉ siècle ?","C'était la « tulipomanie » de 1637, souvent citée comme la première bulle spéculative de l'histoire. Elle s'est effondrée d'un coup."],
+['CHN',"Dans quel pays se trouve la Grande Muraille ?","Contrairement à une idée reçue, elle n'est pas visible à l'œil nu depuis la Lune. En comptant toutes ses sections, elle mesure plus de 20 000 km."],
+['JPN',"Dans quel pays trouve-t-on environ 4 millions de distributeurs automatiques ?","On y achète des boissons chaudes ou froides, des parapluies, des œufs frais et même des cravates. Il y en a environ un pour 30 habitants."],
+['KOR',"Dans quel pays tout le monde prenait un an de plus au Nouvel An, jusqu'en 2023 ?","Avec l'« âge coréen », un bébé avait 1 an à la naissance, et 2 ans dès le 1ᵉʳ janvier suivant. Le pays a adopté l'âge international en juin 2023."],
+['THA',"Quel pays a pour capitale la ville au nom officiel le plus long du monde ?","Le nom complet de Bangkok compte 168 lettres en alphabet latin. Les habitants l'appellent simplement Krung Thep, « la cité des anges »."],
+['VNM',"Dans quel pays se trouve la baie d'Ha Long ?","Son nom signifie « là où le dragon descend » : selon la légende, un dragon aurait créé ses quelque 1 600 îles en crachant des pierres précieuses pour protéger le pays."],
+['NPL',"Quel pays a le seul drapeau national qui ne soit pas rectangulaire ?","Il est formé de deux triangles superposés qui évoquent l'Himalaya. Sa constitution précise même, étape par étape, comment le dessiner."],
+['MNG',"Quel est le pays le moins densément peuplé du monde ?","On y compte environ 2 habitants au km². Les nomades y élèvent des dizaines de millions de chèvres, moutons, chevaux et chameaux."],
+['PNG',"Dans quel pays parle-t-on le plus de langues, environ 840 ?","Les montagnes et les forêts ont isolé les villages pendant des siècles. Il y a parfois une langue différente dans des vallées voisines."],
+['QAT',"Quel pays a accueilli la Coupe du monde de football 2022… en hiver ?","Pour éviter la chaleur, le tournoi a eu lieu en novembre et décembre, une première. Les stades étaient même climatisés."],
+['VAT',"Quel est le plus petit pays du monde ?","Avec 0,44 km², il tiendrait plus de 200 fois dans Paris. Il possède sa propre poste, ses timbres, et une armée : la Garde suisse."],
+];
+
+/* ================== MOTEUR ================== */
+window.addEventListener('error', e=>{ const m=document.getElementById('load-msg'); if(m && document.getElementById('loading')) m.textContent='Erreur : '+e.message; });
+window.addEventListener('unhandledrejection', e=>{ const m=document.getElementById('load-msg'); if(m && document.getElementById('loading')) m.textContent='Erreur : '+(e.reason&&e.reason.message||e.reason); });
+(async function(){
+const $ = s => document.querySelector(s);
+const R_EARTH = 6371;
+const info = new Map(COUNTRIES.map(r => [r[0], {id:r[0], name:r[1], cap:r[2], lat:r[3], lon:r[4], reg:r[5]}]));
+const Q = {active:true, answered:false, done:false, cur:null, history:[], mode:'pays', clicked:null};
+const nameOf = id => info.get(id)?.name || TERRITORIES[id] || null;
+
+// ---------- Chargement des cartes ----------
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+const GEO_URLS = ['https://cdn.jsdelivr.net/npm/plotly.js@2.35.2/dist/plotly-geo-assets.js','https://unpkg.com/plotly.js@2.35.2/dist/plotly-geo-assets.js'];
+let assets = null;
+for (const u of GEO_URLS){ try { await loadScript(u); assets = window.PlotlyGeoAssets; if (assets) break; } catch(e){} }
+if (!assets || !window.d3 || !window.topojson){ $('#load-msg').textContent = "Impossible de charger les cartes. Vérifie ta connexion puis recharge la page."; return; }
+const topos = assets.topojson || assets;
+const T50 = topos.world_50m, T110 = topos.world_110m || topos.world_50m;
+
+function getId(g){
+  let id = g.id ?? g.properties?.id ?? g.properties?.ISO_A3 ?? g.properties?.iso_a3 ?? g.properties?.ADM0_A3 ?? '';
+  id = String(id).toUpperCase(); return ALIAS[id] || id;
+}
+function cleanGeom(g){ // retire les anneaux dégénérés (ex. Fidji) qui font planter d3
+  if (!g) return null;
+  if (g.type==='Polygon'){ const c=g.coordinates.filter(r=>r&&r.length>=4); return c.length?{type:'Polygon',coordinates:c}:null; }
+  if (g.type==='MultiPolygon'){ const c=g.coordinates.map(p=>p.filter(r=>r&&r.length>=4)).filter(p=>p.length); return c.length?{type:'MultiPolygon',coordinates:c}:null; }
+  return g;
+}
+function fixWinding(f){
+  if (f.geometry) f.geometry=cleanGeom(f.geometry);
+  if (!f.geometry) return f;
+  if (d3.geoArea(f) > 2*Math.PI){
+    const g=f.geometry;
+    if (g.type==='Polygon') g.coordinates.forEach(r=>r.reverse());
+    if (g.type==='MultiPolygon') g.coordinates.forEach(p=>p.forEach(r=>r.reverse()));
+  }
+  return f;
+}
+function cleanFC(fc){ if(fc.features){ fc.features.forEach(fixWinding); fc.features=fc.features.filter(f=>f.geometry); } return fc; }
+function prep(topo){
+  const o = topo.objects;
+  const fc = topojson.feature(topo, o.countries);
+  const countries = fc.features.map((f,i)=>{ f.id = getId(o.countries.geometries[i]); return fixWinding(f); }).filter(f=>f.geometry);
+  return {
+    countries,
+    borders: topojson.mesh(topo, o.countries, (a,b)=>a!==b),
+    coast: o.coastlines ? topojson.feature(topo, o.coastlines) : topojson.mesh(topo, o.countries, (a,b)=>a===b),
+    land: o.land ? cleanFC(topojson.feature(topo, o.land)) : {type:'FeatureCollection', features:countries},
+    lakes: o.lakes ? cleanFC(topojson.feature(topo, o.lakes)) : null,
+    rivers: o.rivers ? topojson.feature(topo, o.rivers) : null,
+    neighbors: topojson.neighbors(o.countries.geometries),
+    ids: o.countries.geometries.map(getId)
+  };
+}
+const HI = prep(T50), LO = prep(T110);
+if (HI.land.features) HI.land.features.forEach(fixWinding);
+if (LO.land.features) LO.land.features.forEach(fixWinding);
+const hiById = new Map(); HI.countries.forEach(f=>{ if(!hiById.has(f.id)) hiById.set(f.id,f); else { // fusion de géométries homonymes
+  const a=hiById.get(f.id); const toMP=g=>g.type==='Polygon'?[g.coordinates]:g.coordinates;
+  a.geometry={type:'MultiPolygon',coordinates:toMP(a.geometry).concat(toMP(f.geometry))}; }});
+HI.countries.forEach(f=>{ try{ f.bbox = d3.geoBounds(f); }catch(e){ f.bbox=[[-180,-90],[180,90]]; } });
+
+// voisins (pour les indices)
+const neighborsOf = new Map();
+HI.ids.forEach((id,i)=>{ const s = neighborsOf.get(id) || new Set(); HI.neighbors[i].forEach(j=>{ if (HI.ids[j]!==id) s.add(HI.ids[j]); }); neighborsOf.set(id,s); });
+
+// couleurs naturelles (coloration de graphe : deux voisins n'ont jamais la même teinte)
+const PALETTE = ['#a3bf80','#bccd8e','#cdd59f','#acc792','#d9d2a2','#c2cf95','#97b67c','#cbc48f'];
+const colorOf = new Map();
+HI.ids.forEach((id,i)=>{
+  if (colorOf.has(id)) return;
+  const used = new Set(HI.neighbors[i].map(j=>colorOf.get(HI.ids[j])));
+  let c = PALETTE.find((p,k)=>!used.has(p) && k===((i*5)%PALETTE.length)) || PALETTE.find(p=>!used.has(p)) || PALETTE[i%PALETTE.length];
+  colorOf.set(id,c);
+});
+['GRL','ATA'].forEach(id=>colorOf.set(id,'#e9eff3'));
+
+// points d'étiquette (centre du plus grand morceau)
+function mainPoly(f){
+  if (f._main) return f._main;
+  const g=f.geometry;
+  if (g.type==='MultiPolygon'){ let best=null,ba=-1; for(const c of g.coordinates){ const p={type:'Polygon',coordinates:c}; const a=d3.geoArea(p); if(a>ba){ba=a;best=p;} } f._main=best; }
+  else f._main=g;
+  return f._main;
+}
+hiById.forEach(f=>{ f.labelPt = d3.geoCentroid(mainPoly(f)); f.area = d3.geoArea(f); });
+
+// éléments de relief en GeoJSON
+const lineF = r => ({type:'Feature', properties:{n:r.n,w:r.w}, geometry:{type:'LineString', coordinates:r.c}});
+const polyF = r => fixWinding({type:'Feature', properties:{n:r.n}, geometry:{type:'Polygon', coordinates:[r.c]}});
+const ridgeF = RIDGES.map(lineF), plateauF = PLATEAUS.map(polyF), desertF = DESERTS.map(polyF);
+const graticule = d3.geoGraticule10();
+
+// ---------- Pré-calculs pour le masquage hors champ ----------
+function allCoords(g, out){
+  if (!g) return out;
+  if (g.type==='Point') out.push(g.coordinates);
+  else if (g.type==='LineString'||g.type==='MultiPoint') out.push(...g.coordinates);
+  else if (g.type==='Polygon'||g.type==='MultiLineString') g.coordinates.forEach(r=>out.push(...r));
+  else if (g.type==='MultiPolygon') g.coordinates.forEach(p=>p.forEach(r=>out.push(...r)));
+  else if (g.type==='GeometryCollection') g.geometries.forEach(x=>allCoords(x,out));
+  return out;
+}
+function addCull(f){
+  const pts=allCoords(f.geometry||f,[]); if(!pts.length){ f.cen=[0,0]; f.rad=Math.PI; return f; }
+  f.cen=d3.geoCentroid(f); if(!isFinite(f.cen[0])) f.cen=pts[0];
+  let m=0; const step=Math.max(1,Math.floor(pts.length/400));
+  for(let i=0;i<pts.length;i+=step){ const d=d3.geoDistance(f.cen,pts[i]); if(d>m) m=d; }
+  f.rad=Math.min(Math.PI, m*1.05+0.01); return f;
+}
+function splitLines(geo){ // découpe un maillage en morceaux pour pouvoir masquer ce qui est caché
+  const lines=[]; const push=g=>{ if(!g) return; if(g.type==='LineString') lines.push(g.coordinates); else if(g.type==='MultiLineString') lines.push(...g.coordinates); };
+  if (geo.type==='FeatureCollection') geo.features.forEach(f=>push(f.geometry)); else if (geo.type==='Feature') push(geo.geometry); else push(geo);
+  return lines.map(c=>addCull({type:'Feature',geometry:{type:'LineString',coordinates:c}}));
+}
+function featList(geo){ if(!geo) return []; return (geo.type==='FeatureCollection'?geo.features:[geo]).map(addCull); }
+for (const D of [HI,LO]){
+  D.countries.forEach(addCull);
+  D.landF=featList(D.land); D.lakesF=featList(D.lakes); D.riversF=featList(D.rivers);
+  D.bordersF=splitLines(D.borders); D.coastF=splitLines(D.coast);
+}
+
+const loById=new Map(); LO.countries.forEach(f=>{ if(!loById.has(f.id)) loById.set(f.id,f); });
+// ---------- Canvas & projection ----------
+const cv=$('#globe'), mainCtx=cv.getContext('2d'), sc=$('#stars'), sctx=sc.getContext('2d');
+const bc=document.createElement('canvas'), bctx=bc.getContext('2d');
+const proj = d3.geoOrthographic().clipAngle(90).precision(0.2);
+const path = d3.geoPath(proj), pathA = d3.geoPath(proj);
+let ctx = mainCtx; path.context(ctx);
+function use(c){ ctx=c; path.context(c); }
+let W,H,dpr,area,base=300, rot=[-12,-28,0], zoom=1;
+const ZMIN=0.8, ZMAX=40;
+const layers={relief:true,rivers:true,caps:true,borders:true,seas:true,rnames:false,cnames:false,grat:true};
+
+function drawStars(){
+  sctx.setTransform(dpr,0,0,dpr,0,0); sctx.clearRect(0,0,W,H);
+  const g=sctx.createRadialGradient(W*.35,H*.4,0,W*.35,H*.4,Math.max(W,H)*.8);
+  g.addColorStop(0,'#0b1428'); g.addColorStop(1,'#020308'); sctx.fillStyle=g; sctx.fillRect(0,0,W,H);
+  const rnd=d3.randomLcg(42);
+  for(let i=0;i<(W*H)/2600;i++){ const x=rnd()*W,y=rnd()*H,r=rnd()*1.1+.15; sctx.globalAlpha=rnd()*.7+.15; sctx.fillStyle=rnd()>.85?'#ffe9c4':'#dfe8ff'; sctx.beginPath(); sctx.arc(x,y,r,0,7); sctx.fill(); }
+  sctx.globalAlpha=1;
+}
+function resize(){
+  dpr=Math.min(2,window.devicePixelRatio||1); W=innerWidth; H=innerHeight;
+  [cv,sc,bc].forEach(c=>{ c.width=Math.round(W*dpr); c.height=Math.round(H*dpr); });
+  area = layoutArea();
+  base = Math.min(area.w, area.h)*(ROLE==='player'?0.46:0.44);
+  proj.translate([area.x+area.w/2, area.y+area.h/2]);
+  lastKey=''; drawStars(); req();
+}
+window.addEventListener('resize', resize);
+
+let needs=false, moving=false, lastT=0, vel=[0,0], anim=null, autoSpin=true, dragging=false, settleTimer=null;
+function req(){ if(!needs){ needs=true; requestAnimationFrame(frame); } }
+const clampLat = v => Math.max(-89, Math.min(89, v));
+function frame(t){
+  needs=false;
+  const dt = lastT ? Math.min(50, t-lastT) : 16; lastT=t;
+  let active=false;
+  if (anim){
+    const k=Math.min(1,(t-anim.t0)/anim.dur), e=d3.easeCubicInOut(k);
+    rot=[anim.r0[0]+(anim.r1[0]-anim.r0[0])*e, anim.r0[1]+(anim.r1[1]-anim.r0[1])*e, 0];
+    zoom=anim.z0*Math.pow(anim.z1/anim.z0,e);
+    if(k>=1) anim=null; active=true;
+  } else if (!dragging && (Math.abs(vel[0])>0.005 || Math.abs(vel[1])>0.005)){
+    rot[0]+=vel[0]; rot[1]=clampLat(rot[1]+vel[1]); vel[0]*=0.93; vel[1]*=0.93; active=true;
+  } else if (autoSpin && !dragging){ rot[0]+=dt*0.005; active=true; }
+  moving = active || dragging || wheeling;
+  render();
+  if (active) req(); else lastT=0;
+}
+let wheeling=false, wheelTimer=null;
+function markWheel(){ wheeling=true; clearTimeout(wheelTimer); wheelTimer=setTimeout(()=>{ wheeling=false; req(); },160); }
+function animateTo(lonlat, z1, dur=1100){
+  autoSpin=false; vel=[0,0];
+  const r0=[rot[0],rot[1]]; const r1=[-lonlat[0], clampLat(-lonlat[1])];
+  while(r1[0]-r0[0]>180) r1[0]-=360; while(r1[0]-r0[0]<-180) r1[0]+=360;
+  anim={t0:performance.now(), dur, r0, r1, z0:zoom, z1:Math.max(ZMIN,Math.min(ZMAX,z1??zoom))};
+  lastT=0; req();
+}
+
+// ---------- Rendu ----------
+let hoverId=null, selectedId=null, lastKey='';
+function center(){ return [-rot[0], -rot[1]]; }
+function visible(ll, lim=Math.PI/2-0.03){ return d3.geoDistance(ll, center()) < lim; }
+let viewAng=Math.PI/2, ctr=[0,0];
+function inView(f){ return d3.geoDistance(f.cen, ctr) - f.rad < viewAng; }
+function drawSet(list){ for (const f of list) if (inView(f)) path(f); }
+function pathOf(list){ const p=new Path2D(); path.context(p); drawSet(list); path.context(ctx); return p; }
+
+function render(){
+  proj.scale(base*zoom).rotate(rot);
+  ctr=center();
+  const half=Math.hypot(area.w,area.h)/2, s=proj.scale();
+  viewAng = s>half ? Math.min(Math.PI/2, Math.asin(half/s)+0.05) : Math.PI/2;
+  const lowRes = moving && zoom<2.5;
+  const key=[rot[0].toFixed(3),rot[1].toFixed(3),zoom.toFixed(4),lowRes,JSON.stringify(layers),Q.active,Q.answered,Q.done,moving,Q.history.length].join('|');
+  if (key!==lastKey){ use(bctx); renderBase(lowRes ? LO : HI); lastKey=key; }
+  use(mainCtx);
+  mainCtx.setTransform(1,0,0,1,0,0); mainCtx.clearRect(0,0,cv.width,cv.height); mainCtx.drawImage(bc,0,0);
+  mainCtx.setTransform(dpr,0,0,dpr,0,0);
+  renderOverlay();
+}
+
+function renderBase(D){
+  const r = proj.scale(), [cx,cy] = proj.translate();
+  const zs = Math.sqrt(zoom);
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+
+  // halo atmosphérique
+  let g=ctx.createRadialGradient(cx,cy,r*.96,cx,cy,r*1.18);
+  g.addColorStop(0,'rgba(120,180,255,.42)'); g.addColorStop(.35,'rgba(90,150,255,.14)'); g.addColorStop(1,'rgba(80,140,255,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r*1.18,0,7); ctx.fill();
+
+  // océan
+  g=ctx.createRadialGradient(cx-r*.35,cy-r*.4,r*.05,cx,cy,r);
+  g.addColorStop(0,'#3a8cc2'); g.addColorStop(.55,'#1d6195'); g.addColorStop(1,'#0b2f52');
+  ctx.beginPath(); path({type:'Sphere'}); ctx.fillStyle=g; ctx.fill();
+
+  if (layers.grat){ ctx.beginPath(); path(graticule); ctx.strokeStyle='rgba(255,255,255,.07)'; ctx.lineWidth=.6; ctx.stroke(); }
+
+  const landP = pathOf(D.landF);
+  // plateau continental (liseré clair le long des côtes)
+  ctx.strokeStyle='rgba(120,200,235,.22)'; ctx.lineWidth=Math.min(10,4*zs); ctx.lineJoin='round'; ctx.stroke(landP);
+
+  // terres, regroupées par couleur
+  const groups=new Map();
+  for (const f of D.countries){ if(!inView(f)) continue; const c=colorOf.get(f.id)||'#bccd8e'; let p=groups.get(c); if(!p){ p=new Path2D(); groups.set(c,p); } path.context(p); path(f); }
+  path.context(ctx);
+  for (const [c,p] of groups){ ctx.fillStyle=c; ctx.fill(p); }
+  // pays déjà demandés : restent en surbrillance (couleur du joueur, rouge si raté)
+  for (const h of Q.history){
+    const f=(D===LO && loById.get(h.id)) || hiById.get(h.id); if(!f || !inView(f)) continue;
+    ctx.globalAlpha=.62; ctx.beginPath(); path(f); ctx.fillStyle=h.color; ctx.fill(); ctx.globalAlpha=1;
+  }
+
+  // reliefs, déserts (limités aux terres)
+  if (layers.relief){
+    ctx.save(); ctx.clip(landP);
+    ctx.globalAlpha=.45; ctx.fillStyle='#e6d29d';
+    for (const f of desertF){ ctx.beginPath(); path(f); ctx.fill(); }
+    ctx.globalAlpha=.30; ctx.fillStyle='#9a7448';
+    for (const f of plateauF){ ctx.beginPath(); path(f); ctx.fill(); }
+    ctx.globalAlpha=1; ctx.lineCap='round'; ctx.lineJoin='round';
+    const bw = Math.min(26, 5.5*zs);
+    for (const f of ridgeF){ ctx.beginPath(); path(f); ctx.strokeStyle='rgba(92,62,32,.30)'; ctx.lineWidth=bw*f.properties.w*2.1; ctx.stroke(); }
+    for (const f of ridgeF){ ctx.beginPath(); path(f); ctx.strokeStyle='rgba(122,86,50,.55)'; ctx.lineWidth=bw*f.properties.w*1.05; ctx.stroke(); }
+    ctx.save(); ctx.translate(-bw*.18,-bw*.18);
+    for (const f of ridgeF){ ctx.beginPath(); path(f); ctx.strokeStyle='rgba(255,248,238,.55)'; ctx.lineWidth=Math.max(.8,bw*f.properties.w*.28); ctx.stroke(); }
+    ctx.restore(); ctx.restore();
+  }
+
+  // lacs & fleuves
+  if (layers.rivers){
+    const lp=pathOf(D.lakesF); ctx.fillStyle='#2c77ad'; ctx.fill(lp); ctx.strokeStyle='rgba(140,200,240,.6)'; ctx.lineWidth=.5; ctx.stroke(lp);
+    ctx.strokeStyle='rgba(58,132,196,.9)'; ctx.lineWidth=Math.min(2.6,.55*zs); ctx.lineCap='round'; ctx.stroke(pathOf(D.riversF));
+  }
+
+  // frontières & côtes
+  if (layers.borders){ ctx.strokeStyle='rgba(255,252,240,.85)'; ctx.lineWidth=Math.min(1.6,.55*zs); ctx.stroke(pathOf(D.bordersF)); }
+  ctx.strokeStyle='rgba(30,70,100,.55)'; ctx.lineWidth=Math.min(1.4,.5*zs); ctx.stroke(pathOf(D.coastF));
+
+  // éclairage 3D
+  g=ctx.createRadialGradient(cx-r*.4,cy-r*.45,r*.1,cx,cy,r*1.02);
+  g.addColorStop(0,'rgba(255,255,255,.10)'); g.addColorStop(.45,'rgba(255,255,255,0)'); g.addColorStop(.85,'rgba(0,8,30,.28)'); g.addColorStop(1,'rgba(0,6,24,.62)');
+  ctx.beginPath(); path({type:'Sphere'}); ctx.fillStyle=g; ctx.fill();
+
+  // noms des mers
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  if (layers.seas){
+    for (const [n,lon,lat,lvl] of SEAS){
+      if (lvl===1 && zoom<1.7) continue;
+      if (lvl===2 && zoom>7) continue;
+      const d=d3.geoDistance([lon,lat],ctr); if(d>1.3) continue;
+      const p=proj([lon,lat]); if(!p) continue;
+      ctx.globalAlpha=Math.min(1,(1.3-d)/.35);
+      if (lvl===2){ ctx.font=`600 ${Math.round(11+2*Math.min(zs,2))}px Inter,sans-serif`; if('letterSpacing' in ctx) ctx.letterSpacing='3px'; ctx.fillStyle='rgba(205,232,255,.62)'; ctx.fillText(n.toUpperCase(),p[0],p[1]); if('letterSpacing' in ctx) ctx.letterSpacing='0px'; }
+      else { ctx.font=`italic 500 ${Math.round(11+Math.min(zs,3))}px Fraunces,serif`; ctx.fillStyle='rgba(215,236,255,.78)'; ctx.fillText(n,p[0],p[1]); }
+    }
+    ctx.globalAlpha=1;
+  }
+  // noms des reliefs
+  if (layers.relief && layers.rnames && zoom>=1.4){
+    ctx.font=`italic 600 ${Math.round(10+Math.min(zs,3))}px Fraunces,serif`;
+    for (const rd of RIDGES){ const pt=rd.c[Math.floor(rd.c.length/2)]; if(!visible(pt,1.25)) continue; const p=proj(pt);
+      ctx.lineWidth=3; ctx.strokeStyle='rgba(255,250,235,.75)'; ctx.strokeText(rd.n,p[0],p[1]-10); ctx.fillStyle='#5b3b1c'; ctx.fillText(rd.n,p[0],p[1]-10); }
+    if (zoom>=2.2) for (const pl of [...PLATEAUS,...DESERTS]){ const pt=d3.geoCentroid({type:'Polygon',coordinates:[pl.c]}); if(!visible(pt,1.2)) continue; const p=proj(pt);
+      ctx.lineWidth=3; ctx.strokeStyle='rgba(255,250,235,.6)'; ctx.strokeText(pl.n,p[0],p[1]); ctx.fillStyle='#6b4a22'; ctx.fillText(pl.n,p[0],p[1]); }
+  }
+
+  // capitales ■
+  if (layers.caps){
+    const s = Math.max(3.2, Math.min(8, 2.6+zoom*.55));
+    const showNames = zoom>=4 && !moving && (!Q.active || Q.done);
+    for (const c of info.values()){
+      const ll=[c.lon,c.lat]; if(!visible(ll)) continue; const p=proj(ll);
+      ctx.fillStyle='#fffaf0'; ctx.strokeStyle='#2a1d12'; ctx.lineWidth=1.1;
+      ctx.fillRect(p[0]-s/2,p[1]-s/2,s,s); ctx.strokeRect(p[0]-s/2,p[1]-s/2,s,s);
+      if (showNames){
+        ctx.font='600 11px Inter,sans-serif'; ctx.textAlign='left'; ctx.lineWidth=3; ctx.strokeStyle='rgba(255,255,255,.8)';
+        ctx.strokeText(c.cap,p[0]+s,p[1]-s); ctx.fillStyle='#1d140b'; ctx.fillText(c.cap,p[0]+s,p[1]-s); ctx.textAlign='center';
+      }
+    }
+  }
+
+  // noms des pays (exploration seulement)
+  if (layers.cnames && !moving && (!Q.active || Q.done)){
+    ctx.font=`600 ${Math.round(10+Math.min(zs,2.5))}px Inter,sans-serif`;
+    for (const [id,f] of hiById){
+      const nm=nameOf(id); if(!nm || !visible(f.labelPt,1.3)) continue;
+      const a=pathA.area(f._main||mainPoly(f)); if(a<1800) continue;
+      const p=proj(f.labelPt); ctx.lineWidth=3; ctx.strokeStyle='rgba(20,30,20,.55)'; ctx.strokeText(nm,p[0],p[1]+10); ctx.fillStyle='#fff'; ctx.fillText(nm,p[0],p[1]+10);
+    }
+  }
+  // étiquettes des pays déjà demandés
+  if (Q.history.length){
+    ctx.font='600 12px Inter,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    const placed=[]; // évite que les étiquettes se chevauchent (les plus récentes d'abord)
+    for (let k=Q.history.length-1;k>=0;k--){ const h=Q.history[k];
+      if (Q.answered && Q.cur && Q.cur.id===h.id) continue;
+      const c=info.get(h.id); const f=hiById.get(h.id);
+      const pt = (h.mode==='cap' || !f) ? [c.lon,c.lat] : f.labelPt;
+      if (!visible(pt,1.45)) continue;
+      const p=proj(pt); const txt = h.mode==='cap' ? c.cap : c.name;
+      const w=ctx.measureText(txt).width+18, y=p[1]-(h.mode==='cap'?16:0);
+      const box=[p[0]-w/2-2,y-12,p[0]+w/2+2,y+12];
+      if (placed.some(q=>box[0]<q[2]&&box[2]>q[0]&&box[1]<q[3]&&box[3]>q[1])) continue;
+      placed.push(box);
+      ctx.fillStyle='rgba(8,14,26,.82)'; roundRect(p[0]-w/2,y-10,w,20,10); ctx.fill();
+      ctx.strokeStyle=h.color; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.fillText(txt,p[0],y+.5);
+    }
+  }
+}
+
+function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+// ---------- Détection ----------
+function inBox(b,[lon,lat]){ if(lat<b[0][1]-.01||lat>b[1][1]+.01) return false; return b[0][0]<=b[1][0] ? (lon>=b[0][0]-.01&&lon<=b[1][0]+.01) : (lon>=b[0][0]||lon<=b[1][0]); }
+function featureAt(ll){
+  let best=null;
+  for (const f of HI.countries){ if(!inBox(f.bbox,ll)) continue; if(d3.geoContains(f,ll)){ const id=f.id; if(!best || (hiById.get(id)?.area||1) < (hiById.get(best)?.area||1)) best=id; } }
+  return best;
+}
+function invertPt(x,y){ const [tx,ty]=proj.translate(); if(Math.hypot(x-tx,y-ty)>proj.scale()) return null; const ll=proj.invert([x,y]); return ll && isFinite(ll[0]) ? ll : null; }
+function nearest(ll,t){
+  const f=hiById.get(t.id);
+  if (!f) return {d:d3.geoDistance(ll,[t.lon,t.lat])*R_EARTH, p:[t.lon,t.lat]};
+  let bd=Infinity,bp=null; const g=f.geometry; const polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;
+  for (const poly of polys) for (const ring of poly) for (let i=0;i<ring.length;i+= (ring.length>4000?3:1)){ const d=d3.geoDistance(ll,ring[i]); if(d<bd){bd=d;bp=ring[i];} }
+  return {d:bd*R_EARTH, p:bp};
+}
+
+// ---------- Interactions ----------
+const tip={style:{}};
+const pointers=new Map(); let drag=null, pinch=null, lastMoveT=0, hoverPending=null;
+cv.addEventListener('pointerdown', e=>{
+  cv.setPointerCapture(e.pointerId); pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  autoSpin=false; anim=null; vel=[0,0];
+  if (pointers.size===1){ drag={x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,moved:false}; }
+  else if (pointers.size===2){ const [a,b]=[...pointers.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y), z:zoom}; drag=null; dragging=true; }
+});
+cv.addEventListener('pointermove', e=>{
+  if (pointers.has(e.pointerId)) pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if (pinch && pointers.size===2){ const [a,b]=[...pointers.values()]; zoom=Math.max(ZMIN,Math.min(ZMAX,pinch.z*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d)); req(); return; }
+  if (drag){
+    const dx=e.clientX-drag.x, dy=e.clientY-drag.y; drag.x=e.clientX; drag.y=e.clientY;
+    if (!drag.moved && Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>4){ drag.moved=true; dragging=true; cv.classList.add('dragging'); tip.style.display='none'; }
+    if (drag.moved){ const k=57.2958/(base*zoom); rot[0]+=dx*k; rot[1]=clampLat(rot[1]-dy*k); vel=[dx*k,-dy*k]; lastMoveT=performance.now(); req(); }
+    return;
+  }
+});
+function endPointer(e){
+  pointers.delete(e.pointerId);
+  if (pinch){ if(pointers.size<2){ pinch=null; dragging=false; drag=null; req(); } return; }
+  if (drag){
+    if (!drag.moved) handleClick(e.clientX,e.clientY);
+    else if (performance.now()-lastMoveT>80) vel=[0,0];
+    drag=null; dragging=false; cv.classList.remove('dragging'); req();
+  }
+}
+cv.addEventListener('pointerup', endPointer); cv.addEventListener('pointercancel', endPointer);
+cv.addEventListener('pointerleave', ()=>{ if(!drag){ hoverId=null; tip.style.display='none'; req(); } });
+cv.addEventListener('wheel', e=>{ e.preventDefault(); autoSpin=false; anim=null; zoom=Math.max(ZMIN,Math.min(ZMAX,zoom*Math.exp(-e.deltaY*0.0016))); markWheel(); req(); }, {passive:false});
+function doHover(){
+  if (!hoverPending) return; const [x,y]=hoverPending; hoverPending=null;
+  const ll=invertPt(x,y); const id = ll ? featureAt(ll) : null;
+  if (id!==hoverId){ hoverId=id; req(); }
+  const quizHidden = Q.active && !Q.done;
+  if (id && !quizHidden){
+    const c=info.get(id); const nm=nameOf(id);
+    if (nm){ tip.innerHTML = `<b>${nm}</b>${c?`<small>Capitale : ${c.cap}</small>`:''}`; tip.style.left=x+'px'; tip.style.top=y+'px'; tip.style.display='block'; return; }
+  }
+  tip.style.display='none';
+}
+$('#zin').onclick=()=>{ animateTo(center(), zoom*1.6, 400); };
+$('#zout').onclick=()=>{ animateTo(center(), zoom/1.6, 400); };
+$('#zreset').onclick=()=>{ animateTo(center(), 1, 700); };
+
+
+// =====================================================================
+//                        GÉOQUIZ PARTY : LOGIQUE DE JEU
+// =====================================================================
+const ROOM = (new URLSearchParams(location.search).get('salle')||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const ROLE = ROOM ? 'player' : 'host';
+const PEER_PREFIX = 'geoquizparty-';
+const NO_ANSWER = 20000;
+const FR_VIEW = [2.4, 46.6];
+const PCOL = ['#ff5a5f','#4ea8ff','#2fd17a','#f2c14e','#d27dff','#ff9f43','#38d9c8','#ff6fb5','#a3e635','#8b9dff','#f97316','#22d3ee','#e879f9','#facc15','#60a5fa','#fb7185'];
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtKm = d => Math.round(d).toLocaleString('fr-FR')+' km';
+const ord = n => n===1 ? '1ᵉʳ' : n+'ᵉ';
+const fmtPts = n => Math.round(n).toLocaleString('fr-FR');
+const G = {reveal:null, pins:[]};   // ce que le globe affiche par-dessus
+
+// distance d'un repère au pays : 0 si dedans
+function distTo(ll, t){
+  const f=hiById.get(t.id);
+  if (f && featureAt(ll)===t.id) return {d:0, p:ll};
+  if ((!f || f.area<6e-5) && d3.geoDistance(ll,[t.lon,t.lat])*R_EARTH < 150) return {d:0, p:[t.lon,t.lat]};
+  return nearest(ll,t);
+}
+function countryZoom(t){
+  const tf=hiById.get(t.id); if(!tf || tf.area<6e-5) return 6;
+  const b=d3.geoBounds(mainPoly(tf)); let lonSpan=b[1][0]-b[0][0]; if(lonSpan<0) lonSpan+=360;
+  const span=Math.max(b[1][1]-b[0][1], lonSpan*Math.cos(tf.labelPt[1]*Math.PI/180));
+  return Math.max(1,Math.min(7,42/Math.max(span,1)));
+}
+function focusReveal(t, pts){
+  const tf=hiById.get(t.id), focus=tf?tf.labelPt:[t.lon,t.lat];
+  let z=countryZoom(t);
+  for (const ll of pts){ const a=d3.geoDistance(ll,focus); if(a>0.04 && a<1.5) z=Math.min(z, Math.max(1, 1.1/a)); }
+  animateTo(focus, z, 1300);
+}
+function resetGlobeForQuestion(){
+  G.reveal=null; G.pins=[]; Q.cur=null; Q.answered=false; Q.done=false;
+  animateTo(FR_VIEW, 1, 900);
+}
+
+// ---------- Dessin par-dessus le globe : bonne réponse + repères ----------
+function drawPin(x,y,color,big){
+  const r=big?10:7.5;
+  ctx.save(); ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=6; ctx.shadowOffsetY=2;
+  ctx.beginPath(); ctx.moveTo(x,y);
+  ctx.bezierCurveTo(x-r*1.25,y-r*1.4,x-r*1.05,y-r*2.7,x,y-r*2.7);
+  ctx.bezierCurveTo(x+r*1.05,y-r*2.7,x+r*1.25,y-r*1.4,x,y);
+  ctx.fillStyle=color; ctx.fill(); ctx.restore();
+  ctx.lineWidth=2; ctx.strokeStyle='#fff'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(x,y-r*1.8,r*.38,0,7); ctx.fillStyle='#fff'; ctx.fill();
+  return y-r*2.7;
+}
+function pill(x,y,txt,bg,fg,border,font='700 13px Inter,sans-serif'){
+  ctx.font=font; const w=ctx.measureText(txt).width+16, h=22;
+  ctx.fillStyle=bg; roundRect(x-w/2,y-h/2,w,h,11); ctx.fill();
+  if(border){ ctx.strokeStyle=border; ctx.lineWidth=1.5; ctx.stroke(); }
+  ctx.fillStyle=fg; ctx.fillText(txt,x,y+.5);
+  return [x-w/2,y-h/2,x+w/2,y+h/2];
+}
+function renderOverlay(){
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const fillId=(id,col,a)=>{ const f=hiById.get(id); if(!f) return; ctx.globalAlpha=a; ctx.beginPath(); path(f); ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1; };
+  const strokeId=(id,col,w)=>{ const f=hiById.get(id); if(!f) return; ctx.beginPath(); path(f); ctx.strokeStyle=col; ctx.lineWidth=w; ctx.stroke(); };
+  let target=null;
+  if (G.reveal){
+    target=info.get(G.reveal.id); const tf=hiById.get(target.id);
+    fillId(target.id,'#2fd17a',.7); strokeId(target.id,'#d6ffe6',2.2);
+    const cl=[target.lon,target.lat];
+    if ((!tf || tf.area<6e-5) && visible(cl)){ const p=proj(cl); ctx.beginPath(); ctx.arc(p[0],p[1],16,0,7); ctx.strokeStyle='#2fd17a'; ctx.lineWidth=3; ctx.stroke(); ctx.beginPath(); ctx.arc(p[0],p[1],24,0,7); ctx.strokeStyle='rgba(47,209,122,.45)'; ctx.lineWidth=2; ctx.stroke(); }
+  }
+  // traits pointillés entre chaque repère et le point le plus proche du pays
+  for (const pn of G.pins){ if(pn.to && pn.dist>0){ ctx.beginPath(); path({type:'LineString',coordinates:[pn.ll,pn.to]}); ctx.setLineDash([6,5]); ctx.strokeStyle=pn.color; ctx.globalAlpha=.85; ctx.lineWidth=2; ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1; } }
+  const placed=[];
+  if (target){ const tf=hiById.get(target.id); const lp=tf?tf.labelPt:[target.lon,target.lat]; if(visible(lp)){ const p=proj(lp); placed.push(pill(p[0],p[1]-30,target.name,'rgba(8,40,22,.94)','#bdf5d3','#2fd17a','800 16px Inter,sans-serif')); } }
+  const order=G.pins.slice().sort((a,b)=>(a.me?1:0)-(b.me?1:0));
+  for (const pn of order){
+    if (!visible(pn.ll)) continue; const p=proj(pn.ll);
+    const top=drawPin(p[0],p[1],pn.color,pn.me);
+    if (ROLE==='host' || !pn.me || G.reveal){
+      const y=top-12; const txt=pn.name;
+      ctx.font='700 13px Inter,sans-serif'; const w=ctx.measureText(txt).width+16;
+      const box=[p[0]-w/2,y-11,p[0]+w/2,y+11];
+      if (!placed.some(q=>box[0]<q[2]&&box[2]>q[0]&&box[1]<q[3]&&box[3]>q[1])){ placed.push(pill(p[0],y,txt,'rgba(8,12,22,.88)','#fff',pn.color)); }
+    }
+  }
+  if (ROLE==='player' && P.pin && !G.reveal && visible(P.pin)){ const p=proj(P.pin); drawPin(p[0],p[1],P.color||'#f2c14e',true); }
+}
+function handleClick(x,y){
+  const ll=invertPt(x,y); if(!ll) return;
+  if (ROLE==='player') playerTap(ll);
+}
+function layoutArea(){
+  if (ROLE==='host'){
+    if (HS.phase==='lobby' || !$('#h-top') || $('#h-top').classList.contains('hidden')) return {x:0,y:0,w:W,h:H};
+    const top=$('#h-top').getBoundingClientRect().bottom+8, side=$('#h-side').getBoundingClientRect().width+28;
+    return {x:0,y:top,w:Math.max(300,W-side),h:Math.max(300,H-top)};
+  }
+  const tEl=$('#p-top'), bEl=$('#p-bottom');
+  const top = tEl.classList.contains('hidden') ? 0 : tEl.getBoundingClientRect().bottom;
+  const bot = bEl.classList.contains('hidden') ? 0 : H - bEl.getBoundingClientRect().top;
+  return {x:0,y:top,w:W,h:Math.max(220,H-top-bot)};
+}
+const relayout = () => requestAnimationFrame(()=>resize());
+
+// =====================================================================
+//                               ÉCRAN (hôte)
+// =====================================================================
+const HS = {code:null, peer:null, players:new Map(), phase:'lobby', order:[], i:-1, nq:10, dur:30, q:null, startedAt:0, endsAt:0, answers:new Map(), timer:null, round:[], prevRanks:new Map()};
+function makeCode(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
+function joinURL(){ return location.origin+location.pathname+'?salle='+HS.code; }
+function hostInit(){
+  $('#host').classList.remove('hidden');
+  if (location.protocol==='file:') $('#h-filewarn').classList.remove('hidden');
+  if (matchMedia('(max-width:700px)').matches){
+    $('#h-phoneask').classList.remove('hidden');
+    const go=()=>{ const c=$('#h-askcode').value.toUpperCase().replace(/[^A-Z0-9]/g,''); if(c.length===4) location.href=location.pathname+'?salle='+c; };
+    $('#h-askgo').onclick=go; $('#h-askcode').addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+    $('#h-askno').onclick=()=>$('#h-phoneask').classList.add('hidden');
+  }
+  const segs=(id,key)=>{ const el=$(id); el.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; el.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); HS[key]=+b.dataset.v; }); };
+  segs('#s-nq','nq'); segs('#s-dur','dur');
+  $('#h-start').onclick=startGame;
+  $('#h-next').onclick=hostNext;
+  document.addEventListener('keydown',e=>{ if(e.key===' '||e.key==='Enter'||e.key==='ArrowRight'){ if(HS.phase==='lobby') return; e.preventDefault(); hostNext(); } });
+  openPeer();
+}
+function setStatus(txt){ $('#h-status').textContent=txt; }
+function openPeer(){
+  HS.code=makeCode();
+  if (typeof Peer==='undefined'){ setStatus("Impossible de charger le module de connexion (vérifie Internet)."); return; }
+  const peer=new Peer(PEER_PREFIX+HS.code.toLowerCase(), {debug:0});
+  HS.peer=peer;
+  peer.on('open',()=>{ renderQR(); setStatus('Prêt ! Les joueurs peuvent rejoindre.'); });
+  peer.on('error',e=>{
+    if (e.type==='unavailable-id'){ peer.destroy(); openPeer(); return; }
+    if (e.type==='peer-unavailable') return;
+    setStatus('Problème de connexion au serveur ('+e.type+'). Nouvel essai…');
+    if (['network','server-error','socket-error','socket-closed'].includes(e.type)) setTimeout(()=>{ if(peer.disconnected && !peer.destroyed) try{peer.reconnect()}catch(_){} },3000);
+  });
+  peer.on('disconnected',()=>{ setTimeout(()=>{ if(!peer.destroyed) try{peer.reconnect()}catch(_){} },1500); });
+  peer.on('connection',conn=>{
+    conn.on('data',m=>hostMsg(conn,m));
+    conn.on('close',()=>hostClose(conn)); conn.on('error',()=>hostClose(conn));
+  });
+}
+function renderQR(){
+  const url=joinURL();
+  const make=(el,cell)=>{ try{ const qr=qrcode(0,'M'); qr.addData(url); qr.make(); el.innerHTML=qr.createSvgTag(cell,2); }catch(e){ el.innerHTML='<div style="color:#000;padding:20px">QR indisponible</div>'; } };
+  make($('#qr'),8); make($('#qr-mini'),3);
+  $('#h-code').textContent=HS.code; $('#h-code-mini').textContent=HS.code;
+  $('#h-url').textContent=url.replace(/^https?:\/\//,'');
+}
+function send(p,msg){ try{ if(p.conn && p.conn.open) p.conn.send(msg); }catch(e){} }
+function connectedPlayers(){ return [...HS.players.values()].filter(p=>p.connected); }
+function hostMsg(conn,m){
+  if (!m || typeof m!=='object') return;
+  if (m.t==='join'){
+    const pid=String(m.pid||'').slice(0,40); if(!pid) return;
+    const name=(String(m.name||'').trim().slice(0,16))||'Joueur';
+    let p=HS.players.get(pid);
+    if (!p){
+      const scores=[...HS.players.values()].map(x=>x.score);
+      p={pid,name,color:PCOL[HS.players.size%PCOL.length],score:(HS.phase==='lobby'||!scores.length)?0:Math.max(...scores),connected:true,conn,last:null};
+      HS.players.set(pid,p);
+    } else { if(p.conn && p.conn!==conn) try{p.conn.close()}catch(_){}; p.conn=conn; p.connected=true; p.name=name; }
+    conn.pid=pid;
+    const syncNow=()=>{ send(p,{t:'welcome',name:p.name,color:p.color}); syncPlayer(p); };
+    if (conn.open) syncNow(); else conn.on('open',syncNow);
+    refreshHostUI();
+  } else if (m.t==='answer'){
+    const p=HS.players.get(conn.pid); if(!p || HS.phase!=='question' || HS.answers.has(p.pid)) return;
+    const ll=m.ll; if(!Array.isArray(ll) || !isFinite(+ll[0]) || !isFinite(+ll[1])) return;
+    HS.answers.set(p.pid,{ll:[+ll[0],+ll[1]], t:Date.now()-HS.startedAt});
+    send(p,{t:'ack'}); refreshHostUI();
+    if (connectedPlayers().every(x=>HS.answers.has(x.pid))) setTimeout(()=>{ if(HS.phase==='question') reveal(); },700);
+  }
+}
+function hostClose(conn){ const p=HS.players.get(conn.pid); if(p && p.conn===conn){ p.connected=false; refreshHostUI(); } }
+function syncPlayer(p){
+  if (HS.phase==='lobby') send(p,{t:'lobby'});
+  else if (HS.phase==='question') send(p,{t:'question', n:HS.i+1, total:HS.order.length, text:HS.q[1], remaining:Math.max(0,HS.endsAt-Date.now()), dur:HS.dur*1000, answered:HS.answers.has(p.pid)});
+  else if (p.last) send(p,p.last);
+  else send(p,{t:'wait'});
+}
+function chipHTML(p,extra=''){ return `<div class="chip${p.connected?'':' off'}${extra}" style="--c:${p.color}"><span class="dot"></span>${esc(p.name)}</div>`; }
+function refreshHostUI(){
+  const list=[...HS.players.values()];
+  if (HS.phase==='lobby'){
+    $('#h-players').innerHTML = list.length ? list.map(p=>chipHTML(p)).join('') : '<div class="empty">En attente des joueurs… 📱</div>';
+    const n=connectedPlayers().length; $('#h-count').textContent = n?`(${n})`:'';
+    $('#h-start').disabled = n===0;
+  } else if (HS.phase==='question'){
+    const done=list.filter(p=>HS.answers.has(p.pid)).length;
+    $('#h-sidebody').innerHTML = `<div class="lbl">Réponses : ${done} / ${connectedPlayers().length}</div><div class="waitgrid">${list.map(p=>chipHTML(p, HS.answers.has(p.pid)?' done':'').replace('</div>', HS.answers.has(p.pid)?' ✓</div>':'</div>')).join('')}</div>`;
+    $('#h-next').innerHTML='Révéler la réponse <kbd>Espace</kbd>';
+  }
+}
+function startGame(){
+  if (!connectedPlayers().length) return;
+  const idx=d3.shuffle(d3.range(QUESTIONS.length));
+  HS.order=idx.slice(0,Math.min(HS.nq,idx.length));
+  HS.i=-1; for (const p of HS.players.values()){ p.score=0; p.last=null; }
+  HS.prevRanks=new Map(); Q.history=[];
+  $('#lobby').classList.add('hidden'); $('#board').classList.add('hidden');
+  ['#h-top','#h-side','#h-mini'].forEach(s=>$(s).classList.remove('hidden'));
+  nextQuestion();
+}
+function nextQuestion(){
+  HS.i++; HS.q=QUESTIONS[HS.order[HS.i]];
+  HS.answers=new Map(); HS.phase='question';
+  HS.startedAt=Date.now(); HS.endsAt=HS.startedAt+HS.dur*1000;
+  $('#board').classList.add('hidden');
+  $('#h-qn').textContent=`${HS.i+1} / ${HS.order.length}`;
+  $('#h-qt').textContent=HS.q[1];
+  refreshHostUI(); relayout();
+  resetGlobeForQuestion();
+  for (const p of HS.players.values()){ p.last=null; syncPlayer(p); }
+  clearInterval(HS.timer); HS.timer=setInterval(tickHost,200); tickHost();
+}
+function tickHost(){
+  const rem=Math.max(0,HS.endsAt-Date.now()), frac=rem/(HS.dur*1000);
+  $('#h-time').textContent=Math.ceil(rem/1000);
+  const fg=$('#h-ringfg'); fg.style.strokeDashoffset=276.5*(1-frac); fg.style.stroke = rem<5000 ? '#ff5a5f' : '#f2c14e';
+  if (rem<=0) reveal();
+}
+function reveal(){
+  if (HS.phase!=='question') return;
+  clearInterval(HS.timer); HS.phase='reveal';
+  $('#h-time').textContent='0'; $('#h-ringfg').style.strokeDashoffset=276.5;
+  const t=info.get(HS.q[0]);
+  const round=[];
+  for (const p of HS.players.values()){
+    const a=HS.answers.get(p.pid);
+    if (a){ const r=distTo(a.ll,t); const pts=Math.round(r.d); round.push({p,dist:r.d,pts,ll:a.ll,to:r.p,time:a.t}); p.score+=pts; }
+    else { round.push({p,dist:null,pts:NO_ANSWER,time:Infinity}); p.score+=NO_ANSWER; }
+  }
+  round.sort((a,b)=>a.pts-b.pts || a.time-b.time);
+  HS.round=round;
+  const ranking=[...HS.players.values()].sort((a,b)=>a.score-b.score);
+  // globe
+  Q.cur=t; Q.answered=true; Q.done=true; Q.history.push({id:t.id, ok:true, color:'#2fd17a', mode:'pays'});
+  G.reveal={id:t.id};
+  G.pins=round.filter(r=>r.ll).map(r=>({ll:r.ll,to:r.to,dist:r.dist,color:r.p.color,name:r.p.name}));
+  focusReveal(t, G.pins.map(x=>x.ll));
+  // panneau
+  $('#h-sidebody').innerHTML = `<div class="lbl">La réponse</div><div class="answer">${esc(t.name)}</div>
+    <div class="anec"><b>Le saviez-vous ?</b>${esc(HS.q[2])}</div>
+    <div class="lbl" style="margin-top:4px">Cette manche</div>
+    <div class="rows">${round.map((r,k)=>`<div class="row" style="--c:${r.p.color}"><span class="r">${k+1}</span><span class="dot"></span><span class="n">${esc(r.p.name)}</span><span class="d">${r.dist==null?'pas de réponse':r.dist===0?'🎯 dans le mille':fmtKm(r.dist)}</span><span class="p">+${fmtPts(r.pts)}</span></div>`).join('')}</div>`;
+  const last=HS.i>=HS.order.length-1;
+  $('#h-next').innerHTML = (last?'Résultats finaux':'Classement')+' <kbd>Espace</kbd>';
+  // téléphones
+  const pinsMsg=G.pins.map(x=>({ll:x.ll,to:x.to,dist:x.dist,color:x.color,name:x.name}));
+  round.forEach((r,k)=>{
+    const rank=ranking.indexOf(r.p)+1;
+    r.p.last={t:'result', id:t.id, answer:t.name, anecdote:HS.q[2], dist:r.dist, pts:r.pts, roundRank:k+1, n:round.length, total:r.p.score, rank, pins:pinsMsg, ll:r.ll||null, last};
+    send(r.p, r.p.last);
+  });
+}
+function showBoard(){
+  HS.phase='scores';
+  const ranking=[...HS.players.values()].sort((a,b)=>a.score-b.score);
+  const roundPts=new Map(HS.round.map(r=>[r.p.pid,r.pts]));
+  $('#board-card').innerHTML = `<h2>Classement après ${HS.i+1} question${HS.i?'s':''}</h2>
+    <div class="rows">${ranking.map((p,k)=>{ const prev=HS.prevRanks.get(p.pid); const mv = prev==null?'':(prev>k+1?` <span style="color:var(--ok)">▲${prev-(k+1)}</span>`:prev<k+1?` <span style="color:var(--ko)">▼${(k+1)-prev}</span>`:''); return `<div class="row" style="--c:${p.color};animation-delay:${k*60}ms"><span class="r">${k+1}</span><span class="dot"></span><span class="n">${esc(p.name)}${mv}</span><span class="p">${fmtPts(p.score)}<span class="delta">(+${fmtPts(roundPts.get(p.pid)||0)})</span></span></div>`; }).join('')}</div>
+    <div class="boardbtns"><button class="btn primary" onclick="document.getElementById('h-next').click()">Question suivante <kbd>Espace</kbd></button></div>`;
+  ranking.forEach((p,k)=>HS.prevRanks.set(p.pid,k+1));
+  $('#board').classList.remove('hidden');
+  ranking.forEach((p,k)=>{ p.last={t:'scores', rank:k+1, n:ranking.length, total:p.score}; send(p,p.last); });
+}
+function endGame(){
+  HS.phase='end'; clearInterval(HS.timer);
+  const ranking=[...HS.players.values()].sort((a,b)=>a.score-b.score);
+  const top=ranking.slice(0,3); const order=[top[1],top[0],top[2]].filter(Boolean);
+  const hts={0:'26vh',1:'19vh',2:'14vh'}; const cols={0:'#f2c14e',1:'#cfd6e3',2:'#e0a06a'};
+  $('#board-card').innerHTML = `<h2>🏆 Podium</h2>
+    <div class="podium">${order.map(p=>{ const k=ranking.indexOf(p); return `<div class="col"><span class="dot" style="--c:${p.color};width:22px;height:22px"></span><div class="nm">${esc(p.name)}</div><div class="sc">${fmtPts(p.score)} pts</div><div class="blk" style="height:${hts[k]};background:${cols[k]}">${k+1}</div></div>`; }).join('')}</div>
+    <div class="rows">${ranking.slice(3).map((p,k)=>`<div class="row" style="--c:${p.color}"><span class="r">${k+4}</span><span class="dot"></span><span class="n">${esc(p.name)}</span><span class="p">${fmtPts(p.score)}</span></div>`).join('')}</div>
+    <div class="boardbtns"><button class="btn primary" id="b-replay">Rejouer avec les mêmes joueurs</button></div>`;
+  $('#board').classList.remove('hidden');
+  $('#b-replay').onclick=backToLobby;
+  ranking.forEach((p,k)=>{ p.last={t:'end', rank:k+1, n:ranking.length, total:p.score, podium:top.map(x=>x.name)}; send(p,p.last); });
+}
+function backToLobby(){
+  HS.phase='lobby'; HS.i=-1;
+  ['#h-top','#h-side','#h-mini','#board'].forEach(s=>$(s).classList.add('hidden'));
+  $('#lobby').classList.remove('hidden');
+  G.reveal=null; G.pins=[]; Q.history=[]; Q.cur=null; Q.answered=false; Q.done=false;
+  for (const p of HS.players.values()){ p.score=0; p.last=null; syncPlayer(p); }
+  refreshHostUI(); relayout(); autoSpin=true; animateTo(FR_VIEW,1,900); setTimeout(()=>{autoSpin=true; req();},950);
+}
+function hostNext(){
+  if (HS.phase==='question') reveal();
+  else if (HS.phase==='reveal'){ if (HS.i>=HS.order.length-1) endGame(); else showBoard(); }
+  else if (HS.phase==='scores') nextQuestion();
+}
+
+// =====================================================================
+//                              TÉLÉPHONE (joueur)
+// =====================================================================
+const P = {pid:null, name:'', color:'#f2c14e', peer:null, conn:null, state:'join', pin:null, sent:false, endsAt:0, dur:30000, timer:null, retry:null, joined:false};
+function store(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } }
+function playerInit(){
+  $('#player').classList.remove('hidden');
+  $('#p-room').textContent=ROOM;
+  // identifiant propre à cet onglet (gardé si on recharge la page, pour retrouver son score)
+  try{ P.pid = sessionStorage.getItem('gqp-pid'); }catch(e){}
+  if (!P.pid){ P.pid='p'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); try{ sessionStorage.setItem('gqp-pid',P.pid); }catch(e){} }
+  $('#p-name').value = store('gqp-name') || '';
+  const go=()=>{ const n=$('#p-name').value.trim(); if(!n){ $('#p-joinmsg').textContent='Entre ton prénom 🙂'; return; } P.name=n.slice(0,16); store('gqp-name',P.name); $('#p-joinbtn').disabled=true; $('#p-joinmsg').textContent='Connexion…'; $('#p-joinmsg').style.color='var(--muted)'; P.joined=true; connectPlayer(); };
+  $('#p-joinbtn').onclick=go;
+  $('#p-name').addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+  setPanel('<div class="pmsg">Entre ton prénom pour rejoindre la partie.</div>');
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden && P.joined && (!P.conn || !P.conn.open)) connectPlayer(); });
+}
+function setConn(ok){ $('#p-conn').classList.toggle('hidden', ok || !P.joined || P.state==='join'); }
+function connectPlayer(){
+  clearTimeout(P.retry);
+  if (typeof Peer==='undefined'){ $('#p-joinmsg').textContent="Impossible de charger le module de connexion."; $('#p-joinbtn').disabled=false; return; }
+  const dial=()=>{
+    const conn=P.peer.connect(PEER_PREFIX+ROOM.toLowerCase(),{reliable:true});
+    P.conn=conn;
+    conn.on('open',()=>{ conn.send({t:'join',pid:P.pid,name:P.name}); setConn(true); });
+    conn.on('data',playerMsg);
+    conn.on('close',()=>{ if(P.conn===conn){ setConn(false); P.retry=setTimeout(connectPlayer,2000); } });
+    conn.on('error',()=>{ if(P.conn===conn){ setConn(false); P.retry=setTimeout(connectPlayer,2500); } });
+  };
+  if (P.peer && !P.peer.destroyed && P.peer.open){ dial(); return; }
+  if (P.peer && !P.peer.destroyed && P.peer.disconnected){ try{ P.peer.reconnect(); }catch(_){} }
+  if (!P.peer || P.peer.destroyed){
+    P.peer=new Peer({debug:0});
+    P.peer.on('open',dial);
+    P.peer.on('error',e=>{
+      if (e.type==='peer-unavailable'){
+        if (P.state==='join'){ $('#p-joinmsg').style.color='#ffb0b2'; $('#p-joinmsg').textContent='Salle introuvable : vérifie le code ou rescanne le QR code.'; $('#p-joinbtn').disabled=false; P.joined=false; }
+        else { setConn(false); P.retry=setTimeout(connectPlayer,3000); }
+      } else { setConn(false); P.retry=setTimeout(()=>{ try{P.peer.destroy()}catch(_){}; P.peer=null; connectPlayer(); },3000); }
+    });
+    P.peer.on('disconnected',()=>{ setTimeout(()=>{ try{ if(!P.peer.destroyed) P.peer.reconnect(); }catch(_){} },1500); });
+  }
+}
+function setPanel(html){ $('#p-panel').innerHTML=html; relayout(); }
+function showTop(show){ $('#p-top').classList.toggle('hidden',!show); $('#zoombox').classList.toggle('hidden',!show && !G.reveal); relayout(); }
+function meBadge(){ $('#p-me').innerHTML=`<span class="dot" style="--c:${P.color}"></span>${esc(P.name)}`; }
+function playerMsg(m){
+  if (!m || typeof m!=='object') return;
+  if (m.t==='welcome'){
+    P.color=m.color; P.name=m.name; meBadge();
+    $('#p-join').classList.add('hidden'); P.state='wait'; setConn(true);
+    if (navigator.vibrate) try{ navigator.vibrate(30); }catch(_){}
+  } else if (m.t==='lobby' || m.t==='wait'){
+    P.state='wait'; clearInterval(P.timer); showTop(false); G.reveal=null; G.pins=[]; P.pin=null;
+    setPanel(`<div class="pmsg"><span class="me-badge"><span class="dot" style="--c:${P.color}"></span>${esc(P.name)}</span><span class="big">Tu es dans la partie ! 🎉</span>Regarde l'écran : la partie va bientôt commencer.</div>`);
+    autoSpin=true; req();
+  } else if (m.t==='question'){
+    P.state='question'; P.pin=null; P.sent=!!m.answered; P.dur=m.dur; P.endsAt=Date.now()+m.remaining;
+    $('#p-qn').textContent=`Question ${m.n}/${m.total}`; $('#p-q').textContent=m.text; meBadge();
+    showTop(true); $('#zoombox').classList.remove('hidden');
+    resetGlobeForQuestion();
+    renderQuestionPanel();
+    clearInterval(P.timer); P.timer=setInterval(tickPlayer,200); tickPlayer();
+    if (navigator.vibrate) try{ navigator.vibrate([40,60,40]); }catch(_){}
+  } else if (m.t==='ack'){
+    P.sent=true; renderQuestionPanel();
+  } else if (m.t==='result'){
+    P.state='result'; clearInterval(P.timer); showTop(false); $('#zoombox').classList.remove('hidden');
+    const t=info.get(m.id);
+    Q.cur=t; Q.answered=true; Q.done=true;
+    if (!Q.history.some(h=>h.id===t.id)) Q.history.push({id:t.id,ok:true,color:'#2fd17a',mode:'pays'});
+    G.reveal={id:m.id}; G.pins=(m.pins||[]).map(x=>({...x, me: x.name===P.name && x.color===P.color}));
+    P.pin=null;
+    focusReveal(t, m.ll?[m.ll]:[]);
+    const res = m.dist==null ? `<span class="big res-ko">Pas de réponse 😴</span>+${fmtPts(m.pts)} pts`
+      : m.dist===0 ? `<span class="big res-ok">🎯 Dans le mille !</span>+0 pt`
+      : `<span class="big">${fmtKm(m.dist)}</span>d'écart · +${fmtPts(m.pts)} pts`;
+    setPanel(`<div class="pmsg">C'était <b>${esc(m.answer)}</b><br>${res}<br>${ord(m.roundRank)} sur ${m.n} pour cette question · Total <b>${fmtPts(m.total)}</b> (${ord(m.rank)})</div><div class="panec"><b>Le saviez-vous ?</b> ${esc(m.anecdote)}</div>`);
+  } else if (m.t==='scores'){
+    P.state='scores';
+    setPanel(`<div class="pmsg"><span class="me-badge"><span class="dot" style="--c:${P.color}"></span>${esc(P.name)}</span><span class="big">${ord(m.rank)} / ${m.n}</span>Total : <b>${fmtPts(m.total)} pts</b><br>Prépare-toi pour la prochaine question…</div>`);
+  } else if (m.t==='end'){
+    P.state='end'; clearInterval(P.timer); showTop(false);
+    const medal = m.rank===1?'🥇':m.rank===2?'🥈':m.rank===3?'🥉':'🏁';
+    setPanel(`<div class="pmsg"><span class="big">${medal} ${ord(m.rank)} sur ${m.n}</span>Score final : <b>${fmtPts(m.total)} pts</b><br>${m.rank===1?'Bravo, tu as gagné ! 🎉':`Vainqueur : <b>${esc(m.podium[0]||'')}</b>`}<br><br>Merci d'avoir joué !</div>`);
+  }
+}
+function renderQuestionPanel(){
+  const left=P.endsAt-Date.now();
+  if (P.sent) setPanel(`<div class="pmsg"><span class="big res-ok">Réponse envoyée ✓</span>Regarde l'écran, les autres répondent…</div>`);
+  else if (left<=0) setPanel(`<div class="pmsg"><span class="big res-ko">Temps écoulé ⏰</span>Trop tard pour cette fois !</div>`);
+  else setPanel(`<div class="pmsg">${P.pin?'Tu peux déplacer ton repère, puis valide :':'👆 Fais tourner le globe et <b>touche le pays</b> pour poser ton repère.'}</div><button class="btn primary" id="p-send" ${P.pin?'':'disabled'}>Valider ma réponse</button>`);
+  const b=$('#p-send'); if(b) b.onclick=sendAnswer;
+}
+function tickPlayer(){
+  const left=Math.max(0,P.endsAt-Date.now());
+  $('#p-time').textContent=Math.ceil(left/1000)+' s';
+  const bar=$('#p-bar i'); bar.style.width=(left/P.dur*100)+'%'; bar.style.background = left<5000?'#ff5a5f':'#f2c14e';
+  if (left<=0 && P.state==='question' && !P.sent){ clearInterval(P.timer); renderQuestionPanel(); }
+}
+function playerTap(ll){
+  if (P.state!=='question' || P.sent || Date.now()>P.endsAt) return;
+  const had=!!P.pin; P.pin=ll; req();
+  if (!had) renderQuestionPanel();
+}
+function sendAnswer(){
+  if (!P.pin || P.sent || !P.conn || !P.conn.open) { if(!P.conn||!P.conn.open) setConn(false); return; }
+  try{ P.conn.send({t:'answer', ll:P.pin}); }catch(e){ return; }
+  const b=$('#p-send'); if(b){ b.disabled=true; b.textContent='Envoi…'; }
+}
+
+// ---------- Go ----------
+resize();
+if (ROLE==='host') hostInit(); else playerInit();
+const L=$('#loading'); L.style.opacity=0; setTimeout(()=>L.remove(),650);
+})();
+</script>
+</body>
+</html>
