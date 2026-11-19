@@ -52,6 +52,13 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 .settings{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:3vh 0}
 .rules{font-size:clamp(14px,1.05vw,17px);line-height:1.55;color:#c3cad8;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:3vh}
 .rules b{color:var(--accent)}
+.tchips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:2.2vh}
+.tchips button{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);border-radius:30px;padding:9px 15px;font:600 clamp(14px,1.1vw,18px) Inter,sans-serif;cursor:pointer}
+.tchips button small{color:var(--muted);font-weight:500}
+.tchips button.on{background:var(--accent);border-color:var(--accent);color:#1d1604}
+.tchips button.on small{color:#5a4410}
+.qtheme{font:700 clamp(13px,1vw,16px) Inter,sans-serif;color:var(--muted);margin-bottom:4px}
+.mult{display:inline-block;background:#ff5a5f;color:#fff;border-radius:8px;padding:1px 7px;font:800 .8em Inter,sans-serif;margin-left:6px;vertical-align:2px}
 #h-start{font-size:clamp(18px,1.5vw,24px);padding:18px 26px;width:100%}
 #h-status{font-size:13px;color:var(--muted);margin-top:10px;text-align:center}
 
@@ -154,11 +161,13 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
         <p class="sub">Une question, un pays à trouver sur le globe : le plus près gagne !</p>
         <div class="lbl">Joueurs connectés <span id="h-count"></span></div>
         <div class="plist" id="h-players"><div class="empty">En attente des joueurs… 📱</div></div>
+        <div class="lbl">Thèmes (un ou plusieurs)</div>
+        <div class="tchips" id="s-themes"></div>
         <div class="settings">
           <div><div class="lbl">Questions</div><div class="seg" id="s-nq"><button data-v="5">5</button><button data-v="10" class="on">10</button><button data-v="15">15</button><button data-v="20">20</button></div></div>
           <div><div class="lbl">Temps par question</div><div class="seg" id="s-dur"><button data-v="20">20 s</button><button data-v="30" class="on">30 s</button><button data-v="45">45 s</button><button data-v="60">60 s</button></div></div>
         </div>
-        <div class="rules">Chaque joueur pose un repère sur le globe de son téléphone. <b>1 km d'écart = 1 point</b>, 0 si le repère est dans le bon pays, 20 000 si pas de réponse. <b>Le moins de points gagne !</b></div>
+        <div class="rules">Chaque joueur pose un repère sur le globe de son téléphone. <b>1 km d'écart = 1 point</b>, 0 si le repère est dans le bon pays, 20 000 si pas de réponse. 🥖 Spécialités françaises : on cherche une <b>ville de France</b>, et <b>chaque km compte 10 points</b>. <b>Le moins de points gagne !</b></div>
         <button class="btn primary" id="h-start" disabled>Lancer la partie ▶</button>
         <div id="h-status">Connexion au serveur…</div>
       </div>
@@ -458,6 +467,153 @@ const QUESTIONS = [
 ['VAT',"Quel est le plus petit pays du monde ?","Avec 0,44 km², il tiendrait plus de 200 fois dans Paris. Il possède sa propre poste, ses timbres, et une armée : la Garde suisse."],
 ];
 
+const Q_ELEC = [
+['FRA',"Quel pays produit environ les deux tiers de son électricité grâce au nucléaire ?","Avec 57 réacteurs, c'est le pays le plus nucléarisé au monde par habitant. Il est aussi l'un des plus gros exportateurs d'électricité d'Europe : ses voisins profitent souvent de ses centrales."],
+['JPN',"Dans quel pays le réseau électrique est-il coupé en deux, avec du 50 Hz d'un côté et du 60 Hz de l'autre ?","À la fin du XIXᵉ siècle, Tokyo a acheté des générateurs allemands (50 Hz) et Osaka des générateurs américains (60 Hz). Le pays vit toujours avec deux fréquences, reliées par des stations de conversion."],
+['NOR',"Quel pays produit environ 90 % de son électricité grâce à l'eau de ses barrages ?","Ses montagnes et ses fjords cachent plus de 1 500 centrales hydroélectriques. Ses lacs servent même de « batterie » à l'Europe du Nord grâce à des câbles sous la mer."],
+['ISL',"Dans quel pays presque toute l'électricité vient des volcans (géothermie) et des rivières ?","L'électricité y est si abondante et bon marché que des usines d'aluminium y consomment la majorité de la production. Les trottoirs de Reykjavik sont même chauffés par l'eau chaude du sous-sol."],
+['PRY',"Quel pays d'Amérique du Sud produit presque toute son électricité avec des barrages et en revend une grande partie à son grand voisin ?","Il partage avec le Brésil l'immense barrage d'Itaipu, sur le fleuve Paraná. Il n'utilise qu'une partie de sa moitié de la production et exporte le reste."],
+['CHN',"Dans quel pays se trouve la plus puissante centrale électrique du monde, le barrage des Trois-Gorges ?","Sa puissance atteint 22 500 MW, l'équivalent d'une vingtaine de réacteurs nucléaires. Selon la NASA, la masse d'eau retenue aurait même ralenti la rotation de la Terre… de 0,06 microseconde par jour."],
+['IND',"Quel pays a connu la plus grande panne d'électricité de l'histoire, en 2012, touchant environ 620 millions de personnes ?","Le 31 juillet 2012, près de la moitié de la population du pays s'est retrouvée sans courant : trains bloqués, mineurs coincés sous terre, feux de circulation éteints."],
+['CAN',"Dans quel pays une tempête solaire a-t-elle plongé 6 millions de personnes dans le noir en 1989 ?","Le 13 mars 1989, une éruption du Soleil a perturbé le champ magnétique terrestre et fait disjoncter le réseau d'Hydro-Québec en 90 secondes. Le courant a mis environ 9 heures à revenir."],
+['ITA',"Quel pays entier s'est retrouvé sans électricité une nuit de septembre 2003, à cause d'un arbre ?","Un arbre a touché une ligne à haute tension en Suisse, provoquant une réaction en chaîne. Environ 56 millions de personnes ont été privées de courant pendant la « Nuit blanche » romaine."],
+['ESP',"Dans quel pays une gigantesque panne a-t-elle coupé l'électricité de presque toute la péninsule le 28 avril 2025 ?","En quelques secondes, le pays et son voisin portugais ont perdu presque tout leur courant : métros arrêtés, feux éteints, paiements par carte impossibles. Il a fallu une bonne partie de la nuit pour tout rallumer."],
+['GBR',"Dans quel pays le réseau doit-il prévoir une énorme pointe de consommation à la mi-temps des grands matchs, quand tout le monde allume sa bouilloire ?","On appelle ça le « TV pickup ». Lors de la demi-finale de Coupe du monde 1990, la fin du match a provoqué un pic d'environ 2 800 MW : l'équivalent de deux gros réacteurs nucléaires d'un coup !"],
+['DNK',"Quel pays produit plus de la moitié de son électricité grâce au vent ?","C'est le berceau de l'éolien moderne : Vestas, l'un des plus grands fabricants d'éoliennes du monde, y est né. Certains jours venteux, le pays produit plus d'électricité qu'il n'en consomme."],
+['URY',"Quel petit pays d'Amérique du Sud produit environ 98 % de son électricité avec des énergies renouvelables ?","En une dizaine d'années seulement, il a couvert ses campagnes d'éoliennes en plus de ses barrages. Il exporte même parfois son surplus vers l'Argentine et le Brésil."],
+['KEN',"Dans quel pays d'Afrique près de la moitié de l'électricité vient de la chaleur de la Terre ?","Les centrales géothermiques d'Olkaria sont installées dans la vallée du Grand Rift, où le sous-sol est très chaud. C'est l'un des premiers producteurs de géothermie au monde."],
+['MAR',"Dans quel pays se trouve Noor Ouarzazate, l'une des plus grandes centrales solaires du monde ?","Des milliers de miroirs y concentrent la lumière du soleil pour chauffer des sels fondus, qui continuent de produire de l'électricité après le coucher du soleil."],
+['ZAF',"Dans quel pays les coupures de courant programmées, appelées « load shedding », ont-elles rythmé la vie quotidienne pendant des années ?","La compagnie Eskom, qui fournit l'essentiel de l'électricité, n'arrivait plus à suivre la demande. Les habitants consultaient une application pour savoir à quelle heure le courant serait coupé dans leur quartier."],
+['AUS',"Dans quel pays Elon Musk a-t-il parié de construire une batterie géante en moins de 100 jours… et gagné ?","En 2017, Tesla a installé la batterie de Hornsdale en Australie-Méridionale, alors la plus grande du monde. Sinon, elle aurait été offerte !"],
+['USA',"Dans quel pays le réseau électrique est-il divisé en trois grandes parties, dont une pour un seul État ?","Il y a le réseau de l'Est, celui de l'Ouest… et celui du Texas, presque isolé du reste. En février 2021, une tempête de froid y a privé des millions d'habitants de courant."],
+['ETH',"Dans quel pays se trouve le Grand barrage de la Renaissance, le plus grand d'Afrique, inauguré en 2025 ?","Construit sur le Nil Bleu, il a provoqué de fortes tensions avec l'Égypte et le Soudan, qui dépendent de l'eau du Nil."],
+['BTN',"Quel petit pays de l'Himalaya vend de l'électricité hydraulique à l'Inde et absorbe plus de CO₂ qu'il n'en émet ?","Ses rivières de montagne alimentent des barrages dont l'électricité est l'une de ses premières sources de revenus. Le pays est l'un des rares au monde à être « négatif en carbone »."],
+['LAO',"Quel pays est surnommé « la batterie de l'Asie du Sud-Est » grâce à ses barrages ?","Il a construit des dizaines de barrages sur le Mékong et ses affluents pour vendre son électricité à la Thaïlande, au Viêt Nam ou au Cambodge."],
+['GHA',"Dans quel pays le barrage d'Akosombo a-t-il créé le plus grand lac artificiel du monde par sa surface ?","Le lac Volta, créé dans les années 1960, couvre environ 8 500 km², soit près de 80 fois la surface de Paris."],
+['TJK',"Dans quel pays se construit le barrage de Rogun, qui doit devenir le plus haut du monde (335 m) ?","Le pays possède déjà le barrage de Nurek, l'un des plus hauts du monde avec 300 m. Ses montagnes du Pamir sont un château d'eau pour toute l'Asie centrale."],
+['EGY',"Dans quel pays le haut barrage d'Assouan a-t-il obligé à déplacer des temples entiers ?","Pour sauver les temples d'Abou Simbel de la montée des eaux du lac Nasser, ils ont été découpés en plus de 1 000 blocs et remontés 65 m plus haut, dans les années 1960."],
+['CHL',"Dans quel pays le désert d'Atacama reçoit-il le plus fort ensoleillement de la planète, idéal pour l'énergie solaire ?","Le ciel y est si pur qu'on y a aussi installé de grands télescopes. Les centrales solaires y produisent parfois tant que l'électricité y devient gratuite à midi."],
+['DEU',"Quel pays a fermé ses trois derniers réacteurs nucléaires en avril 2023 ?","C'était l'aboutissement de « l'Energiewende », la transition énergétique décidée après l'accident de Fukushima en 2011. Le pays mise sur l'éolien et le solaire."],
+['BRA',"Dans quel pays les prises électriques délivrent-elles du 127 V ou du 220 V selon les villes ?","Selon l'endroit où l'on se trouve, il faut vérifier la tension avant de brancher son sèche-cheveux ! Le pays tire environ 60 % de son électricité de ses barrages."],
+['CHE',"Dans quel pays la centrale de Nant de Drance, cachée 600 m sous une montagne, sert-elle de « batterie géante » ?","Elle pompe l'eau d'un lac vers un lac plus haut quand l'électricité est abondante, puis la relâche dans des turbines quand on en a besoin."],
+['VEN',"Dans quel pays une panne géante a-t-elle privé presque tout le pays d'électricité pendant plusieurs jours en mars 2019 ?","Le pays dépend beaucoup d'un seul barrage, celui de Guri, l'un des plus puissants du monde. Une panne sur ses lignes a suffi à plonger presque tout le pays dans le noir."],
+];
+
+const Q_ARBRES = [
+['USA',"Dans quel pays poussent le plus grand arbre du monde par son volume et le plus haut ?","En Californie, le séquoia « General Sherman » est le plus gros arbre vivant, et le séquoia « Hyperion » culmine à environ 116 m. L'emplacement exact d'Hyperion est gardé secret pour le protéger."],
+['LBN',"Quel pays a un cèdre sur son drapeau ?","Ses cèdres étaient déjà réputés dans l'Antiquité : les Phéniciens en faisaient des bateaux et les Égyptiens les utilisaient pour leurs sarcophages. Il n'en reste que quelques forêts protégées."],
+['CAN',"Quel pays a une feuille d'érable sur son drapeau ?","Ce drapeau n'existe que depuis 1965. Le Québec produit à lui seul environ 70 % du sirop d'érable mondial."],
+['JPN',"Dans quel pays la floraison des cerisiers est-elle célébrée chaque printemps par des pique-niques, le « hanami » ?","La météo nationale publie chaque année les prévisions de floraison région par région. En 1912, la ville de Tokyo a offert environ 3 000 cerisiers à Washington."],
+['BRA',"Quel pays doit son nom à un arbre ?","Le pau-brasil donnait une teinture rouge vif, couleur de braise (« brasa »). Les Portugais en ont tant exporté que l'arbre est aujourd'hui menacé."],
+['YEM',"Dans quel pays pousse le dragonnier de Socotra, un arbre en forme de parapluie qui « saigne » une sève rouge ?","Sur l'île de Socotra, environ un tiers des plantes n'existent nulle part ailleurs. La sève rouge, appelée « sang-dragon », servait autrefois de teinture et de remède."],
+['LKA',"Dans quel pays pousse le plus vieil arbre planté par l'homme dont on connaît la date de plantation ?","Le Sri Maha Bodhi, à Anuradhapura, a été planté en 288 avant J.-C. à partir d'une bouture de l'arbre sous lequel Bouddha aurait atteint l'Éveil."],
+['IND',"Dans quel pays un seul banian ressemble-t-il à une forêt entière, avec plus de 3 000 racines aériennes ?","Le Grand Banian du jardin botanique de Calcutta a plus de 250 ans. Son tronc d'origine a disparu, mais l'arbre continue de s'étendre grâce à ses racines qui descendent des branches."],
+['MEX',"Dans quel pays se trouve l'arbre au tronc le plus épais du monde, l'Arbre du Tule ?","Ce cyprès de Montezuma, dans l'État d'Oaxaca, a un tronc de plus de 40 m de tour : il faut une trentaine de personnes se tenant la main pour en faire le tour."],
+['SWE',"Dans quel pays pousse « Old Tjikko », un épicéa dont les racines ont environ 9 500 ans ?","Son tronc visible est bien plus jeune, mais il repousse depuis des millénaires à partir des mêmes racines. Il a été baptisé du nom du chien de son découvreur."],
+['AUS',"Dans quel pays poussent plus de 700 espèces d'eucalyptus ?","Les koalas se nourrissent presque uniquement de leurs feuilles, très peu nourrissantes : c'est pour cela qu'ils dorment jusqu'à 20 heures par jour."],
+['IDN',"Dans quel pays pousse la Rafflesia, la plus grande fleur du monde, qui sent la viande pourrie ?","Elle peut atteindre 1 m de diamètre. Son odeur attire les mouches qui la pollinisent. Elle n'a ni tige, ni feuilles, ni racines."],
+['MAR',"Dans quel pays les chèvres grimpent-elles dans les arganiers pour en manger les fruits ?","L'arganier ne pousse presque que dans ce pays. Son huile, utilisée en cuisine et en cosmétique, est traditionnellement produite par des coopératives de femmes."],
+['ISL',"Dans quel pays plaisante-t-on en disant : « si tu te perds dans la forêt, lève-toi » ?","Les Vikings ont coupé la plupart des bouleaux à leur arrivée, il y a plus de 1 000 ans. Le pays replante aujourd'hui des millions d'arbres."],
+['SUR',"Quel pays d'Amérique du Sud est couvert à plus de 90 % par la forêt, le record mondial ?","La forêt amazonienne y recouvre presque tout, en dehors de la côte où vit la majorité de la population."],
+['ETH',"Dans quel pays la légende raconte-t-elle qu'un berger a découvert le café en voyant ses chèvres danser ?","Le berger Kaldi aurait remarqué que ses chèvres étaient très agitées après avoir mangé des baies rouges. Le caféier arabica est originaire des forêts de ce pays."],
+['CIV',"Quel pays produit environ 40 % du cacao mondial ?","Le cacaoyer est pourtant originaire d'Amérique. Beaucoup de planteurs n'ont jamais goûté le chocolat fabriqué avec leurs fèves."],
+['KEN',"Dans quel pays Wangari Maathai a-t-elle lancé un mouvement qui a planté plus de 50 millions d'arbres ?","Avec son « Mouvement de la ceinture verte », elle est devenue en 2004 la première femme africaine à recevoir le prix Nobel de la paix."],
+['BTN',"Quel pays a inscrit dans sa Constitution que la forêt doit toujours couvrir au moins 60 % de son territoire ?","Ce petit royaume de l'Himalaya mesure aussi le « Bonheur national brut » de ses habitants."],
+['NZL',"Dans quel pays pousse Tāne Mahuta, un kauri géant vénéré par les Maoris ?","Son nom signifie « Seigneur de la forêt ». Il aurait entre 1 250 et 2 500 ans, et son tronc fait plus de 15 m de tour."],
+['NOR',"Quel pays offre chaque année le grand sapin de Noël de Trafalgar Square, à Londres ?","Ce cadeau remercie le Royaume-Uni pour son aide pendant la Seconde Guerre mondiale. La tradition dure depuis 1947."],
+['COD',"Quel pays abrite la plus grande partie de la forêt du bassin du Congo, la deuxième forêt tropicale du monde ?","Elle abrite des bonobos, des okapis et des gorilles, et stocke d'énormes quantités de carbone dans ses tourbières."],
+['MDG',"Dans quel pays se trouve l'Allée des Baobabs ?","Sur les 8 espèces de baobabs connues, 6 ne poussent que sur cette île. Leur tronc peut stocker des milliers de litres d'eau."],
+['CHL',"Quel pays a pour arbre national l'araucaria, surnommé « désespoir des singes » ?","Ses branches couvertes d'écailles pointues seraient impossibles à escalader, d'où son surnom. L'espèce existait déjà au temps des dinosaures."],
+['GBR',"Dans quel pays un célèbre arbre près du mur d'Hadrien a-t-il été abattu illégalement en 2023, provoquant l'émotion nationale ?","Le « Sycamore Gap », un érable sycomore solitaire au creux de deux collines, était l'un des arbres les plus photographiés du pays. Deux hommes ont été condamnés pour l'avoir coupé."],
+];
+
+const Q_NATURE = [
+['AUS',"Dans quel pays se trouve la Grande Barrière de corail, le plus grand récif du monde ?","Elle s'étend sur plus de 2 300 km et on peut la voir depuis l'espace. Elle est menacée par le réchauffement des océans, qui fait blanchir les coraux."],
+['IDN',"Dans quel pays vit le dragon de Komodo, le plus grand lézard du monde ?","Il peut mesurer 3 m et peser plus de 70 kg. Sa morsure contient du venin, et les femelles peuvent même avoir des petits sans mâle."],
+['CHN',"Dans quel pays vit le panda géant à l'état sauvage ?","Il passe environ 14 heures par jour à manger du bambou. Le pays prête des pandas aux zoos du monde entier : c'est la « diplomatie du panda »."],
+['BWA',"Dans quel pays se trouve le delta de l'Okavango, un fleuve qui n'atteint jamais la mer ?","Le fleuve se perd dans le désert du Kalahari en formant un immense marais où se rassemblent éléphants, hippopotames et lions."],
+['COL',"Quel pays compte le plus d'espèces d'oiseaux au monde, plus de 1 900 ?","C'est environ 20 % des espèces d'oiseaux de la planète, grâce à ses Andes, son Amazonie et ses deux côtes océaniques."],
+['IND',"Dans quel pays vivent environ trois quarts des tigres sauvages du monde ?","Plus de 3 000 tigres du Bengale y vivent dans des réserves. Le tigre est l'animal national du pays."],
+['JPN',"Dans quel pays des singes prennent-ils des bains chauds dans des sources volcaniques en hiver ?","À Jigokudani, les macaques sortent de la forêt enneigée pour se réchauffer dans les sources chaudes, sous l'œil des touristes."],
+['NZL',"Dans quel pays n'y avait-il aucun mammifère terrestre, à part des chauves-souris, avant l'arrivée des humains ?","Sans prédateurs, de nombreux oiseaux ont perdu la capacité de voler, comme le kiwi, devenu le symbole du pays."],
+['BLZ',"Dans quel pays se trouve le Grand Trou bleu, un gouffre sous-marin parfaitement rond ?","Large d'environ 300 m et profond de 125 m, il a été rendu célèbre par le commandant Cousteau en 1971."],
+['MEX',"Vers quel pays des millions de papillons monarques migrent-ils chaque automne, parfois sur plus de 4 000 km ?","Ils quittent le Canada et les États-Unis pour hiverner dans les forêts de sapins du Michoacán, où ils couvrent les arbres de couleur orange."],
+['CAN',"Dans quel pays la ville de Churchill est-elle surnommée la « capitale mondiale de l'ours polaire » ?","Chaque automne, des centaines d'ours polaires attendent près de la ville que la baie d'Hudson gèle pour aller chasser le phoque."],
+['ZAF',"Dans quel pays se trouve le royaume floral du Cap, le plus petit mais l'un des plus riches des six royaumes floraux du monde ?","Sa végétation, le fynbos, compte environ 9 000 espèces de plantes, dont la majorité ne pousse nulle part ailleurs."],
+['SYC',"Dans quel pays vivent plus de 100 000 tortues géantes sur l'atoll d'Aldabra ?","Le pays abrite aussi le coco de mer, la plus grosse graine du monde, qui peut peser plus de 20 kg."],
+['MUS',"Dans quel pays vivait le dodo, un oiseau disparu vers 1680 ?","Incapable de voler et sans peur des humains, il a été chassé par les marins et ses œufs dévorés par les animaux qu'ils avaient amenés."],
+['PNG',"Dans quel pays vivent la plupart des oiseaux de paradis, célèbres pour leurs danses nuptiales ?","Les mâles déploient des plumes extravagantes et font des parades étonnantes pour séduire les femelles. Un oiseau de paradis figure sur le drapeau du pays."],
+['ECU',"Dans quel pays vit l'iguane marin, le seul lézard au monde qui nage dans la mer ?","Sur les îles Galápagos, il plonge pour brouter les algues et éternue pour rejeter le sel qu'il a avalé."],
+['RWA',"Dans quel pays la chercheuse Dian Fossey a-t-elle étudié les gorilles des montagnes ?","Son centre de recherche se trouvait dans les volcans des Virunga. Sa vie a inspiré le film « Gorilles dans la brume »."],
+['TZA',"Dans quel pays se trouve le cratère du Ngorongoro, où vivent environ 25 000 grands animaux ?","C'est un ancien volcan effondré d'environ 20 km de large. Lions, éléphants, rhinocéros noirs et zèbres y vivent comme dans une arche de Noé naturelle."],
+['VEN',"Dans quel pays se trouvent les tepuis, des montagnes tabulaires qui ont inspiré « Le Monde perdu » de Conan Doyle ?","Le mont Roraima et ses voisins ont des sommets plats isolés depuis des millions d'années, où vivent des plantes et des grenouilles uniques au monde."],
+['PHL',"Dans quel pays vit le tarsier, un petit primate dont chaque œil est plus gros que son cerveau ?","Il ne peut pas bouger les yeux, alors il tourne la tête presque à 180°, comme une chouette."],
+['MDG',"Dans quel pays vivent environ la moitié des espèces de caméléons du monde ?","On y trouve à la fois l'un des plus grands caméléons et l'un des plus petits reptiles du monde : un caméléon qui tient sur le bout d'un doigt."],
+['BRA',"Dans quel pays se trouve la plus grande partie du Pantanal, la plus grande zone humide tropicale du monde ?","C'est l'un des meilleurs endroits au monde pour observer des jaguars, des capybaras et des caïmans."],
+['ISL',"Dans quel pays niche une grande partie des macareux moines de l'Atlantique ?","Ces petits oiseaux au bec coloré, surnommés « perroquets de mer », reviennent chaque été sur les falaises de l'île."],
+['RUS',"Dans quel pays vit l'essentiel des tigres de Sibérie (tigres de l'Amour), les plus grands félins du monde ?","Ils vivent dans les forêts enneigées de l'Extrême-Orient. Il en reste environ 600 à l'état sauvage."],
+['ARG',"Dans quel pays les orques de la péninsule Valdés s'échouent-elles volontairement sur la plage pour chasser les otaries ?","C'est l'un des seuls endroits au monde où les orques utilisent cette technique risquée, qu'elles apprennent à leurs petits."],
+];
+
+/* Spécialités françaises : [ville, lat, lon, question, anecdote] */
+const Q_FRANCE = [
+['Dijon',47.32,5.04,"Quelle ville a donné son nom à une célèbre moutarde ?","La « moutarde de Dijon » est une recette, pas une appellation d'origine : on peut la fabriquer ailleurs, et la plupart des graines viennent… du Canada."],
+['Bordeaux',44.84,-0.58,"De quelle ville vient le canelé, petit gâteau caramélisé au rhum et à la vanille ?","On raconte que des religieuses le préparaient avec les jaunes d'œufs que leur donnaient les viticulteurs, qui utilisaient les blancs pour clarifier leur vin."],
+['Marseille',43.30,5.37,"Quelle ville est célèbre pour son savon et sa bouillabaisse ?","Le vrai savon de cette ville contient au moins 72 % d'huile. La bouillabaisse était à l'origine un plat de pêcheurs, préparé avec les poissons invendus."],
+['Nice',43.70,7.27,"Dans quelle ville mange-t-on la socca, une galette de farine de pois chiches ?","Elle est cuite au feu de bois dans de grandes plaques en cuivre et se mange brûlante, avec beaucoup de poivre."],
+['Lyon',45.76,4.84,"Quelle ville est célèbre pour ses « bouchons », ses quenelles et sa gastronomie ?","Le nom « bouchon » viendrait des bouchons de paille qu'on utilisait pour frotter les chevaux, devant les auberges où les cochers s'arrêtaient."],
+['Castelnaudary',43.32,1.95,"Quelle ville se proclame « capitale mondiale du cassoulet » ?","Selon la légende, le cassoulet serait né pendant la guerre de Cent Ans : les habitants assiégés auraient mis en commun tout ce qui leur restait pour nourrir les soldats."],
+['Strasbourg',48.58,7.75,"Quelle ville accueille le plus ancien marché de Noël de France, et est célèbre pour sa choucroute ?","Le Christkindelsmärik y existe depuis 1570. La ville se surnomme « Capitale de Noël »."],
+['Nancy',48.69,6.18,"Dans quelle ville les « Sœurs macarons » ont-elles rendu célèbre leur recette de macarons ?","Pendant la Révolution, deux religieuses chassées de leur couvent ont gagné leur vie en vendant des macarons. La rue où elles vivaient porte aujourd'hui leur nom."],
+['Cambrai',50.18,3.23,"De quelle ville viennent les « bêtises », des bonbons à la menthe ?","Selon la légende, ces bonbons sont nés d'une erreur d'un apprenti confiseur, qui aurait mis trop de menthe : sa mère l'aurait traité de « bon à rien qui ne fait que des bêtises »."],
+['Montélimar',44.56,4.75,"Quelle ville est la capitale du nougat ?","Le nougat s'y est développé grâce aux amandiers plantés en Provence au XVIIᵉ siècle. On y trouve encore plusieurs nougateries artisanales."],
+['Aix-en-Provence',43.53,5.45,"De quelle ville vient le calisson, une confiserie en forme de losange ?","Selon la légende, il aurait été créé en 1454 pour le mariage du roi René, afin de faire sourire sa jeune épouse qui ne souriait jamais."],
+['Carpentras',44.06,5.05,"Quelle ville est célèbre pour ses berlingots, des bonbons rayés de blanc ?","On les fabriquait avec le sirop qui restait après la préparation des fruits confits, une spécialité de la région."],
+['Agen',44.20,0.62,"Quelle ville a donné son nom à de célèbres pruneaux ?","On les fabrique en séchant des prunes d'Ente. Ils portent le nom de cette ville car c'est depuis son port, sur la Garonne, qu'ils étaient expédiés."],
+['Espelette',43.34,-1.45,"Dans quel village basque sèche-t-on des piments en guirlandes sur les façades des maisons ?","Rapporté des Amériques au XVIᵉ siècle, ce piment est protégé par une appellation d'origine depuis 2000."],
+['Bayonne',43.49,-1.48,"Quelle ville est réputée pour son jambon… et pour avoir été la première ville du chocolat en France ?","Le chocolat y a été apporté au XVIIᵉ siècle par des familles juives chassées d'Espagne et du Portugal, qui maîtrisaient sa fabrication."],
+['Roquefort-sur-Soulzon',43.98,2.99,"Dans quel village affine-t-on un célèbre fromage bleu dans des caves naturelles ?","Ce fromage de brebis mûrit dans les caves du Combalou. C'est le premier fromage à avoir obtenu une appellation d'origine en France, en 1925."],
+['Camembert',48.89,0.18,"Quel village normand a donné son nom à un célèbre fromage ?","On attribue sa création à Marie Harel, vers 1791. La boîte ronde en bois, inventée en 1890, lui a permis de voyager dans le monde entier."],
+['Douarnenez',48.09,-4.33,"De quelle ville bretonne vient le kouign-amann, un gâteau très riche en beurre ?","Son nom veut dire « gâteau au beurre » en breton. Il aurait été inventé vers 1860 par un boulanger qui manquait de farine mais avait beaucoup de beurre."],
+['Pont-Aven',47.86,-3.75,"Quelle petite ville bretonne est connue pour ses galettes au beurre et pour avoir inspiré le peintre Gauguin ?","À la fin du XIXᵉ siècle, de nombreux peintres s'y sont installés, formant « l'école de Pont-Aven »."],
+['Guérande',47.33,-2.43,"Dans quelle ville récolte-t-on un célèbre sel et sa fleur de sel dans des marais salants ?","Les paludiers récoltent le sel à la main, avec de grands râteaux en bois, comme il y a plusieurs siècles."],
+['Commercy',48.76,5.59,"De quelle ville viennent les madeleines rendues célèbres par Marcel Proust ?","Selon la légende, une servante nommée Madeleine les aurait préparées en 1755 pour le roi Stanislas, qui les aurait baptisées de son prénom."],
+['Sablé-sur-Sarthe',47.84,-0.33,"Quelle ville a donné son nom à un petit biscuit au beurre ?","On fabrique encore aujourd'hui ces biscuits dans la ville, où plusieurs biscuiteries perpétuent la tradition."],
+['Lille',50.63,3.06,"Dans quelle ville la pâtisserie Méert vend-elle ses gaufres fourrées à la vanille depuis le XVIIIᵉ siècle ?","Fondée en 1761, la maison comptait parmi ses clients le général de Gaulle, né dans cette ville."],
+['Reims',49.26,4.03,"Dans quelle ville les biscuits roses sont-ils faits pour être trempés dans le champagne ?","Créés vers 1690, ils étaient cuits deux fois pour être bien secs. La ville est aussi celle où étaient sacrés les rois de France."],
+['Cognac',45.69,-0.33,"Quelle ville a donné son nom à une célèbre eau-de-vie ?","Chaque année, environ 2 % de l'alcool s'évapore des tonneaux : c'est « la part des anges ». Cette vapeur fait noircir les murs des chais, grâce à un petit champignon."],
+['Limoges',45.83,1.26,"Quelle ville est célèbre dans le monde entier pour sa porcelaine ?","Tout a commencé en 1768 avec la découverte de kaolin, une argile blanche indispensable, à Saint-Yrieix, tout près de là."],
+['Laguiole',44.68,2.85,"Quel village de l'Aubrac a donné son nom à un célèbre couteau, orné d'une abeille ?","Le nom n'est pas protégé : beaucoup de couteaux « Laguiole » sont fabriqués ailleurs, même en Chine. Le village a perdu un procès pour récupérer son nom."],
+['Grasse',43.66,6.92,"Quelle ville est la capitale mondiale du parfum ?","On y cultive notamment le jasmin et la rose centifolia. La ville a été inscrite au patrimoine immatériel de l'UNESCO pour ses savoir-faire liés au parfum."],
+['Le Puy-en-Velay',45.04,3.88,"Quelle ville a donné son nom à des lentilles vertes ?","Ce sont les premiers légumes secs à avoir obtenu une appellation d'origine en France, en 1996. Le sol volcanique leur donne leur goût."],
+['Sarlat-la-Canéda',44.89,1.22,"Quelle ville du Périgord est célèbre pour ses marchés aux truffes et au foie gras ?","La truffe noire du Périgord est surnommée le « diamant noir ». On la cherchait autrefois avec des cochons, aujourd'hui surtout avec des chiens."],
+['Vichy',46.13,3.43,"Quelle ville est célèbre pour ses pastilles octogonales et son eau minérale ?","Les pastilles sont fabriquées depuis le XIXᵉ siècle avec les sels minéraux extraits des sources de la ville."],
+['Morteau',47.06,6.61,"Quelle ville du Doubs a donné son nom à une saucisse fumée ?","Elle est fumée lentement dans de grandes cheminées appelées « tuyés ». On la reconnaît à la petite cheville en bois qui ferme l'une de ses extrémités."],
+['Poligny',46.84,5.71,"Quelle ville du Jura se proclame « capitale du comté » ?","Il faut environ 450 litres de lait pour fabriquer une seule meule de comté, qui pèse autour de 40 kg."],
+['Tours',47.39,0.69,"Quelle ville est réputée pour ses rillettes ?","Balzac, né dans cette ville, les appelait la « brune confiture de cochon »."],
+['Orléans',47.90,1.91,"Quelle ville était au XVIIᵉ siècle la capitale du vinaigre ?","Le vin transporté sur la Loire tournait souvent au vinaigre pendant le voyage. La ville en a fait une spécialité, avec jusqu'à 300 vinaigriers."],
+['Bourg-en-Bresse',46.21,5.23,"Près de quelle ville élève-t-on les volailles de Bresse, aux pattes bleues ?","Pattes bleues, plumes blanches et crête rouge : ces volailles ont les couleurs du drapeau français. Elles ont obtenu une appellation d'origine en 1957."],
+['Nantes',47.22,-1.55,"Dans quelle ville a été inventé le petit-beurre LU ?","Créé en 1886, il a 4 coins comme les saisons, 52 dents comme les semaines et 24 petits trous comme les heures de la journée."],
+['Toulouse',43.60,1.44,"Quelle ville, surnommée la « ville rose », est célèbre pour sa violette ?","La violette y est cultivée depuis le XIXᵉ siècle et transformée en bonbons, en liqueurs et en parfums. Sa saucisse est aussi une spécialité réputée."],
+['Sète',43.40,3.69,"Dans quelle ville mange-t-on la tielle, une tourte au poulpe ?","Elle a été apportée par des pêcheurs italiens venus de Gaète, au XIXᵉ siècle."],
+['Calais',50.95,1.86,"Quelle ville est célèbre pour sa dentelle, fabriquée sur des métiers Leavers ?","Au début du XIXᵉ siècle, des ouvriers anglais y ont apporté en contrebande ces métiers à tisser, qu'il était interdit de sortir d'Angleterre."],
+['Saint-Émilion',44.89,-0.16,"Quel village viticole, inscrit à l'UNESCO, est aussi connu pour ses macarons ?","La recette des macarons y aurait été mise au point par des religieuses au XVIIᵉ siècle. Ses vignobles sont classés au patrimoine mondial depuis 1999."],
+];
+
+const THEMES = [
+  {id:'insolite', name:'Insolite & culture générale', emoji:'🌍', qs:QUESTIONS},
+  {id:'elec', name:'Réseaux électriques dans le monde', emoji:'⚡', qs:Q_ELEC},
+  {id:'arbres', name:'Arbres et végétation', emoji:'🌳', qs:Q_ARBRES},
+  {id:'nature', name:'Nature, biodiversité', emoji:'🦎', qs:Q_NATURE},
+  {id:'france', name:'Spécialités françaises', emoji:'🥖', qs:Q_FRANCE, france:true},
+];
+const themeOf = id => THEMES.find(t=>t.id===id);
+// question normalisée : un pays à trouver, ou une ville de France (points × 10)
+function normQ(th, q){
+  return th.france
+    ? {kind:'city', theme:th.id, city:{name:q[0], lat:q[1], lon:q[2]}, text:q[3], anec:q[4], mult:10}
+    : {kind:'country', theme:th.id, id:q[0], text:q[1], anec:q[2], mult:1};
+}
 /* ================== MOTEUR ================== */
 window.addEventListener('error', e=>{ const m=document.getElementById('load-msg'); if(m && document.getElementById('loading')) m.textContent='Erreur : '+e.message; });
 window.addEventListener('unhandledrejection', e=>{ const m=document.getElementById('load-msg'); if(m && document.getElementById('loading')) m.textContent='Erreur : '+(e.reason&&e.reason.message||e.reason); });
@@ -817,16 +973,16 @@ const tip={style:{}};
 const pointers=new Map(); let drag=null, pinch=null, lastMoveT=0, hoverPending=null;
 cv.addEventListener('pointerdown', e=>{
   cv.setPointerCapture(e.pointerId); pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  autoSpin=false; anim=null; vel=[0,0];
+  autoSpin=false; vel=[0,0];
   if (pointers.size===1){ drag={x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,moved:false}; }
-  else if (pointers.size===2){ const [a,b]=[...pointers.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y), z:zoom}; drag=null; dragging=true; }
+  else if (pointers.size===2){ const [a,b]=[...pointers.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y), z:zoom}; drag=null; dragging=true; anim=null; }
 });
 cv.addEventListener('pointermove', e=>{
   if (pointers.has(e.pointerId)) pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if (pinch && pointers.size===2){ const [a,b]=[...pointers.values()]; zoom=Math.max(ZMIN,Math.min(ZMAX,pinch.z*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d)); req(); return; }
   if (drag){
     const dx=e.clientX-drag.x, dy=e.clientY-drag.y; drag.x=e.clientX; drag.y=e.clientY;
-    if (!drag.moved && Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>4){ drag.moved=true; dragging=true; cv.classList.add('dragging'); tip.style.display='none'; }
+    if (!drag.moved && Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>4){ drag.moved=true; dragging=true; anim=null; cv.classList.add('dragging'); tip.style.display='none'; }
     if (drag.moved){ const k=57.2958/(base*zoom); rot[0]+=dx*k; rot[1]=clampLat(rot[1]-dy*k); vel=[dx*k,-dy*k]; lastMoveT=performance.now(); req(); }
     return;
   }
@@ -893,9 +1049,20 @@ function focusReveal(t, pts){
   for (const ll of pts){ const a=d3.geoDistance(ll,focus); if(a>0.04 && a<1.5) z=Math.min(z, Math.max(1, 1.1/a)); }
   animateTo(focus, z, 1300);
 }
-function resetGlobeForQuestion(){
+const FR_METRO=[2.4,46.4], FR_ZOOM=7;
+function resetGlobeForQuestion(france){
   G.reveal=null; G.pins=[]; Q.cur=null; Q.answered=false; Q.done=false;
-  animateTo(FR_VIEW, 1, 900);
+  if (france) animateTo(FR_METRO, FR_ZOOM, 1100); else animateTo(FR_VIEW, 1, 900);
+}
+// distance d'un repère à la bonne réponse (pays ou ville), et points
+function scoreOf(q, ll){
+  if (q.kind==='city'){ const c=[q.city.lon,q.city.lat]; const d=d3.geoDistance(ll,c)*R_EARTH; return {d: d<10?0:d, p:c, pts: d<10?0:Math.round(d*10)}; }
+  const r=distTo(ll, info.get(q.id)); return {d:r.d, p:r.p, pts:Math.round(r.d)};
+}
+function focusCity(city, pts){
+  const c=[city.lon,city.lat]; let z=FR_ZOOM;
+  for (const ll of pts){ const a=d3.geoDistance(ll,c); if(a>0.01) z=Math.min(z, Math.max(3, 1.1/a)); }
+  animateTo(c, z, 1300);
 }
 
 // ---------- Dessin par-dessus le globe : bonne réponse + repères ----------
@@ -922,6 +1089,22 @@ function renderOverlay(){
   const fillId=(id,col,a)=>{ const f=hiById.get(id); if(!f) return; ctx.globalAlpha=a; ctx.beginPath(); path(f); ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1; };
   const strokeId=(id,col,w)=>{ const f=hiById.get(id); if(!f) return; ctx.beginPath(); path(f); ctx.strokeStyle=col; ctx.lineWidth=w; ctx.stroke(); };
   let target=null;
+  if (G.reveal && G.reveal.city){
+    const c=G.reveal.city, cl=[c.lon,c.lat];
+    for (const pn of G.pins){ if(pn.dist>0){ ctx.beginPath(); path({type:'LineString',coordinates:[pn.ll,cl]}); ctx.setLineDash([6,5]); ctx.strokeStyle=pn.color; ctx.globalAlpha=.85; ctx.lineWidth=2; ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1; } }
+    const placed=[];
+    if (visible(cl)){ const p=proj(cl);
+      ctx.beginPath(); ctx.arc(p[0],p[1],22,0,7); ctx.strokeStyle='rgba(47,209,122,.4)'; ctx.lineWidth=2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(p[0],p[1],14,0,7); ctx.strokeStyle='#2fd17a'; ctx.lineWidth=3; ctx.stroke();
+      ctx.beginPath(); ctx.arc(p[0],p[1],6,0,7); ctx.fillStyle='#2fd17a'; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle='#fff'; ctx.stroke();
+      placed.push(pill(p[0],p[1]-32,c.name,'rgba(8,40,22,.94)','#bdf5d3','#2fd17a','800 16px Inter,sans-serif')); }
+    for (const pn of G.pins.slice().sort((a,b)=>(a.me?1:0)-(b.me?1:0))){
+      if (!visible(pn.ll)) continue; const p=proj(pn.ll); const top=drawPin(p[0],p[1],pn.color,pn.me);
+      ctx.font='700 13px Inter,sans-serif'; const w=ctx.measureText(pn.name).width+16, y=top-12; const box=[p[0]-w/2,y-11,p[0]+w/2,y+11];
+      if (!placed.some(q=>box[0]<q[2]&&box[2]>q[0]&&box[1]<q[3]&&box[3]>q[1])) placed.push(pill(p[0],y,pn.name,'rgba(8,12,22,.88)','#fff',pn.color));
+    }
+    return;
+  }
   if (G.reveal){
     target=info.get(G.reveal.id); const tf=hiById.get(target.id);
     fillId(target.id,'#2fd17a',.7); strokeId(target.id,'#d6ffe6',2.2);
@@ -965,7 +1148,7 @@ const relayout = () => requestAnimationFrame(()=>resize());
 // =====================================================================
 //                               ÉCRAN (hôte)
 // =====================================================================
-const HS = {code:null, peer:null, players:new Map(), phase:'lobby', order:[], i:-1, nq:10, dur:30, q:null, startedAt:0, endsAt:0, answers:new Map(), timer:null, round:[], prevRanks:new Map()};
+const HS = {themes:new Set(['insolite']), code:null, peer:null, players:new Map(), phase:'lobby', order:[], i:-1, nq:10, dur:30, q:null, startedAt:0, endsAt:0, answers:new Map(), timer:null, round:[], prevRanks:new Map()};
 function makeCode(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
 function joinURL(){ return location.origin+location.pathname+'?salle='+HS.code; }
 function hostInit(){
@@ -979,6 +1162,11 @@ function hostInit(){
   }
   const segs=(id,key)=>{ const el=$(id); el.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; el.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); HS[key]=+b.dataset.v; }); };
   segs('#s-nq','nq'); segs('#s-dur','dur');
+  const tbox=$('#s-themes');
+  tbox.innerHTML=THEMES.map(t=>`<button data-id="${t.id}" class="${HS.themes.has(t.id)?'on':''}">${t.emoji} ${esc(t.name)} <small>${t.qs.length}</small></button>`).join('');
+  tbox.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const id=b.dataset.id;
+    if (HS.themes.has(id)){ if(HS.themes.size>1) HS.themes.delete(id); } else HS.themes.add(id);
+    tbox.querySelectorAll('button').forEach(x=>x.classList.toggle('on',HS.themes.has(x.dataset.id))); });
   $('#h-start').onclick=startGame;
   $('#h-next').onclick=hostNext;
   document.addEventListener('keydown',e=>{ if(e.key===' '||e.key==='Enter'||e.key==='ArrowRight'){ if(HS.phase==='lobby') return; e.preventDefault(); hostNext(); } });
@@ -1038,7 +1226,7 @@ function hostMsg(conn,m){
 function hostClose(conn){ const p=HS.players.get(conn.pid); if(p && p.conn===conn){ p.connected=false; refreshHostUI(); } }
 function syncPlayer(p){
   if (HS.phase==='lobby') send(p,{t:'lobby'});
-  else if (HS.phase==='question') send(p,{t:'question', n:HS.i+1, total:HS.order.length, text:HS.q[1], remaining:Math.max(0,HS.endsAt-Date.now()), dur:HS.dur*1000, answered:HS.answers.has(p.pid)});
+  else if (HS.phase==='question') send(p,{t:'question', n:HS.i+1, total:HS.order.length, text:HS.q.text, theme:themeOf(HS.q.theme).emoji+' '+themeOf(HS.q.theme).name, kind:HS.q.kind, mult:HS.q.mult, remaining:Math.max(0,HS.endsAt-Date.now()), dur:HS.dur*1000, answered:HS.answers.has(p.pid)});
   else if (p.last) send(p,p.last);
   else send(p,{t:'wait'});
 }
@@ -1057,8 +1245,9 @@ function refreshHostUI(){
 }
 function startGame(){
   if (!connectedPlayers().length) return;
-  const idx=d3.shuffle(d3.range(QUESTIONS.length));
-  HS.order=idx.slice(0,Math.min(HS.nq,idx.length));
+  const pool=[]; for (const th of THEMES) if (HS.themes.has(th.id)) for (const q of th.qs) pool.push(normQ(th,q));
+  d3.shuffle(pool);
+  HS.order=pool.slice(0,Math.min(HS.nq,pool.length));
   HS.i=-1; for (const p of HS.players.values()){ p.score=0; p.last=null; }
   HS.prevRanks=new Map(); Q.history=[];
   $('#lobby').classList.add('hidden'); $('#board').classList.add('hidden');
@@ -1066,14 +1255,15 @@ function startGame(){
   nextQuestion();
 }
 function nextQuestion(){
-  HS.i++; HS.q=QUESTIONS[HS.order[HS.i]];
+  HS.i++; HS.q=HS.order[HS.i];
   HS.answers=new Map(); HS.phase='question';
   HS.startedAt=Date.now(); HS.endsAt=HS.startedAt+HS.dur*1000;
   $('#board').classList.add('hidden');
   $('#h-qn').textContent=`${HS.i+1} / ${HS.order.length}`;
-  $('#h-qt').textContent=HS.q[1];
+  const th=themeOf(HS.q.theme);
+  $('#h-qt').innerHTML=`<div class="qtheme">${th.emoji} ${esc(th.name)}${HS.q.mult>1?'<span class="mult">points × 10</span>':''}</div>${esc(HS.q.text)}`;
   refreshHostUI(); relayout();
-  resetGlobeForQuestion();
+  resetGlobeForQuestion(HS.q.kind==='city');
   for (const p of HS.players.values()){ p.last=null; syncPlayer(p); }
   clearInterval(HS.timer); HS.timer=setInterval(tickHost,200); tickHost();
 }
@@ -1087,33 +1277,33 @@ function reveal(){
   if (HS.phase!=='question') return;
   clearInterval(HS.timer); HS.phase='reveal';
   $('#h-time').textContent='0'; $('#h-ringfg').style.strokeDashoffset=276.5;
-  const t=info.get(HS.q[0]);
+  const q=HS.q, isCity=q.kind==='city';
+  const t=isCity?null:info.get(q.id), ansName=isCity?q.city.name:t.name;
   const round=[];
   for (const p of HS.players.values()){
     const a=HS.answers.get(p.pid);
-    if (a){ const r=distTo(a.ll,t); const pts=Math.round(r.d); round.push({p,dist:r.d,pts,ll:a.ll,to:r.p,time:a.t}); p.score+=pts; }
+    if (a){ const r=scoreOf(q,a.ll); round.push({p,dist:r.d,pts:r.pts,ll:a.ll,to:r.p,time:a.t}); p.score+=r.pts; }
     else { round.push({p,dist:null,pts:NO_ANSWER,time:Infinity}); p.score+=NO_ANSWER; }
   }
   round.sort((a,b)=>a.pts-b.pts || a.time-b.time);
   HS.round=round;
   const ranking=[...HS.players.values()].sort((a,b)=>a.score-b.score);
   // globe
-  Q.cur=t; Q.answered=true; Q.done=true; Q.history.push({id:t.id, ok:true, color:'#2fd17a', mode:'pays'});
-  G.reveal={id:t.id};
   G.pins=round.filter(r=>r.ll).map(r=>({ll:r.ll,to:r.to,dist:r.dist,color:r.p.color,name:r.p.name}));
-  focusReveal(t, G.pins.map(x=>x.ll));
+  if (isCity){ Q.done=true; G.reveal={city:q.city}; focusCity(q.city, G.pins.map(x=>x.ll)); }
+  else { Q.cur=t; Q.answered=true; Q.done=true; Q.history.push({id:t.id, ok:true, color:'#2fd17a', mode:'pays'}); G.reveal={id:t.id}; focusReveal(t, G.pins.map(x=>x.ll)); }
   // panneau
-  $('#h-sidebody').innerHTML = `<div class="lbl">La réponse</div><div class="answer">${esc(t.name)}</div>
-    <div class="anec"><b>Le saviez-vous ?</b>${esc(HS.q[2])}</div>
+  $('#h-sidebody').innerHTML = `<div class="lbl">La réponse</div><div class="answer">${esc(ansName)}</div>
+    <div class="anec"><b>Le saviez-vous ?</b>${esc(q.anec)}</div>
     <div class="lbl" style="margin-top:4px">Cette manche</div>
-    <div class="rows">${round.map((r,k)=>`<div class="row" style="--c:${r.p.color}"><span class="r">${k+1}</span><span class="dot"></span><span class="n">${esc(r.p.name)}</span><span class="d">${r.dist==null?'pas de réponse':r.dist===0?'🎯 dans le mille':fmtKm(r.dist)}</span><span class="p">+${fmtPts(r.pts)}</span></div>`).join('')}</div>`;
+    <div class="rows">${round.map((r,k)=>`<div class="row" style="--c:${r.p.color}"><span class="r">${k+1}</span><span class="dot"></span><span class="n">${esc(r.p.name)}</span><span class="d">${r.dist==null?'pas de réponse':r.dist===0?'🎯 dans le mille':fmtKm(r.dist)+(isCity?' × 10':'')}</span><span class="p">+${fmtPts(r.pts)}</span></div>`).join('')}</div>`;
   const last=HS.i>=HS.order.length-1;
   $('#h-next').innerHTML = (last?'Résultats finaux':'Classement')+' <kbd>Espace</kbd>';
   // téléphones
   const pinsMsg=G.pins.map(x=>({ll:x.ll,to:x.to,dist:x.dist,color:x.color,name:x.name}));
   round.forEach((r,k)=>{
     const rank=ranking.indexOf(r.p)+1;
-    r.p.last={t:'result', id:t.id, answer:t.name, anecdote:HS.q[2], dist:r.dist, pts:r.pts, roundRank:k+1, n:round.length, total:r.p.score, rank, pins:pinsMsg, ll:r.ll||null, last};
+    r.p.last={t:'result', id:isCity?null:t.id, city:isCity?q.city:null, mult:q.mult, answer:ansName, anecdote:q.anec, dist:r.dist, pts:r.pts, roundRank:k+1, n:round.length, total:r.p.score, rank, pins:pinsMsg, ll:r.ll||null, last};
     send(r.p, r.p.last);
   });
 }
@@ -1147,6 +1337,7 @@ function backToLobby(){
   $('#lobby').classList.remove('hidden');
   G.reveal=null; G.pins=[]; Q.history=[]; Q.cur=null; Q.answered=false; Q.done=false;
   for (const p of HS.players.values()){ p.score=0; p.last=null; syncPlayer(p); }
+  $('#h-start').textContent='Lancer la partie ▶';
   refreshHostUI(); relayout(); autoSpin=true; animateTo(FR_VIEW,1,900); setTimeout(()=>{autoSpin=true; req();},950);
 }
 function hostNext(){
@@ -1214,9 +1405,10 @@ function playerMsg(m){
     autoSpin=true; req();
   } else if (m.t==='question'){
     P.state='question'; P.pin=null; P.sent=!!m.answered; P.dur=m.dur; P.endsAt=Date.now()+m.remaining;
-    $('#p-qn').textContent=`Question ${m.n}/${m.total}`; $('#p-q').textContent=m.text; meBadge();
+    $('#p-qn').textContent=`Question ${m.n}/${m.total}`; meBadge();
+    $('#p-q').innerHTML=`<div style="font:600 12px Inter,sans-serif;color:var(--muted);margin-bottom:3px">${esc(m.theme||'')}${m.mult>1?'<span class="mult">points × 10</span>':''}</div>${esc(m.text)}`;
     showTop(true); $('#zoombox').classList.remove('hidden');
-    resetGlobeForQuestion();
+    P.kind=m.kind; resetGlobeForQuestion(m.kind==='city');
     renderQuestionPanel();
     clearInterval(P.timer); P.timer=setInterval(tickPlayer,200); tickPlayer();
     if (navigator.vibrate) try{ navigator.vibrate([40,60,40]); }catch(_){}
@@ -1224,15 +1416,18 @@ function playerMsg(m){
     P.sent=true; renderQuestionPanel();
   } else if (m.t==='result'){
     P.state='result'; clearInterval(P.timer); showTop(false); $('#zoombox').classList.remove('hidden');
-    const t=info.get(m.id);
-    Q.cur=t; Q.answered=true; Q.done=true;
-    if (!Q.history.some(h=>h.id===t.id)) Q.history.push({id:t.id,ok:true,color:'#2fd17a',mode:'pays'});
-    G.reveal={id:m.id}; G.pins=(m.pins||[]).map(x=>({...x, me: x.name===P.name && x.color===P.color}));
+    G.pins=(m.pins||[]).map(x=>({...x, me: x.name===P.name && x.color===P.color}));
     P.pin=null;
-    focusReveal(t, m.ll?[m.ll]:[]);
+    if (m.city){ Q.done=true; G.reveal={city:m.city}; focusCity(m.city, m.ll?[m.ll]:[]); }
+    else {
+      const t=info.get(m.id);
+      Q.cur=t; Q.answered=true; Q.done=true;
+      if (!Q.history.some(h=>h.id===t.id)) Q.history.push({id:t.id,ok:true,color:'#2fd17a',mode:'pays'});
+      G.reveal={id:m.id}; focusReveal(t, m.ll?[m.ll]:[]);
+    }
     const res = m.dist==null ? `<span class="big res-ko">Pas de réponse 😴</span>+${fmtPts(m.pts)} pts`
       : m.dist===0 ? `<span class="big res-ok">🎯 Dans le mille !</span>+0 pt`
-      : `<span class="big">${fmtKm(m.dist)}</span>d'écart · +${fmtPts(m.pts)} pts`;
+      : `<span class="big">${fmtKm(m.dist)}</span>d'écart${m.mult>1?' × 10':''} · +${fmtPts(m.pts)} pts`;
     setPanel(`<div class="pmsg">C'était <b>${esc(m.answer)}</b><br>${res}<br>${ord(m.roundRank)} sur ${m.n} pour cette question · Total <b>${fmtPts(m.total)}</b> (${ord(m.rank)})</div><div class="panec"><b>Le saviez-vous ?</b> ${esc(m.anecdote)}</div>`);
   } else if (m.t==='scores'){
     P.state='scores';
@@ -1247,7 +1442,7 @@ function renderQuestionPanel(){
   const left=P.endsAt-Date.now();
   if (P.sent) setPanel(`<div class="pmsg"><span class="big res-ok">Réponse envoyée ✓</span>Regarde l'écran, les autres répondent…</div>`);
   else if (left<=0) setPanel(`<div class="pmsg"><span class="big res-ko">Temps écoulé ⏰</span>Trop tard pour cette fois !</div>`);
-  else setPanel(`<div class="pmsg">${P.pin?'Tu peux déplacer ton repère, puis valide :':'👆 Fais tourner le globe et <b>touche le pays</b> pour poser ton repère.'}</div><button class="btn primary" id="p-send" ${P.pin?'':'disabled'}>Valider ma réponse</button>`);
+  else setPanel(`<div class="pmsg">${P.pin?'Tu peux déplacer ton repère, puis valide :':`👆 Fais tourner le globe et <b>touche ${P.kind==='city'?'la ville':'le pays'}</b> pour poser ton repère.`}</div><button class="btn primary" id="p-send" ${P.pin?'':'disabled'}>Valider ma réponse</button>`);
   const b=$('#p-send'); if(b) b.onclick=sendAnswer;
 }
 function tickPlayer(){
