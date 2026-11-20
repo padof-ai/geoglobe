@@ -156,12 +156,12 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
 
 /* ======== QUIZ PARTY : ajouts ======== */
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.games{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.6vh}
+.games{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.6vh}
 .games button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;border:2px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);border-radius:16px;padding:12px 14px;cursor:pointer;font:700 clamp(15px,1.15vw,19px) Inter,sans-serif}
 .games button small{font:500 clamp(12px,.85vw,14px) Inter,sans-serif;color:var(--muted)}
 .games button .gi{font-size:28px}
 .games button.on{border-color:var(--accent);background:rgba(242,193,78,.12)}
-
+.games button.on::after{content:"✓";position:absolute}
 .tchips{max-height:24vh}
 #h-mini{position:static;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding:12px 0 0;background:none;border-radius:0;box-shadow:none}
 #h-mini .qrbox{width:78px;padding:4px;border-radius:9px}
@@ -238,6 +238,38 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
 .pmsg .huge{display:block;font:800 44px Inter,sans-serif;margin:4px 0}
 @media (max-width:1100px){ #h-stage{right:356px} }
 
+/* --- blind test --- */
+.tchips .bt-chip{border-style:dashed;color:var(--accent)}
+.bt-now{position:absolute;left:24px;right:24px;top:18px;height:84px;display:flex;align-items:center;gap:22px;padding:0 18px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.vinyl{width:64px;height:64px;border-radius:50%;flex:none;background:radial-gradient(circle,#f2c14e 0 17%,#111 18% 22%,#222 23% 100%),#111;box-shadow:inset 0 0 0 2px #333;animation:sp 2.4s linear infinite;background-image:radial-gradient(circle,#f2c14e 0 17%,#111 18% 22%,transparent 23%),repeating-radial-gradient(circle,#1b1b1b 0 2px,#262626 2px 4px)}
+.eq{display:flex;align-items:flex-end;gap:4px;height:46px}
+.eq i{display:block;width:7px;border-radius:3px;background:linear-gradient(180deg,#f2c14e,#e07b39);animation:eqb 1s ease-in-out infinite}
+.eq i:nth-child(odd){animation-duration:.8s}.eq i:nth-child(3n){animation-duration:1.25s}.eq i:nth-child(4n){animation-delay:-.4s}.eq i:nth-child(5n){animation-delay:-.7s}
+@keyframes eqb{0%,100%{height:15%}50%{height:100%}}
+.bt-txt{flex:1;font:600 clamp(18px,1.6vw,28px) Inter,sans-serif;color:#dfe4ee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bt-txt b{color:#9ff0c0}
+.bt-now .btn{padding:10px 14px;font-size:15px}
+.qgrid.bt{top:120px}
+#bt-click{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;background:var(--accent);color:#1d1604;font:800 26px Inter,sans-serif;padding:22px 34px;border-radius:20px;cursor:pointer;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#bt-manage{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(3,5,11,.75)}
+#bt-manage .card{width:min(980px,94vw);max-height:90vh;padding:22px 24px;display:flex;flex-direction:column;gap:14px}
+#bt-manage h2{font-family:Fraunces,serif;margin:0;font-size:30px}
+.bt-help{font-size:14px;color:#c3cad8;line-height:1.5;margin:0}
+.bt-add{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bt-add input{flex:1;min-width:220px;font:600 16px Inter,sans-serif;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);outline:none}
+#bt-drop{border:2px dashed var(--line);border-radius:14px;padding:14px;text-align:center;color:var(--muted);font-size:14px}
+#bt-drop.over{border-color:var(--accent);color:var(--accent);background:rgba(242,193,78,.06)}
+#bt-msg{font-size:13px;color:var(--ok);min-height:16px}
+#bt-list{overflow:auto;display:flex;flex-direction:column;gap:12px;min-height:120px}
+.bt-plh{display:flex;align-items:center;gap:10px;font:700 17px Inter,sans-serif;margin-bottom:6px}
+.bt-plh small{color:var(--muted);font-weight:500}
+.bt-plh .bt-x{margin-left:auto;width:auto;padding:0 10px;font-size:13px}
+.bt-song{display:flex;gap:8px;align-items:center;margin-bottom:5px}
+.bt-song input{flex:1;min-width:0;font:500 14px Inter,sans-serif;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);outline:none}
+.bt-song input:focus{border-color:var(--accent)}
+.bt-play,.bt-x{width:36px;height:34px;flex:none;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-size:14px}
+.bt-x:hover{border-color:var(--ko);color:#ffb0b2}
+
 </style>
 </head>
 <body>
@@ -256,7 +288,7 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
       </div>
       <div style="display:flex;flex-direction:column;min-width:0">
         <h1 class="brand">Quiz <span>Party</span></h1>
-        <p class="sub">Globe, frise du temps ou QCM : choisis un jeu, plusieurs, ou mélange tout !</p>
+        <p class="sub">Globe, frise du temps, QCM ou blind test : choisis un jeu, plusieurs, ou mélange tout !</p>
         <div class="lbl">Joueurs connectés <span id="h-count"></span></div>
         <div class="plist-hint">👆 Clique sur un joueur pour changer son avatar (emoji ou photo).</div>
         <div class="plist" id="h-players"><div class="empty">En attente des joueurs… 📱</div></div>
@@ -285,6 +317,15 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
     <div id="h-mini"><div class="qrbox" id="qr-mini"></div><div>Rejoindre en cours de partie :<b id="h-code-mini"></b></div></div>
   </aside>
   <div id="h-stage" class="hidden"></div>
+  <div id="bt-manage" class="hidden"><div class="card">
+    <h2>🎵 Mes musiques pour le blind test</h2>
+    <p class="bt-help">Ajoute tes fichiers audio (MP3, M4A…). Le titre et l'artiste sont lus dans le fichier, ou dans son nom s'il est de la forme <b>« Artiste - Titre.mp3 »</b>. Tu peux les corriger ci-dessous. Les musiques restent enregistrées <b>dans ce navigateur, sur ce PC</b>, d'une partie à l'autre. Il en faut au moins 4.</p>
+    <div class="bt-add"><input id="bt-plname" list="bt-pl-list" placeholder="Nom de la playlist (ex. Années 80)" value="Ma playlist"><datalist id="bt-pl-list"></datalist><label class="btn primary">➕ Ajouter des musiques…<input type="file" id="bt-file" accept="audio/*,.mp3,.m4a,.ogg,.wav,.flac" multiple hidden></label></div>
+    <div id="bt-drop">… ou glisse-dépose des fichiers ici</div>
+    <div id="bt-msg"></div>
+    <div id="bt-list"></div>
+    <button class="btn ghost" id="bt-close">Terminé</button>
+  </div></div>
   <div id="board" class="hidden"><div class="card" id="board-card"></div></div>
   <div id="avpick" class="hidden"><div class="card">
     <div class="aphead"><span id="ap-prev"></span><div><div class="lbl" style="margin:0">Avatar de</div><b id="ap-name"></b></div></div>
@@ -1089,6 +1130,7 @@ const GAMES = {
   geo:   {icon:'🌍', name:'GéoGlobe', desc:'Situer sur le globe'},
   chrono:{icon:'⏳', name:'Chrono', desc:"Deviner l'année"},
   qcm:   {icon:'❓', name:'QCM', desc:'4 réponses, une seule bonne'},
+  blind: {icon:'🎵', name:'Blind test', desc:'Reconnaître la musique'},
 };
 const THEMES = [
   {game:'geo', id:'insolite', name:'Insolite & culture générale', emoji:'🌍', qs:QUESTIONS},
@@ -1692,12 +1734,12 @@ function hostInit(){
   segs('#s-nq','nq'); segs('#s-dur','dur');
   $('#s-games').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const g=b.dataset.g;
     if (HS.games.has(g)){ if (HS.games.size>1) HS.games.delete(g); }
-    else { HS.games.add(g); if (!THEMES.some(t=>t.game===g && HS.themes.has(t.id))) HS.themes.add(THEMES.find(t=>t.game===g).id); }
+    else { HS.games.add(g); const f=THEMES.find(t=>t.game===g); if (f && !THEMES.some(t=>t.game===g && HS.themes.has(t.id))) HS.themes.add(f.id); if (g==='blind' && !f) btOpenManage(); }
     renderSetup(); });
-  $('#s-themes').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const id=b.dataset.id, g=themeOf(id).game;
+  $('#s-themes').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; if(b.dataset.act==='bt'){ btOpenManage(); return; } const id=b.dataset.id, g=themeOf(id).game;
     if (HS.themes.has(id)){ if (THEMES.filter(t=>t.game===g && HS.themes.has(t.id)).length>1) HS.themes.delete(id); } else HS.themes.add(id);
     renderSetup(); });
-  renderSetup();
+  renderSetup(); btInitManage(); btLoad().then(renderSetup);
   $('#h-start').onclick=startGame;
   $('#h-players').addEventListener('click',e=>{ const c=e.target.closest('.chip'); if(c) openPicker(c.dataset.pid); });
   $('#ap-close').onclick=()=>$('#avpick').classList.add('hidden');
@@ -1720,11 +1762,13 @@ function renderSetup(){
   }
   if (HS.games.has('chrono')) h+=`<div class="tgrp">⏳ Chrono : deviner l'année</div>${THEMES.filter(t=>t.game==='chrono').map(tbtn).join('')}`;
   if (HS.games.has('qcm')) h+=`<div class="tgrp">❓ QCM : choisir la bonne réponse</div>${THEMES.filter(t=>t.game==='qcm').map(tbtn).join('')}`;
+  if (HS.games.has('blind')) h+=`<div class="tgrp">🎵 Blind test : reconnaître le morceau (tes playlists)</div>${THEMES.filter(t=>t.game==='blind').map(tbtn).join('')}<button data-act="bt" class="bt-chip">🎛️ ${BT.songs.length?'Gérer mes musiques':'Ajouter mes musiques (MP3)…'}</button>`;
   $('#s-themes').innerHTML=h;
   const r=[];
   if (HS.games.has('geo')) r.push(`🌍 <b>GéoGlobe</b> : 0 si le repère est dans le bon pays, sinon 1 point tous les 4 km (France : 1 point tous les 400 m)`);
   if (HS.games.has('chrono')) r.push(`⏳ <b>Chrono</b> : 10 points par année d'écart`);
   if (HS.games.has('qcm')) r.push(`❓ <b>QCM</b> : bonne réponse = 0 à 200 points selon la rapidité, mauvaise = 1 000`);
+  if (HS.games.has('blind')) r.push(`🎵 <b>Blind test</b> : la musique passe sur les enceintes du PC ; même barème que le QCM`);
   $('#h-rules').innerHTML=r.join('<br>')+`<br>Chaque question vaut au maximum <b>1 000 points</b> (et 1 000 sans réponse). <b>Le moins de points gagne !</b>`;
 }
 function setStatus(txt){ $('#h-status').textContent=txt; }
@@ -1776,7 +1820,7 @@ function hostMsg(conn,m){
     const q=HS.q, t=Date.now()-HS.startedAt; let a=null;
     if (isGeo(q)){ const ll=m.ll; if(Array.isArray(ll) && isFinite(+ll[0]) && isFinite(+ll[1])) a={ll:[+ll[0],+ll[1]]}; }
     else if (q.kind==='chrono'){ const y=Math.round(+m.year); if(isFinite(y) && y>=-5000 && y<=2100) a={year:y}; }
-    else if (q.kind==='qcm'){ const c=+m.choice; if([0,1,2,3].includes(c)) a={choice:c}; }
+    else if (q.kind==='qcm' || q.kind==='blind'){ const c=+m.choice; if([0,1,2,3].includes(c)) a={choice:c}; }
     if (!a) return;
     a.t=t; HS.answers.set(p.pid,a);
     send(p,{t:'ack', ...a}); refreshHostUI();
@@ -1787,7 +1831,7 @@ function hostClose(conn){ const p=HS.players.get(conn.pid); if(p && p.conn===con
 function qMsg(){
   const q=HS.q, th=themeOf(q.theme);
   const m={t:'question', n:HS.i+1, total:HS.order.length, kind:q.kind, text:q.text, theme:`${GAMES[th.game].icon} ${th.emoji} ${th.name}`, remaining:Math.max(0,HS.endsAt-Date.now()), dur:HS.dur*1000};
-  if (q.kind==='qcm') m.opts=q.opts;
+  if (q.kind==='qcm' || q.kind==='blind') m.opts=q.opts;
   return m;
 }
 function syncPlayer(p){
@@ -1817,10 +1861,11 @@ function startGame(){
   if (!connectedPlayers().length) return;
   // une pile par jeu, puis on pioche à tour de rôle pour bien mélanger
   const piles={};
-  for (const th of THEMES) if (HS.games.has(th.game) && HS.themes.has(th.id)) for (const q of th.qs) (piles[th.game]=piles[th.game]||[]).push(normQ(th,q));
+  for (const th of THEMES) if (HS.games.has(th.game) && HS.themes.has(th.id)) for (const q of th.qs){ const n = th.game==='blind' ? btQuestion(th,q) : normQ(th,q); if(n) (piles[th.game]=piles[th.game]||[]).push(n); }
   Object.values(piles).forEach(shuffleArr);
   const order=[]; let keys=shuffleArr(Object.keys(piles));
   while (order.length<HS.nq && keys.some(k=>piles[k].length)){ for (const k of keys){ if(order.length>=HS.nq) break; if(piles[k].length) order.push(piles[k].pop()); } keys=shuffleArr(keys); }
+  if (!order.length){ setStatus(HS.games.has('blind')&&BT.songs.length<4 ? 'Il faut au moins 4 musiques (avec des titres différents) pour le blind test.' : 'Aucune question dans les thèmes choisis.'); return; }
   HS.order=order;
   HS.i=-1; for (const p of HS.players.values()){ p.score=0; p.last=null; }
   HS.prevRanks=new Map(); Q.history=[]; broadcastRoster();
@@ -1842,8 +1887,9 @@ function nextQuestion(){
     st.classList.remove('hidden'); G.reveal=null; G.pins=[];
     st.style.top=($('#h-top').getBoundingClientRect().bottom+12)+'px';
     if (q.kind==='chrono') st.innerHTML=`<div class="waiting"><div class="bigicon">⏳</div><div>Les joueurs remontent le temps…</div><div class="row2" id="h-wait-avs"></div><div id="h-wait-count"></div></div>`;
-    else st.innerHTML=`<div class="qgrid" id="qgrid">${q.opts.map((o,i)=>`<div class="qopt ${QCLS[i]}" data-i="${i}"><span class="sh">${QSH[i]}</span><div>${esc(o)}</div><div class="avs"></div></div>`).join('')}</div>`;
+    else st.innerHTML=(q.kind==='blind'?`<div class="bt-now"><div class="vinyl"></div><div class="eq">${'<i></i>'.repeat(14)}</div><div class="bt-txt" id="bt-txt">Écoutez bien…</div><button class="btn ghost" id="bt-replay">🔁 Relancer</button></div><div id="bt-click" class="hidden">🔊 Clique ici pour lancer la musique</div>`:'')+`<div class="qgrid${q.kind==='blind'?' bt':''}" id="qgrid">${q.opts.map((o,i)=>`<div class="qopt ${QCLS[i]}" data-i="${i}"><span class="sh">${QSH[i]}</span><div>${esc(o)}</div><div class="avs"></div></div>`).join('')}</div>`;
   }
+  if (q.kind==='blind'){ btReplay(); $('#bt-replay').onclick=btReplay; $('#bt-click').onclick=btReplay; } else btStop();
   refreshHostUI(); relayout();
   setTimeout(()=>{ if(!st.classList.contains('hidden')) st.style.top=($('#h-top').getBoundingClientRect().bottom+12)+'px'; },60);
   for (const p of HS.players.values()){ p.last=null; syncPlayer(p); }
@@ -1886,9 +1932,10 @@ function reveal(){
       const who=round.filter(r=>r.choice===i); el.querySelector('.avs').innerHTML=who.map((r,k)=>avHTML(r.p,40).replace('class="av"',`class="av" style="animation-delay:${k*80}ms"`)).join('');
       el.insertAdjacentHTML('beforeend',`<span class="cnt">${who.length}</span>`); });
     ansHTML=`${QSH[q.ans]} ${esc(q.opts[q.ans])}`; base.opts=q.opts; base.ans=q.ans;
+    if (q.kind==='blind'){ ansHTML=`🎵 ${esc(q.answerFull)}`; base.full=q.answerFull; const t=$('#bt-txt'); if(t) t.innerHTML=`🎵 <b>${esc(q.answerFull)}</b>`; }
   }
   $('#h-sidebody').innerHTML = `<div class="lbl">La bonne réponse</div><div class="answer">${ansHTML}</div>
-    <div class="anec"><b>Le saviez-vous ?</b>${esc(q.anec)}</div>
+    ${q.anec?`<div class="anec"><b>Le saviez-vous ?</b>${esc(q.anec)}</div>`:''}
     <div class="lbl" style="margin-top:4px">Cette manche</div>
     <div class="rows">${round.map((r,k)=>`<div class="row"><span class="r">${k+1}</span>${avHTML(r.p,30)}<span class="n">${esc(r.p.name)}</span><span class="d">${esc(r.detail)}</span><span class="p">+${fmtPts(r.pts)}</span></div>`).join('')}</div>`;
   const last=HS.i>=HS.order.length-1;
@@ -1935,7 +1982,7 @@ function drawFrise(animate){
   if (animate) setTimeout(show,40); else show();
 }
 function showBoard(){
-  HS.phase='scores';
+  HS.phase='scores'; btStop();
   const ranking=[...HS.players.values()].sort((a,b)=>a.score-b.score);
   const roundPts=new Map(HS.round.map(r=>[r.p.pid,r.pts]));
   $('#board-card').innerHTML = `<h2>Classement après ${HS.i+1} question${HS.i?'s':''}</h2>
@@ -1947,7 +1994,7 @@ function showBoard(){
   ranking.forEach((p,k)=>{ p.last={t:'scores', rank:k+1, n:ranking.length, total:p.score}; send(p,p.last); });
 }
 function endGame(){
-  HS.phase='end'; clearInterval(HS.timer);
+  HS.phase='end'; clearInterval(HS.timer); btStop();
   const ranking=[...HS.players.values()].sort((a,b)=>a.score-b.score);
   const top=ranking.slice(0,3); const order=[top[1],top[0],top[2]].filter(Boolean);
   const hts={0:'24vh',1:'17vh',2:'12vh'}; const cols={0:'#f2c14e',1:'#cfd6e3',2:'#e0a06a'};
@@ -1960,7 +2007,7 @@ function endGame(){
   ranking.forEach((p,k)=>{ p.last={t:'end', rank:k+1, n:ranking.length, total:p.score, podium:top.map(x=>x.name)}; send(p,p.last); });
 }
 function backToLobby(){
-  HS.phase='lobby'; HS.i=-1;
+  HS.phase='lobby'; HS.i=-1; btStop(true);
   ['#h-top','#h-side','#board','#h-stage'].forEach(s=>$(s).classList.add('hidden'));
   $('#lobby').classList.remove('hidden');
   G.reveal=null; G.pins=[]; Q.history=[]; Q.cur=null; Q.answered=false; Q.done=false;
@@ -2071,7 +2118,7 @@ function playerMsg(m){
   } else if (m.t==='result'){
     P.state='result'; clearInterval(P.timer); P.total=m.total; meBadge();
     const foot=`${ord(m.roundRank)} sur ${m.n} pour cette question · Total <b>${fmtPts(m.total)}</b> (${ord(m.rank)})`;
-    const anec=`<div class="panec"><b>Le saviez-vous ?</b> ${esc(m.anecdote)}</div>`;
+    const anec=m.anecdote?`<div class="panec"><b>Le saviez-vous ?</b> ${esc(m.anecdote)}</div>`:'';
     if (m.kind==='country' || m.kind==='city'){
       hideAlt(); showTop(false); $('#zoombox').classList.remove('hidden');
       G.pins=m.pins||[]; P.pin=null;
@@ -2093,7 +2140,7 @@ function playerMsg(m){
       const res = !mine ? `<span class="big res-ko">Pas de réponse 😴</span>+${fmtPts(m.pts)} pts`
         : mine.ok ? `<span class="big res-ok">✓ Bonne réponse !</span>+${fmtPts(m.pts)} pts (selon ta rapidité)`
         : `<span class="big res-ko">✗ Raté…</span>Tu avais choisi ${QSH[mine.choice]} ${esc(m.opts[mine.choice])} · +${fmtPts(m.pts)} pts`;
-      showAlt(`<div class="card pcard pmsg"><div style="font-size:14px">${esc(m.text)}</div><div class="pqcm" style="margin:10px 0">${m.opts.map((o,i)=>`<button style="background:${QBG[i]}" class="${i===m.ans?'':'dim'}" disabled><span class="sh">${QSH[i]}</span>${esc(o)}${i===m.ans?' ✓':''}</button>`).join('')}</div>${res}<br>${foot}</div>${anec}`);
+      showAlt(`<div class="card pcard pmsg"><div style="font-size:14px">${esc(m.text)}</div>${m.full?`<span class="big res-ok" style="font-size:22px">🎵 ${esc(m.full)}</span>`:''}<div class="pqcm" style="margin:10px 0">${m.opts.map((o,i)=>`<button style="background:${QBG[i]}" class="${i===m.ans?'':'dim'}" disabled><span class="sh">${QSH[i]}</span>${esc(o)}${i===m.ans?' ✓':''}</button>`).join('')}</div>${res}<br>${foot}</div>${anec}`);
     }
   } else if (m.t==='scores'){
     P.state='scores'; P.total=m.total; meBadge();
@@ -2137,7 +2184,7 @@ function renderInput(){
     box.innerHTML=`<div class="card pcard pmsg"><span class="big res-ok">Réponse envoyée ✓</span>${what}<br>Regarde l'écran, les autres réfléchissent…<div class="hourglass">⏳</div></div>`; return;
   }
   if (left<=0){ box.innerHTML=`<div class="card pcard pmsg"><span class="big res-ko">Temps écoulé ⏰</span>Trop tard pour cette fois !</div>`; return; }
-  if (P.kind==='qcm'){
+  if (P.kind==='qcm' || P.kind==='blind'){
     box.innerHTML=`<div class="pqcm">${P.opts.map((o,i)=>`<button data-c="${i}" style="background:${QBG[i]}"><span class="sh">${QSH[i]}</span>${esc(o)}</button>`).join('')}</div>`;
     box.querySelector('.pqcm').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; box.querySelectorAll('button').forEach(x=>{ x.disabled=true; if(x!==b) x.classList.add('dim'); }); sendAnswer({choice:+b.dataset.c}); };
     return;
@@ -2169,6 +2216,148 @@ function sendAnswer(payload){
   try{ P.conn.send({t:'answer', ...payload}); }catch(e){ return; }
   const b=$('#p-send')||$('#p-sendy'); if(b){ b.disabled=true; b.textContent='Envoi…'; }
 }
+
+// =====================================================================
+//              BLIND TEST : musiques de l'administrateur (sur le PC)
+// =====================================================================
+const BT = {songs:[], db:null, audio:null, url:null, fade:null, playing:null, preview:null};
+const normTxt = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+function cleanTag(s){
+  return String(s||'').replace(/\s*[\(\[][^\)\]]*(remaster|version|edit|live|mono|stereo|official|clip|lyrics?|audio|video|hd|bonus)[^\)\]]*[\)\]]/ig,'')
+    .replace(/\s+-\s+[^-]*(remaster|version|edit|mix)[^-]*$/i,'').replace(/\s+/g,' ').trim();
+}
+// --- base de données locale du navigateur (les musiques restent sur ce PC) ---
+function btDB(){
+  if (BT.db) return Promise.resolve(BT.db);
+  return new Promise((res,rej)=>{ const r=indexedDB.open('quizparty',1);
+    r.onupgradeneeded=()=>r.result.createObjectStore('songs',{keyPath:'id'});
+    r.onsuccess=()=>{ BT.db=r.result; res(BT.db); }; r.onerror=()=>rej(r.error); });
+}
+function btTx(mode, fn){ return btDB().then(db=>new Promise((res,rej)=>{ const tx=db.transaction('songs',mode); const st=tx.objectStore('songs'); const out=fn(st); tx.oncomplete=()=>res(out&&out.result); tx.onerror=()=>rej(tx.error); })); }
+async function btLoad(){ try{ BT.songs=(await btTx('readonly',st=>st.getAll()))||[]; }catch(e){ BT.songs=[]; } btSort(); btThemes(); }
+const btSave = s => btTx('readwrite',st=>st.put(s));
+const btDel = id => btTx('readwrite',st=>st.delete(id));
+function btSort(){ BT.songs.sort((a,b)=>a.playlist.localeCompare(b.playlist)||a.added-b.added); }
+function btPlaylists(){ return [...new Set(BT.songs.map(s=>s.playlist))]; }
+// les playlists deviennent des thèmes du jeu « blind »
+function btThemes(){
+  for (let i=THEMES.length-1;i>=0;i--) if (THEMES[i].game==='blind') THEMES.splice(i,1);
+  for (const pl of btPlaylists()) THEMES.push({game:'blind', id:'b:'+pl, name:pl, emoji:'🎵', qs:BT.songs.filter(s=>s.playlist===pl)});
+  for (const id of [...HS.themes]) if (id.startsWith('b:') && !themeOf(id)) HS.themes.delete(id);
+  if (HS.games.has('blind') && !THEMES.some(t=>t.game==='blind' && HS.themes.has(t.id))){ const t=THEMES.find(t=>t.game==='blind'); if(t) HS.themes.add(t.id); }
+}
+// --- lecture des étiquettes ID3 (titre, artiste) des MP3, sinon le nom du fichier ---
+function id3Text(b){
+  const enc=b[0], d=b.subarray(1); let s='';
+  try{
+    if (enc===0) s=new TextDecoder('latin1').decode(d);
+    else if (enc===3) s=new TextDecoder('utf-8').decode(d);
+    else if (enc===2) s=new TextDecoder('utf-16be').decode(d);
+    else { const be=d[0]===0xFE&&d[1]===0xFF; s=new TextDecoder(be?'utf-16be':'utf-16le').decode(d.subarray(d[0]===0xFF||d[0]===0xFE?2:0)); }
+  }catch(e){}
+  return s.replace(/\u0000.*$/s,'').trim();
+}
+async function readID3(file){
+  try{
+    const h=new Uint8Array(await file.slice(0,10).arrayBuffer());
+    if (h[0]!==0x49||h[1]!==0x44||h[2]!==0x33) return {};
+    const ver=h[3], size=(h[6]<<21)|(h[7]<<14)|(h[8]<<7)|h[9];
+    const b=new Uint8Array(await file.slice(10,10+Math.min(size,4e6)).arrayBuffer());
+    const out={}; let p=0;
+    if (h[5]&0x40 && ver>=3){ const xs=ver===4?((b[0]<<21)|(b[1]<<14)|(b[2]<<7)|b[3]):((b[0]<<24)|(b[1]<<16)|(b[2]<<8)|b[3])+4; p=xs; }
+    while (p<b.length-10){
+      let id, fs, hl;
+      if (ver===2){ id=String.fromCharCode(b[p],b[p+1],b[p+2]); fs=(b[p+3]<<16)|(b[p+4]<<8)|b[p+5]; hl=6; }
+      else { id=String.fromCharCode(b[p],b[p+1],b[p+2],b[p+3]); fs=ver===4?((b[p+4]<<21)|(b[p+5]<<14)|(b[p+6]<<7)|b[p+7]):((b[p+4]<<24)|(b[p+5]<<16)|(b[p+6]<<8)|b[p+7]); hl=10; }
+      if (!/^[A-Z0-9]{3,4}$/.test(id) || fs<=0) break;
+      const body=b.subarray(p+hl,p+hl+fs);
+      if (id==='TIT2'||id==='TT2') out.title=id3Text(body);
+      if (id==='TPE1'||id==='TP1') out.artist=id3Text(body);
+      p+=hl+fs; if (out.title && out.artist) break;
+    }
+    return out;
+  }catch(e){ return {}; }
+}
+function fromName(name){
+  let n=name.replace(/\.[a-z0-9]{2,4}$/i,'').replace(/_/g,' ').replace(/^\s*\d{1,3}\s*[-.)]\s*/,'').trim();
+  const i=n.indexOf(' - ');
+  return i>0 ? {artist:n.slice(0,i).trim(), title:n.slice(i+3).trim()} : {artist:'', title:n};
+}
+async function btImport(files, playlist){
+  playlist=(playlist||'').trim().slice(0,40)||'Ma playlist';
+  let n=0;
+  for (const f of files){
+    if (!/^audio\//.test(f.type) && !/\.(mp3|m4a|aac|ogg|oga|wav|flac|opus|webm)$/i.test(f.name)) continue;
+    const tag=await readID3(f), fn=fromName(f.name);
+    const s={id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7), playlist, title:cleanTag(tag.title||fn.title), artist:cleanTag(tag.artist||fn.artist)||'Artiste inconnu', blob:f, name:f.name, added:Date.now()+n};
+    try{ await btSave(s); BT.songs.push(s); n++; }catch(e){ alert("Impossible d'enregistrer « "+f.name+" » (espace disque du navigateur ?)."); break; }
+  }
+  btSort(); btThemes(); HS.themes.add('b:'+playlist); renderSetup(); btRenderManage();
+  return n;
+}
+// --- fenêtre « Gérer mes musiques » ---
+function btOpenManage(){ $('#bt-manage').classList.remove('hidden'); btRenderManage(); }
+function btCloseManage(){ btStopPreview(); $('#bt-manage').classList.add('hidden'); }
+function btRenderManage(){
+  const box=$('#bt-list'); if(!box) return;
+  const pls=btPlaylists();
+  $('#bt-pl-list').innerHTML=pls.map(p=>`<option value="${esc(p)}">`).join('');
+  if (!BT.songs.length){ box.innerHTML='<div class="empty" style="padding:20px 4px">Aucune musique pour l\'instant. Ajoute des fichiers MP3 ci-dessus 👆</div>'; return; }
+  box.innerHTML=pls.map(pl=>{ const ss=BT.songs.filter(s=>s.playlist===pl);
+    return `<div class="bt-pl"><div class="bt-plh">🎵 ${esc(pl)} <small>${ss.length} morceau${ss.length>1?'x':''}</small><button class="bt-x" data-delpl="${esc(pl)}" title="Supprimer la playlist">🗑 playlist</button></div>`+
+      ss.map(s=>`<div class="bt-song" data-id="${s.id}"><button class="bt-play" data-play="${s.id}">${BT.preview===s.id?'⏸':'▶'}</button><input data-f="title" value="${esc(s.title)}" placeholder="Titre"><input data-f="artist" value="${esc(s.artist)}" placeholder="Artiste"><button class="bt-x" data-del="${s.id}" title="Supprimer">✕</button></div>`).join('')+'</div>';
+  }).join('');
+}
+function btInitManage(){
+  $('#bt-close').onclick=btCloseManage;
+  $('#bt-manage').addEventListener('click',e=>{ if(e.target.id==='bt-manage') btCloseManage(); });
+  $('#bt-file').addEventListener('change',async e=>{ const fs=[...e.target.files]; e.target.value=''; if(!fs.length) return; $('#bt-msg').textContent='Import en cours…'; const n=await btImport(fs,$('#bt-plname').value); $('#bt-msg').textContent=`${n} morceau${n>1?'x':''} ajouté${n>1?'s':''} ✓`; });
+  const dz=$('#bt-drop');
+  dz.addEventListener('dragover',e=>{ e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+  dz.addEventListener('drop',async e=>{ e.preventDefault(); dz.classList.remove('over'); const fs=[...e.dataTransfer.files]; if(!fs.length) return; $('#bt-msg').textContent='Import en cours…'; const n=await btImport(fs,$('#bt-plname').value); $('#bt-msg').textContent=`${n} morceau${n>1?'x':''} ajouté${n>1?'s':''} ✓`; });
+  $('#bt-list').addEventListener('change',e=>{ const inp=e.target.closest('input'); if(!inp) return; const s=BT.songs.find(x=>x.id===inp.closest('.bt-song').dataset.id); if(!s) return; s[inp.dataset.f]=inp.value.trim()||s[inp.dataset.f]; btSave(s); });
+  $('#bt-list').addEventListener('click',async e=>{ const b=e.target.closest('button'); if(!b) return;
+    if (b.dataset.play){ if (BT.preview===b.dataset.play) btStopPreview(); else { const s=BT.songs.find(x=>x.id===b.dataset.play); btStopPreview(); BT.preview=s.id; btPlay(s, true); } btRenderManage(); }
+    else if (b.dataset.del){ btStopPreview(); await btDel(b.dataset.del); BT.songs=BT.songs.filter(x=>x.id!==b.dataset.del); btThemes(); renderSetup(); btRenderManage(); }
+    else if (b.dataset.delpl){ if(!confirm('Supprimer toute la playlist « '+b.dataset.delpl+' » ?')) return; btStopPreview(); for (const s of BT.songs.filter(x=>x.playlist===b.dataset.delpl)) await btDel(s.id); BT.songs=BT.songs.filter(x=>x.playlist!==b.dataset.delpl); btThemes(); renderSetup(); btRenderManage(); }
+  });
+}
+// --- question : 4 propositions (titre ou artiste) tirées de toutes les musiques ---
+function btQuestion(th, s){
+  const pool=BT.songs.filter(x=>x.id!==s.id);
+  const pick=(field)=>{ const good=s[field]; const seen=new Set([normTxt(good)]); const out=[];
+    const cands=shuffleArr(pool.filter(x=>x.playlist===s.playlist)).concat(shuffleArr(pool.filter(x=>x.playlist!==s.playlist)));
+    for (const x of cands){ const k=normTxt(x[field]); if(!k || seen.has(k)) continue; seen.add(k); out.push(x[field]); if(out.length===3) break; }
+    return out.length===3 ? out : null; };
+  const artistOK = s.artist && s.artist!=='Artiste inconnu';
+  let field = artistOK && Math.random()<.4 ? 'artist' : 'title';
+  let wrong=pick(field); if(!wrong && field==='title' && artistOK){ field='artist'; wrong=pick(field); } if(!wrong && field==='artist'){ field='title'; wrong=pick(field); }
+  if (!wrong) return null;
+  const opts=shuffleArr([s[field],...wrong]);
+  return {kind:'blind', theme:th.id, song:s.id, field, text: field==='title' ? '🎧 Quel est le titre de ce morceau ?' : '🎧 Qui interprète ce morceau ?',
+    opts, ans:opts.indexOf(s[field]), answerFull:`${s.title} — ${s.artist}`, anec:''};
+}
+// --- lecture sur les enceintes du PC ---
+function btStopPreview(){ if (BT.preview){ BT.preview=null; btStop(true); } }
+function btStop(now){
+  const a=BT.audio; clearInterval(BT.fade); BT.playing=null; if(!a) return;
+  if (now){ a.pause(); return; }
+  BT.fade=setInterval(()=>{ a.volume=Math.max(0,a.volume-.08); if(a.volume<=0.01){ clearInterval(BT.fade); a.pause(); } },60);
+}
+function btPlay(s, fromStart){
+  if (!BT.audio){ BT.audio=new Audio(); BT.audio.preload='auto'; }
+  const a=BT.audio; clearInterval(BT.fade); a.pause();
+  if (BT.url) URL.revokeObjectURL(BT.url);
+  BT.url=URL.createObjectURL(s.blob); BT.playing=s.id;
+  a.src=BT.url; a.volume=0;
+  a.onloadedmetadata=()=>{
+    const d=a.duration, need=HS.dur+20;
+    if (!fromStart && isFinite(d) && d>need+10){ const lo=Math.min(d*.2,d-need), hi=Math.max(lo,Math.min(d*.5,d-need)); a.currentTime=lo+Math.random()*(hi-lo); }
+    a.play().then(()=>{ BT.fade=setInterval(()=>{ a.volume=Math.min(1,a.volume+.06); if(a.volume>=1) clearInterval(BT.fade); },60); }).catch(()=>{ const n=$('#bt-click'); if(n) n.classList.remove('hidden'); });
+  };
+}
+function btReplay(){ const q=HS.q; if(!q || q.kind!=='blind') return; const s=BT.songs.find(x=>x.id===q.song); if(s) btPlay(s); const n=$('#bt-click'); if(n) n.classList.add('hidden'); }
 
 // ---------- Go ----------
 resize();
