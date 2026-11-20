@@ -269,6 +269,11 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
 .bt-song input:focus{border-color:var(--accent)}
 .bt-play,.bt-x{width:36px;height:34px;flex:none;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-size:14px}
 .bt-x:hover{border-color:var(--ko);color:#ffb0b2}
+#h-alert{font-size:clamp(15px,1.1vw,18px);line-height:1.45;color:#ffd6d7;background:rgba(255,90,95,.14);border:1.5px solid rgba(255,90,95,.6);border-radius:14px;padding:12px 16px;margin-bottom:12px}
+#h-alert b{color:#fff}
+#h-alert.shake{animation:shk .45s}
+@keyframes shk{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+#h-start.dim{filter:saturate(.4);opacity:.75}
 
 </style>
 </head>
@@ -301,7 +306,8 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
           <div><div class="lbl">Temps par question</div><div class="seg" id="s-dur"><button data-v="20">20 s</button><button data-v="30" class="on">30 s</button><button data-v="45">45 s</button><button data-v="60">60 s</button></div></div>
         </div>
         <div class="rules" id="h-rules"></div>
-        <button class="btn primary" id="h-start" disabled>Lancer la partie ▶</button>
+        <div id="h-alert" class="hidden"></div>
+        <button class="btn primary" id="h-start">Lancer la partie ▶</button>
         <div id="h-status">Connexion au serveur…</div>
       </div>
     </div>
@@ -1171,6 +1177,7 @@ function normQ(th, q){
     : {kind:'country', theme:th.id, id:q[0], text:q[1], anec:q[2]};
 }
 
+window.addEventListener('error', e=>{ const a=document.getElementById('h-alert'); if(a && !document.getElementById('lobby').classList.contains('hidden')){ a.innerHTML='⚠️ Erreur : <b>'+String(e.message).replace(/</g,'&lt;')+'</b>'; a.classList.remove('hidden'); } });
 /* ================== MOTEUR ================== */
 window.addEventListener('error', e=>{ const m=document.getElementById('load-msg'); if(m && document.getElementById('loading')) m.textContent='Erreur : '+e.message; });
 window.addEventListener('unhandledrejection', e=>{ const m=document.getElementById('load-msg'); if(m && document.getElementById('loading')) m.textContent='Erreur : '+(e.reason&&e.reason.message||e.reason); });
@@ -1846,7 +1853,7 @@ function refreshHostUI(){
   if (HS.phase==='lobby'){
     $('#h-players').innerHTML = list.length ? list.map(p=>chipHTML(p)).join('') : '<div class="empty">En attente des joueurs… 📱</div>';
     const n=connectedPlayers().length; $('#h-count').textContent = n?`(${n})`:'';
-    $('#h-start').disabled = n===0;
+    $('#h-start').disabled = false; $('#h-start').classList.toggle('dim', n===0); if (n && /Aucun joueur/.test($('#h-alert').textContent)) lobbyAlert('');
   } else if (HS.phase==='question'){
     const done=list.filter(p=>HS.answers.has(p.pid));
     $('#h-sidebody').innerHTML = `<div class="lbl">Réponses : ${done.length} / ${connectedPlayers().length}</div><div class="waitgrid">${list.map(p=>chipHTML(p, HS.answers.has(p.pid)?' done':'').replace('</div>', HS.answers.has(p.pid)?' ✓</div>':'</div>')).join('')}</div>`;
@@ -1857,15 +1864,31 @@ function refreshHostUI(){
 }
 // ----- déroulé -----
 function shuffleArr(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function lobbyAlert(msg){
+  const el=$('#h-alert'); if(!el) return;
+  el.innerHTML=msg; el.classList.toggle('hidden',!msg);
+  if (msg){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); el.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+}
 function startGame(){
-  if (!connectedPlayers().length) return;
+  try{ startGameInner(); }catch(e){ lobbyAlert('⚠️ Erreur au lancement : <b>'+esc(e.message)+'</b>. Recharge la page (F5) et réessaie ; si ça recommence, note ce message.'); console.error(e); }
+}
+function startGameInner(){
+  lobbyAlert('');
+  if (!connectedPlayers().length){ lobbyAlert('📱 <b>Aucun joueur connecté.</b> Il faut au moins un téléphone : scanne le QR code (ou ouvre l\'adresse affichée) et entre ton prénom.'); return; }
+  if (HS.games.has('blind')){
+    const sel=THEMES.filter(t=>t.game==='blind' && HS.themes.has(t.id));
+    const distinct=new Set(BT.songs.map(x=>normTxt(x.title))).size;
+    if (!BT.songs.length){ lobbyAlert('🎵 <b>Aucune musique</b> pour le blind test. Clique sur « 🎛️ Ajouter mes musiques », ou décoche Blind test.'); return; }
+    if (!sel.length){ lobbyAlert('🎵 Choisis au moins une <b>playlist</b> pour le blind test, ou décoche Blind test.'); return; }
+    if (distinct<4){ lobbyAlert(`🎵 Il faut <b>au moins 4 musiques avec des titres différents</b> pour le blind test (tu en as ${distinct}). Ajoute-en, ou corrige les titres dans « 🎛️ Gérer mes musiques ».`); return; }
+  }
   // une pile par jeu, puis on pioche à tour de rôle pour bien mélanger
   const piles={};
   for (const th of THEMES) if (HS.games.has(th.game) && HS.themes.has(th.id)) for (const q of th.qs){ const n = th.game==='blind' ? btQuestion(th,q) : normQ(th,q); if(n) (piles[th.game]=piles[th.game]||[]).push(n); }
   Object.values(piles).forEach(shuffleArr);
   const order=[]; let keys=shuffleArr(Object.keys(piles));
   while (order.length<HS.nq && keys.some(k=>piles[k].length)){ for (const k of keys){ if(order.length>=HS.nq) break; if(piles[k].length) order.push(piles[k].pop()); } keys=shuffleArr(keys); }
-  if (!order.length){ setStatus(HS.games.has('blind')&&BT.songs.length<4 ? 'Il faut au moins 4 musiques (avec des titres différents) pour le blind test.' : 'Aucune question dans les thèmes choisis.'); return; }
+  if (!order.length){ lobbyAlert('Aucune question dans les thèmes choisis : coche au moins un thème.'); return; }
   HS.order=order;
   HS.i=-1; for (const p of HS.players.values()){ p.score=0; p.last=null; }
   HS.prevRanks=new Map(); Q.history=[]; broadcastRoster();
