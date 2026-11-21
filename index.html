@@ -275,6 +275,13 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
 @keyframes shk{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 #h-start.dim{filter:saturate(.4);opacity:.75}
 
+.btmode{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px;font-size:13px;color:var(--muted)}
+.btmode span{margin-right:4px}
+.tchips .btmode button{padding:6px 12px;font-size:13px}
+#ap-kick{background:rgba(255,90,95,.12);border:1.5px solid rgba(255,90,95,.55);color:#ffc9cb}
+#ap-kick:hover{background:rgba(255,90,95,.25)}
+#h-side .chip{cursor:pointer}
+
 </style>
 </head>
 <body>
@@ -302,7 +309,7 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
         <div class="lbl">Thèmes (un ou plusieurs par jeu)</div>
         <div class="tchips" id="s-themes"></div>
         <div class="settings">
-          <div><div class="lbl">Questions</div><div class="seg" id="s-nq"><button data-v="5">5</button><button data-v="10" class="on">10</button><button data-v="15">15</button><button data-v="20">20</button></div></div>
+          <div><div class="lbl">Questions</div><div class="seg" id="s-nq"><button data-v="10">10</button><button data-v="20" class="on">20</button><button data-v="30">30</button><button data-v="40">40</button><button data-v="50">50</button></div></div>
           <div><div class="lbl">Temps par question</div><div class="seg" id="s-dur"><button data-v="20">20 s</button><button data-v="30" class="on">30 s</button><button data-v="45">45 s</button><button data-v="60">60 s</button></div></div>
         </div>
         <div class="rules" id="h-rules"></div>
@@ -337,6 +344,7 @@ kbd{font:700 12px Inter,sans-serif;background:rgba(0,0,0,.2);border-radius:5px;p
     <div class="aphead"><span id="ap-prev"></span><div><div class="lbl" style="margin:0">Avatar de</div><b id="ap-name"></b></div></div>
     <div class="apgrid" id="ap-grid"></div>
     <div class="aprow"><label class="btn ghost" style="flex:1">📷 Choisir une photo…<input type="file" accept="image/*" id="ap-file" hidden></label><button class="btn primary" id="ap-close" style="flex:1">Terminé</button></div>
+    <button class="btn" id="ap-kick">🚪 Sortir ce joueur de la partie</button>
   </div></div>
   <div id="h-phoneask" class="hidden"><div class="card">
     <h1 class="brand">Quiz <span>Party</span></h1>
@@ -872,6 +880,157 @@ const Q_FR_ARBRES = [
 ['Versailles',48.80,2.12,"Dans quel domaine un chêne planté en 1681, dit « chêne de Marie-Antoinette », a-t-il dû être abattu en 2017 ?","Il avait survécu à la Révolution et à la tempête de 1999, mais il était mort de sécheresse. Un morceau de son bois a été conservé."],
 ];
 
+/* ================== GÉOGLOBE : questions supplémentaires ================== */
+QUESTIONS.push(
+["NLD","Dans quel pays y a-t-il plus de vélos que d'habitants ?","On y compte environ 23 millions de vélos pour 18 millions d'habitants. À Amsterdam, des milliers de vélos finissent chaque année au fond des canaux."],
+["FRA","Quel est le pays le plus visité au monde par les touristes étrangers ?","Il accueille souvent autour de 90 millions de visiteurs étrangers par an, plus que sa propre population."],
+["ITA","Quel pays compte le plus de sites inscrits au patrimoine mondial de l'UNESCO ?","Il en compte une soixantaine, du Colisée à Venise en passant par les vignobles du Piémont."],
+["BTN","Quel pays mesure officiellement le « bonheur national brut » de ses habitants ?","Ce petit royaume de l'Himalaya juge sa réussite au bien-être de sa population plutôt qu'à sa seule richesse."],
+["NPL","Dans quel pays se trouve le sommet de l'Everest, à la frontière avec la Chine ?","Avec 8 849 m, c'est le plus haut sommet du monde. Le pays compte 8 des 14 sommets de plus de 8 000 m."],
+["HTI","Quel pays est devenu en 1804 la première république fondée par d'anciens esclaves ?","L'ancienne colonie française de Saint-Domingue a pris son indépendance après une révolte menée notamment par Toussaint Louverture."],
+["DZA","Quel est le plus grand pays d'Afrique par sa superficie ?","Le Sahara en couvre plus des quatre cinquièmes. Il est plus de quatre fois plus grand que la France."],
+["ZAF","Quel pays a trois capitales : une pour le gouvernement, une pour le Parlement et une pour la justice ?","Pretoria, Le Cap et Bloemfontein se partagent les rôles."],
+["MRT","Dans quel pays circule l'un des trains les plus longs du monde, qui traverse le Sahara chargé de minerai de fer ?","Il peut mesurer plus de 2 km. Certains voyageurs montent gratuitement… sur le minerai, en plein désert."],
+["TCD","Quel pays a donné son nom à un lac qui a perdu environ 90 % de sa surface depuis les années 1960 ?","Ce lac est partagé avec le Niger, le Nigeria et le Cameroun. La sécheresse et l'irrigation l'ont fait rétrécir."],
+["EST","Quel pays a été le premier à permettre de voter par Internet aux élections législatives, en 2007 ?","Ce petit pays balte est l'un des plus numérisés au monde : presque toutes les démarches s'y font en ligne."],
+["HRV","De quel pays vient le mot « cravate » ?","Au XVIIᵉ siècle, les cavaliers croates au service de la France portaient un foulard noué autour du cou. Les Français l'ont appelé « croate », puis « cravate »."],
+["BGR","Dans quel pays hocher la tête de haut en bas veut-il souvent dire « non » ?","Et secouer la tête de gauche à droite veut dire « oui ». De quoi créer des malentendus !"],
+["GEO","Dans quel pays a-t-on retrouvé les plus anciennes traces de vin, vieilles d'environ 8 000 ans ?","On y fait encore fermenter le vin dans de grandes jarres en terre enterrées, les qvevris."],
+["AZE","Quel pays est surnommé « le pays du feu », avec une colline qui brûle sans interruption ?","Le gaz naturel qui s'échappe du sol y alimente des flammes depuis des décennies."],
+["KAZ","Dans quel pays se trouve Baïkonour, d'où Youri Gagarine est parti dans l'espace ?","La Russie loue toujours ce cosmodrome situé en plein désert."],
+["MYS","Dans quel pays se dressent les tours Petronas, qui ont été les plus hautes du monde ?","Ces tours jumelles de Kuala Lumpur sont reliées par une passerelle au 41ᵉ étage."],
+["GTM","Dans quel pays se trouve Tikal, l'une des plus grandes cités mayas ?","Ses temples dépassent la canopée de la jungle. Le site apparaît même dans un film Star Wars."],
+["LIE","Quel petit pays alpin n'a pas d'accès à la mer… et n'est entouré que de pays qui n'en ont pas non plus ?","Il est coincé entre la Suisse et l'Autriche. Seul l'Ouzbékistan partage cette particularité."],
+["USA","Dans quel pays se trouve le Grand Canyon ?","Creusé par le fleuve Colorado, il atteint environ 1 800 m de profondeur."],
+["JPN","Dans quel pays le premier train à grande vitesse a-t-il été mis en service, en 1964 ?","Le Shinkansen a été inauguré juste avant les Jeux olympiques de Tokyo. Ses retards moyens se comptent en secondes."],
+["GBR","Dans quel pays se trouve Stonehenge, un cercle de pierres géantes vieux d'environ 4 500 ans ?","Certaines pierres viennent de plus de 200 km de là. On ne sait toujours pas exactement à quoi servait le monument."],
+["MEX","Dans quel pays se trouve Chichén Itzá, avec sa grande pyramide maya ?","Aux équinoxes, l'ombre sur l'escalier dessine un serpent qui semble descendre la pyramide."],
+["CHN","Dans quel pays une armée de plus de 7 000 soldats en terre cuite a-t-elle été découverte en 1974 ?","Des paysans l'ont trouvée en creusant un puits. Chaque soldat a un visage différent."],
+);
+Q_ELEC.push(
+["CHN","Dans quel pays une ligne électrique à 1 100 000 volts en courant continu transporte-t-elle l'électricité sur plus de 3 000 km ?","C'est la ligne à la tension la plus élevée du monde. Elle relie l'ouest du pays, riche en énergie, aux grandes villes de l'est."],
+["ITA","Dans quel pays la toute première centrale géothermique du monde a-t-elle produit de l'électricité, en Toscane ?","À Larderello, au début du XXᵉ siècle, la vapeur naturelle du sous-sol a d'abord allumé quelques ampoules."],
+["USA","Dans quel pays Thomas Edison a-t-il ouvert sa centrale de Pearl Street, en 1882 ?","Située à New York, elle alimentait au début quelques centaines de lampes dans le quartier de la finance."],
+["UKR","Dans quel pays se trouve la centrale de Tchernobyl, où a eu lieu la catastrophe nucléaire de 1986 ?","La ville voisine de Pripiat a été évacuée et reste abandonnée. La nature y a repris ses droits."],
+["JPN","Dans quel pays se trouve la centrale de Fukushima, endommagée par un tsunami en 2011 ?","Une vague de plus de 10 m a privé la centrale de son refroidissement, provoquant la fusion de trois réacteurs."],
+["ARE","Dans quel pays se trouve Barakah, la première centrale nucléaire du monde arabe ?","Elle a été construite par une entreprise sud-coréenne, en plein désert, au bord du golfe Persique."],
+["SWE","Dans quel pays a été mise en service, en 1954, la première liaison électrique commerciale en courant continu à haute tension, vers l'île de Gotland ?","Le courant continu est aujourd'hui utilisé pour presque tous les grands câbles sous-marins."],
+["EGY","Dans quel pays se trouve Benban, l'un des plus grands parcs solaires du monde, près d'Assouan ?","Il regroupe des dizaines de centrales solaires sur environ 37 km² de désert."],
+["IND","Dans quel pays se trouve le parc solaire de Bhadla, dans le désert du Thar ?","Il couvre environ 56 km². Des robots y nettoient les panneaux, souvent recouverts de sable."],
+["COD","Dans quel pays les barrages d'Inga, sur un grand fleuve, pourraient-ils un jour éclairer une grande partie de l'Afrique ?","Le fleuve Congo a l'un des plus gros débits du monde. Le projet « Grand Inga » serait le plus puissant aménagement hydroélectrique de la planète."],
+["FIN","Dans quel pays se trouve Olkiluoto 3, le premier réacteur EPR mis en service en Europe ?","Sa construction a duré environ 18 ans. Le pays construit aussi le premier site de stockage définitif des déchets nucléaires, creusé dans le granite."],
+["CAN","Dans quel pays la province de Québec produit-elle presque toute son électricité grâce à l'eau ?","Ses immenses barrages, comme ceux de la baie James, exportent aussi de l'électricité vers les États-Unis."],
+);
+Q_ARBRES.push(
+["SEN","Quel pays a le baobab sur ses armoiries ?","Le baobab peut vivre plus de 1 000 ans et stocker des milliers de litres d'eau dans son tronc."],
+["DEU","Dans quel pays se trouve la Forêt-Noire ?","Elle a donné son nom à un célèbre gâteau au chocolat, aux cerises et à la crème… et elle est la patrie des coucous."],
+["POL","Dans quel pays se trouve la forêt de Białowieża, l'une des dernières forêts primaires de plaine d'Europe ?","Elle est partagée avec la Biélorussie. Elle abrite des centaines de bisons d'Europe."],
+["RUS","Quel pays possède la plus grande surface de forêt au monde ?","La taïga y couvre des millions de km². Environ un cinquième des forêts du monde s'y trouve."],
+["FIN","Quel est le pays le plus boisé d'Europe, avec environ trois quarts de son territoire couverts de forêt ?","Le droit coutumier y permet à chacun de se promener et de cueillir des baies dans presque toutes les forêts, même privées."],
+["GRC","Dans quel pays pousse l'olivier de Vouves, en Crète, qui aurait plus de 2 000 ans ?","Il produit encore des olives. Ses branches ont servi à tresser des couronnes pour des champions olympiques."],
+["ITA","Dans quel pays pousse le « Châtaignier aux cent chevaux », sur les pentes de l'Etna ?","Selon la légende, une reine et ses cent cavaliers s'y seraient abrités d'un orage."],
+["ESP","Quel pays est le premier producteur mondial d'huile d'olive ?","Il produit souvent près de la moitié de l'huile d'olive mondiale, surtout en Andalousie."],
+["IDN","Quel pays est le premier producteur mondial d'huile de palme ?","Les plantations de palmiers à huile ont remplacé de grandes surfaces de forêt tropicale, menaçant les orangs-outans."],
+["CRI","Quel pays d'Amérique centrale a réussi à faire repousser ses forêts, passées d'environ un quart à plus de la moitié de son territoire ?","Le pays paie les propriétaires qui protègent les forêts. L'écotourisme y est devenu une ressource majeure."],
+["CHN","Dans quel pays plante-t-on depuis 1978 une immense « Grande Muraille verte » d'arbres pour freiner le désert ?","Des milliards d'arbres ont été plantés pour arrêter l'avancée des sables vers le nord."],
+["USA","Dans quel pays pousse Mathusalem, un pin de Bristlecone âgé de plus de 4 800 ans ?","Son emplacement exact est tenu secret pour le protéger des visiteurs."],
+["MMR","Quel pays d'Asie possède les plus grandes forêts naturelles de teck du monde ?","Le teck est un bois très résistant à l'eau, longtemps utilisé pour les ponts des bateaux."],
+["BRA","Quel pays est le premier producteur mondial de café ?","Il produit environ un tiers du café mondial. Le caféier est un petit arbre aux fruits rouges appelés « cerises »."],
+["IRN","Dans quel pays pousse le cyprès d'Abarkuh, considéré comme l'un des plus vieux arbres du monde ?","Il aurait environ 4 000 ans. Selon la légende, il aurait été planté par un prophète."],
+);
+Q_NATURE.push(
+["UGA","Dans quel pays la forêt de Bwindi abrite-t-elle près de la moitié des gorilles de montagne du monde ?","Il ne reste qu'environ un millier de gorilles de montagne. Des touristes peuvent les approcher en petits groupes."],
+["AUS","Dans quel pays vit l'ornithorynque, un mammifère qui pond des œufs ?","Quand les premiers scientifiques européens en ont vu un empaillé, ils ont cru à une farce."],
+["NOR","Dans quel pays l'archipel du Svalbard compte-t-il presque autant d'ours polaires que d'habitants ?","Il est conseillé de sortir des villages avec un moyen de protection contre les ours."],
+["CRI","Quel petit pays abrite environ 5 % de la biodiversité mondiale sur seulement 0,03 % des terres ?","Le pays protège environ un quart de son territoire dans des parcs et réserves."],
+["BOL","Dans quel pays se trouve le salar d'Uyuni, le plus grand désert de sel du monde ?","Quand il pleut, il se transforme en gigantesque miroir. Des flamants roses nichent dans les lagunes voisines."],
+["NAM","Dans quel pays des éléphants se sont-ils adaptés à la vie dans le désert ?","Ils peuvent marcher des dizaines de kilomètres pour trouver de l'eau, et creusent le lit des rivières asséchées."],
+["LKA","Dans quel pays des centaines d'éléphants se rassemblent-ils chaque année au bord du réservoir de Minneriya ?","Ce rassemblement, appelé « The Gathering », est l'un des plus grands de toute l'Asie."],
+["MNG","Dans quel pays le cheval de Przewalski, le dernier cheval sauvage, a-t-il été réintroduit ?","L'espèce avait disparu à l'état sauvage. Des chevaux élevés dans des zoos ont été relâchés dans les steppes."],
+["USA","Dans quel pays a été créé le premier parc national du monde, Yellowstone, en 1872 ?","Le parc repose sur un supervolcan et compte environ la moitié des geysers de la planète."],
+["CHL","Dans quel pays le désert d'Atacama se couvre-t-il parfois de fleurs, certaines années de pluie ?","Ce phénomène, appelé « désert fleuri », ne se produit que tous les quelques années."],
+["KAZ","Dans quel pays vivent la plupart des antilopes saïgas, au drôle de nez en forme de trompe ?","Leur nez filtre la poussière l'été et réchauffe l'air glacé l'hiver."],
+["GAB","Quel pays d'Afrique centrale, couvert à près de 90 % de forêt, protège environ 11 % de son territoire dans des parcs nationaux ?","On y voit des éléphants de forêt sur les plages et des baleines au large."],
+["COD","Dans quel pays vivent les bonobos, des grands singes qu'on ne trouve nulle part ailleurs ?","Les bonobos sont, avec les chimpanzés, nos plus proches cousins. Ils règlent souvent leurs conflits par des câlins."],
+["ESP","Dans quel pays vivent la plupart des lynx pardelles, autrefois le félin le plus menacé du monde ?","Il n'en restait qu'une centaine au début des années 2000. Grâce à leur protection, ils sont aujourd'hui plusieurs milliers."],
+["ISL","Dans quel pays peut-on plonger dans la faille de Silfra, entre deux plaques tectoniques ?","On y nage dans une eau glaciale et d'une transparence incroyable, entre l'Amérique et l'Europe."],
+);
+/* ---------- France : [ville, latitude, longitude, question, anecdote] ---------- */
+Q_FRANCE.push(
+["Meaux",48.96,2.88,"Quelle ville a donné son nom à un brie surnommé « le roi des fromages » ?","Lors du congrès de Vienne, en 1815, ce brie aurait été élu meilleur fromage par les diplomates."],
+["Saint-Nectaire",45.59,2.99,"Quel village d'Auvergne a donné son nom à un fromage affiné sur de la paille de seigle ?","Le fromage aurait été introduit à la table de Louis XIV par le maréchal de Senneterre."],
+["Munster",48.04,7.13,"Quelle petite ville d'Alsace a donné son nom à un fromage au parfum très puissant ?","Le nom vient d'un monastère : des moines y fabriquaient déjà ce fromage au Moyen Âge."],
+["Valençay",47.16,1.56,"Quelle ville du Berry a donné son nom à un fromage de chèvre en forme de pyramide au sommet coupé ?","Selon la légende, Napoléon, de retour d'Égypte, aurait coupé la pointe de rage."],
+["Cavaillon",43.84,5.04,"Quelle ville du Vaucluse est la capitale du melon ?","Alexandre Dumas aurait offert ses livres à la bibliothèque de la ville en échange d'une rente… de melons."],
+["Plougastel-Daoulas",48.37,-4.37,"Quelle commune du Finistère est célèbre pour ses fraises ?","Les fraises y auraient été rapportées du Chili au XVIIIᵉ siècle par un explorateur au nom prédestiné : Frézier."],
+["Cancale",48.68,-1.85,"Quel port breton, face au Mont-Saint-Michel, est célèbre pour ses huîtres ?","On raconte que les huîtres de Cancale étaient livrées à la cour de Versailles."],
+["Collioure",42.53,3.08,"Quel port catalan est réputé pour ses anchois ?","Ce petit port a aussi inspiré les peintres Matisse et Derain, qui y ont inventé le fauvisme en 1905."],
+["Beaune",47.02,4.84,"Dans quelle ville bourguignonne a lieu chaque année une célèbre vente aux enchères de vins au profit d'un hôpital ?","Les Hospices de Beaune, au toit de tuiles colorées, ont été fondés en 1443."],
+["Épernay",49.04,3.96,"Quelle ville possède une « avenue de Champagne » bordée de grandes maisons de champagne ?","Sous ses pieds s'étendent des dizaines de kilomètres de caves où vieillissent des millions de bouteilles."],
+["Pithiviers",48.17,2.25,"Quelle ville du Loiret a donné son nom à un gâteau feuilleté à la crème d'amandes ?","Il ressemble beaucoup à la galette des rois, mais avec un bord festonné."],
+["Chantilly",49.19,2.47,"Quelle ville a donné son nom à une crème fouettée sucrée ?","On attribue souvent son invention à Vatel, maître d'hôtel du château, mais rien ne le prouve."],
+);
+Q_FR_PERSO.push(
+["Paris",48.86,2.35,"Dans quelle ville est né Molière, en 1622 ?","Il s'appelait Jean-Baptiste Poquelin. Son père était tapissier du roi."],
+["Chinon",47.17,0.24,"Près de quelle ville est né François Rabelais, l'auteur de « Gargantua » ?","Il est né à La Devinière, une ferme proche de la ville, vers 1494."],
+["Castres",43.61,2.24,"Dans quelle ville du Tarn est né Jean Jaurès, en 1859 ?","Un musée lui est consacré dans sa ville natale. Il a été assassiné à Paris en 1914."],
+["Mouilleron-en-Pareds",46.68,-0.85,"Dans quel village de Vendée est né Georges Clemenceau, le « Père la Victoire » ?","Le maréchal de Lattre de Tassigny est né dans le même petit village : un musée y est consacré aux deux hommes."],
+["Le Cateau-Cambrésis",50.10,3.54,"Dans quelle ville du Nord est né le peintre Henri Matisse, en 1869 ?","Il a offert à sa ville natale de nombreuses œuvres, aujourd'hui exposées dans un musée qui porte son nom."],
+["Figeac",44.61,2.03,"Dans quelle ville du Lot est né Champollion, qui a déchiffré les hiéroglyphes ?","Une place de la ville reproduit la pierre de Rosette en version géante, gravée dans le granite."],
+["La Brède",44.68,-0.53,"Dans quel château près de Bordeaux est né le philosophe Montesquieu ?","Il a écrit « De l'esprit des lois », qui défend la séparation des pouvoirs."],
+["Saint-Michel-de-Montaigne",44.87,0.03,"Dans quel château du Périgord est né Michel de Montaigne, l'auteur des « Essais » ?","Il écrivait dans une tour du château, dont il avait fait peindre les poutres de citations."],
+["Saint-Sauveur-en-Puisaye",47.62,3.20,"Dans quel village de Bourgogne est née l'écrivaine Colette, en 1873 ?","Elle a raconté son enfance au village dans « La Maison de Claudine »."],
+["Châteauroux",46.81,1.69,"Dans quelle ville de l'Indre est né Gérard Depardieu, en 1948 ?","Il a quitté l'école très tôt et est monté à Paris à 16 ans pour devenir acteur."],
+["Honfleur",49.42,0.23,"Dans quelle ville normande est né le compositeur Erik Satie, auteur des « Gymnopédies » ?","Sa maison natale est devenue un musée plein de surprises, à son image."],
+["Ornans",47.10,6.14,"Dans quelle ville du Doubs est né le peintre Gustave Courbet, en 1819 ?","Son immense tableau « Un enterrement à Ornans » représente des habitants de sa ville."],
+["Saint-Dié-des-Vosges",48.28,6.95,"Dans quelle ville est né Jules Ferry, le ministre de l'école gratuite, laïque et obligatoire ?","Cette ville est aussi surnommée « la marraine de l'Amérique » : le mot « America » y a été imprimé pour la première fois, en 1507."],
+["Yffiniac",48.48,-2.68,"Dans quelle commune bretonne est né le cycliste Bernard Hinault, en 1954 ?","Il est le dernier Français à avoir gagné le Tour de France, en 1985."],
+["Sedan",49.70,4.94,"Dans quelle ville des Ardennes est né le tennisman et chanteur Yannick Noah, en 1960 ?","Il a passé une partie de son enfance au Cameroun, où il a été repéré par Arthur Ashe."],
+["Versailles",48.80,2.13,"Dans quelle ville est né le roi Louis XVI, en 1754 ?","Il était le petit-fils de Louis XV. Il est devenu roi à seulement 19 ans."],
+);
+Q_FR_INSOLITE.push(
+["Chambord",47.62,1.52,"Dans quel château de la Loire se trouve un célèbre escalier à double révolution, où l'on peut monter et descendre sans se croiser ?","Son plan est parfois attribué à Léonard de Vinci, qui vivait à Amboise à l'époque."],
+["Colmar",48.08,7.36,"Dans quelle ville alsacienne une réplique de la statue de la Liberté accueille-t-elle les visiteurs ?","C'est la ville natale de Bartholdi, le sculpteur de la statue de New York."],
+["Lyon",45.76,4.84,"Dans quelle ville a lieu chaque année, autour du 8 décembre, une grande Fête des Lumières ?","Au départ, les habitants posaient des lumignons à leurs fenêtres pour remercier la Vierge Marie."],
+["Menton",43.78,7.50,"Dans quelle ville de la Côte d'Azur a lieu une fête où l'on construit des sculptures géantes en agrumes ?","Chaque année, environ 140 tonnes d'oranges et de citrons sont utilisées."],
+["Arles",43.68,4.63,"Dans quelle ville Van Gogh s'est-il coupé une partie de l'oreille, en 1888 ?","Il y a réalisé plus de 300 peintures et dessins en une quinzaine de mois, dont « Les Tournesols »."],
+["Auvers-sur-Oise",49.07,2.17,"Dans quel village du Val-d'Oise Van Gogh a-t-il passé les dernières semaines de sa vie ?","Il y a peint environ 80 tableaux en 70 jours. Il y est enterré à côté de son frère Théo."],
+["Giverny",49.08,1.53,"Dans quel village normand Claude Monet a-t-il peint ses célèbres « Nymphéas » ?","Il a fait creuser lui-même son bassin aux nénuphars et construire un pont japonais."],
+["Carnac",47.58,-3.08,"Dans quelle commune du Morbihan s'alignent près de 3 000 menhirs ?","Selon une légende, ce serait une armée de soldats romains changés en pierres."],
+["Orange",44.14,4.81,"Dans quelle ville se trouve un théâtre antique au mur de scène intact, que Louis XIV appelait « la plus belle muraille de mon royaume » ?","Le théâtre romain accueille toujours un grand festival d'opéra, les Chorégies."],
+["Vers-Pont-du-Gard",43.95,4.54,"Près de quelle commune se dresse le pont du Gard, un aqueduc romain de près de 50 m de haut ?","Il faisait partie d'un aqueduc de 50 km qui apportait l'eau à Nîmes."],
+["Chartres",48.45,1.49,"Dans quelle ville une cathédrale abrite-t-elle un grand labyrinthe dessiné sur le sol ?","Les pèlerins le parcouraient parfois à genoux. Il mesure environ 260 m de chemin."],
+["Toulouse",43.60,1.44,"Dans quelle ville était assemblé l'Airbus A380, le plus gros avion de ligne du monde ?","Les morceaux de l'avion arrivaient par bateau, puis par la route, de nuit, dans des convois spectaculaires."],
+["Saint-Nazaire",47.27,-2.21,"Dans quel port sont construits certains des plus grands paquebots de croisière du monde ?","Ces navires peuvent accueillir plus de 6 000 passagers, comme une petite ville flottante."],
+["Sochaux",47.51,6.83,"Dans quelle commune du Doubs se trouve la plus ancienne usine automobile Peugeot encore en activité ?","Peugeot fabriquait d'abord des moulins à café et des outils… dont le célèbre moulin à poivre."],
+["Huez",45.09,6.06,"Dans quelle station de l'Isère monte une route de 21 virages, mythique pour le Tour de France ?","Chaque virage porte le nom d'un vainqueur d'étape."],
+["Font-Romeu-Odeillo-Via",42.50,2.04,"Dans quelle commune des Pyrénées se trouve un four solaire géant, avec un miroir de plusieurs milliers de m² ?","Il concentre la lumière du soleil et peut dépasser 3 000 °C."],
+["Saint-Véran",44.70,6.87,"Quel village des Hautes-Alpes, situé à plus de 2 000 m, est l'une des plus hautes communes d'Europe ?","Sa devise est : « Ici, les coqs picorent les étoiles »."],
+["Ouessant",48.46,-5.09,"Quelle île marque le point le plus à l'ouest de la France métropolitaine ?","Un dicton marin dit : « Qui voit Ouessant voit son sang », tant ses courants sont dangereux."],
+);
+Q_FR_RTE.push(
+["Chooz",50.09,4.79,"Quelle centrale nucléaire des Ardennes est construite dans une boucle de la Meuse, presque entourée par la Belgique ?","Ses deux réacteurs font partie des plus puissants du parc français, juste derrière l'EPR."],
+["Civaux",46.46,0.65,"Quelle centrale de la Vienne abrite les derniers réacteurs mis en service en France avant l'EPR de Flamanville ?","Ses deux réacteurs ont été raccordés au réseau à la fin des années 1990."],
+["Cattenom",49.41,6.25,"Quelle centrale nucléaire de Moselle se trouve à quelques kilomètres du Luxembourg et de l'Allemagne ?","Avec ses quatre grands réacteurs, c'est l'une des centrales les plus puissantes de France."],
+["Nogent-sur-Seine",48.49,3.50,"Dans quelle commune de l'Aube se trouve la centrale nucléaire la plus proche de Paris ?","Elle est à environ 100 km de la capitale, au bord de la Seine."],
+["Cruas",44.63,4.76,"Dans quelle commune de l'Ardèche une tour de refroidissement de centrale nucléaire est-elle décorée d'une immense fresque ?","La fresque « Le Verseau » représente un enfant qui verse de l'eau. Elle a longtemps été la plus grande du monde."],
+["Rousset",44.47,6.27,"Près de quelle commune des Hautes-Alpes se trouve le barrage de Serre-Ponçon, qui retient l'un des plus grands lacs artificiels d'Europe ?","Pour le remplir, dans les années 1950, deux villages ont été engloutis."],
+["Tignes",45.47,6.91,"Quelle station de Savoie a dû être reconstruite en hauteur après que l'ancien village a été englouti par un barrage, en 1952 ?","Les jours de vidange du lac, on peut revoir les ruines de l'ancien village."],
+["Brennilis",48.36,-3.85,"Dans quelle commune des monts d'Arrée se trouve une ancienne centrale nucléaire expérimentale en cours de démantèlement ?","Elle a fonctionné de 1967 à 1985. Son démantèlement est l'un des plus longs de France."],
+["Creys-Mépieu",45.76,5.47,"Dans quelle commune de l'Isère se trouvait Superphénix, un réacteur nucléaire géant arrêté en 1997 ?","C'était le plus grand réacteur à neutrons rapides du monde. Il a très peu fonctionné."],
+);
+Q_FR_ARBRES.push(
+["Compiègne",49.42,2.83,"Près de quelle ville une grande forêt abrite-t-elle la clairière où a été signé l'armistice de 1918 ?","La forêt couvre environ 14 000 hectares. Les rois de France venaient y chasser."],
+["Rambouillet",48.64,1.83,"Près de quelle ville des Yvelines s'étend une grande forêt, ancienne chasse présidentielle ?","Le château voisin a longtemps été une résidence des présidents de la République."],
+["Orléans",47.90,1.91,"Près de quelle ville s'étend la plus grande forêt domaniale de France métropolitaine ?","Elle couvre environ 35 000 hectares et abrite des balbuzards pêcheurs."],
+["Jupilles",47.80,0.41,"Près de quel village de la Sarthe se trouve la forêt de Bercé, célèbre pour ses chênes géants ?","Certains chênes y dépassent 40 m de haut. Leur bois sert à fabriquer des tonneaux de grands vins."],
+["Nogent-sur-Vernisson",47.85,2.74,"Dans quelle commune du Loiret se trouve l'arboretum national des Barres, avec des milliers d'espèces d'arbres ?","Il a été créé au XIXᵉ siècle par la famille Vilmorin, célèbre pour ses graines."],
+["Lalbenque",44.34,1.55,"Dans quel village du Lot se tient un célèbre marché aux truffes, champignons qui poussent au pied des chênes ?","Le marché démarre au coup de sifflet : avant, interdit de vendre !"],
+["Évisa",42.25,8.80,"Près de quel village corse se trouve la forêt d'Aïtone, célèbre pour ses grands pins laricio ?","Le pin laricio peut dépasser 50 m. Son bois servait autrefois à fabriquer les mâts des navires."],
+["Collobrières",43.24,6.31,"Quel village du massif des Maures est réputé pour ses châtaignes et ses chênes-lièges ?","Le village est surnommé la capitale du marron glacé."],
+["Château-Chinon",47.06,3.93,"Dans quelle région, autour de cette ville de la Nièvre, cultive-t-on une grande partie des sapins de Noël français ?","Le Morvan produit plus d'un million de sapins de Noël chaque année."],
+);
+
 /* ================== ÉVÉNEMENTS : [année, question, anecdote] (années négatives = av. J.-C.) ================== */
 const E_HISTOIRE = [
 [1789,"En quelle année a eu lieu la prise de la Bastille ?","Ce jour-là, la célèbre prison ne comptait que 7 prisonniers. Louis XVI aurait écrit « Rien » dans son journal… mais il parlait de sa chasse !"],
@@ -1017,6 +1176,186 @@ const E_POP = [
 [1976,"En quelle année la France a-t-elle réinstauré le passage à l'heure d'été ?","C'était pour économiser de l'énergie après le choc pétrolier. On change d'heure deux fois par an depuis."],
 ];
 
+/* ================== CHRONO : événements supplémentaires ================== */
+E_HISTOIRE.push(
+[1453,"En quelle année Constantinople a-t-elle été prise par les Ottomans ?","La ville est devenue Istanbul. Beaucoup d'historiens y voient la fin du Moyen Âge."],
+[1685,"En quelle année Louis XIV a-t-il révoqué l'édit de Nantes ?","Des centaines de milliers de protestants ont alors quitté la France, notamment vers la Suisse, les Pays-Bas et la Prusse."],
+[1871,"En quelle année a eu lieu la Commune de Paris ?","L'insurrection a duré environ deux mois, du 18 mars au 28 mai, et s'est terminée par la « Semaine sanglante »."],
+[1905,"En quelle année a été votée en France la loi de séparation des Églises et de l'État ?","C'est elle qui fonde la laïcité à la française."],
+[1914,"En quelle année a commencé la Première Guerre mondiale ?","Tout est parti de l'assassinat de l'archiduc François-Ferdinand à Sarajevo, le 28 juin."],
+[1939,"En quelle année a commencé la Seconde Guerre mondiale ?","Le 1ᵉʳ septembre, l'Allemagne a envahi la Pologne. La France et le Royaume-Uni lui ont déclaré la guerre deux jours plus tard."],
+[1958,"En quelle année a été adoptée la Constitution de la Vᵉ République ?","Elle a été approuvée par référendum le 28 septembre, par près de 80 % des votants."],
+[1961,"En quelle année a été construit le mur de Berlin ?","Il a été dressé en une seule nuit, celle du 12 au 13 août, d'abord sous la forme de barbelés."],
+[1215,"En quelle année le roi d'Angleterre a-t-il dû accepter la Grande Charte (Magna Carta) ?","Ce texte limitait pour la première fois le pouvoir du roi. Il est considéré comme un ancêtre des droits de l'homme."],
+[1792,"En quelle année la Iʳᵉ République française a-t-elle été proclamée ?","Elle a été proclamée en septembre, juste après la victoire de Valmy."],
+[1793,"En quelle année Louis XVI a-t-il été guillotiné ?","Il a été exécuté le 21 janvier, sur l'actuelle place de la Concorde."],
+[1830,"En quelle année ont eu lieu les « Trois Glorieuses », qui ont renversé Charles X ?","Ces trois journées de juillet ont inspiré à Delacroix son célèbre tableau « La Liberté guidant le peuple »."],
+[1870,"En quelle année Napoléon III a-t-il été fait prisonnier à Sedan ?","Deux jours plus tard, le 4 septembre, la IIIᵉ République était proclamée à Paris."],
+[1940,"En quelle année le général de Gaulle a-t-il lancé son appel à la résistance depuis Londres ?","Le célèbre appel du 18 juin n'a pas été enregistré : ce qu'on entend souvent est un appel ultérieur, du 22 juin."],
+[1949,"En quelle année a été créée l'OTAN ?","Le traité a été signé à Washington par 12 pays, dont la France."],
+[2001,"En quelle année ont eu lieu les attentats du World Trade Center à New York ?","Le 11 septembre, deux avions ont percuté les tours jumelles, qui se sont effondrées."],
+[1095,"En quelle année le pape Urbain II a-t-il appelé à la première croisade, à Clermont ?","Son appel aurait été accueilli par le cri « Dieu le veut ! »."],
+[1643,"En quelle année Louis XIV est-il devenu roi ?","Il n'avait que 4 ans : sa mère, Anne d'Autriche, a gouverné à sa place avec le cardinal Mazarin."],
+[1715,"En quelle année Louis XIV est-il mort ?","Il avait régné 72 ans. C'est son arrière-petit-fils, âgé de 5 ans, qui lui a succédé sous le nom de Louis XV."],
+[1865,"En quelle année s'est terminée la guerre de Sécession aux États-Unis ?","Le Sud a capitulé en avril. Quelques jours plus tard, Abraham Lincoln était assassiné."],
+[1947,"En quelle année l'Inde est-elle devenue indépendante ?","Le pays a été divisé en deux : l'Inde et le Pakistan, ce qui a provoqué d'immenses déplacements de population."],
+[1990,"En quelle année Nelson Mandela a-t-il été libéré de prison ?","Il était resté prisonnier pendant 27 ans."],
+[1936,"En quelle année les Français ont-ils obtenu leurs premiers congés payés ?","Le Front populaire a accordé deux semaines de congés payés. Beaucoup d'ouvriers ont alors vu la mer pour la première fois."],
+[1999,"En quelle année l'euro est-il devenu la monnaie officielle de la France (sans pièces ni billets) ?","Pendant trois ans, l'euro n'a existé que sur les comptes et les chèques, avant l'arrivée des pièces et billets en 2002."],
+);
+E_SCIENCES.push(
+[1543,"En quelle année Copernic a-t-il publié sa théorie selon laquelle la Terre tourne autour du Soleil ?","Il aurait reçu le premier exemplaire imprimé de son livre sur son lit de mort."],
+[1752,"En quelle année Benjamin Franklin aurait-il fait son expérience du cerf-volant sous l'orage ?","Elle lui a permis de montrer que la foudre est électrique, et d'inventer le paratonnerre."],
+[1769,"En quelle année James Watt a-t-il fait breveter son amélioration de la machine à vapeur ?","Son invention a joué un rôle clé dans la révolution industrielle. L'unité de puissance, le watt, porte son nom."],
+[1800,"En quelle année Alessandro Volta a-t-il inventé la pile électrique ?","Sa pile était un empilement de disques de zinc et de cuivre séparés par du carton imbibé d'eau salée."],
+[1839,"En quelle année le procédé photographique de Daguerre a-t-il été présenté au public ?","L'État français a acheté l'invention pour l'offrir gratuitement au monde entier."],
+[1869,"En quelle année Mendeleïev a-t-il présenté son tableau périodique des éléments ?","Il avait laissé des cases vides pour des éléments encore inconnus, qui ont bien été découverts plus tard."],
+[1886,"En quelle année Carl Benz a-t-il fait breveter la première automobile à moteur à essence ?","Sa femme Bertha a fait le premier long trajet en voiture de l'histoire, plus de 100 km, sans le prévenir !"],
+[1895,"En quelle année Wilhelm Röntgen a-t-il découvert les rayons X ?","La première radiographie de l'histoire montre la main de sa femme, avec sa bague."],
+[1898,"En quelle année Pierre et Marie Curie ont-ils découvert le radium ?","Ils ont aussi découvert le polonium, que Marie a nommé ainsi en hommage à la Pologne, son pays natal."],
+[1909,"En quelle année Louis Blériot a-t-il traversé la Manche en avion ?","Le vol a duré environ 37 minutes, entre Calais et Douvres."],
+[1927,"En quelle année Charles Lindbergh a-t-il traversé l'Atlantique en avion sans escale et en solitaire ?","Il a relié New York à Paris en un peu plus de 33 heures, sans dormir."],
+[1953,"En quelle année la structure en double hélice de l'ADN a-t-elle été publiée ?","Les travaux de Watson et Crick s'appuyaient sur une image prise par Rosalind Franklin."],
+[1961,"En quelle année Youri Gagarine est-il devenu le premier homme dans l'espace ?","Son vol a duré 108 minutes. Il a atterri en parachute, après s'être éjecté de sa capsule."],
+[1967,"En quelle année a été réalisée la première greffe de cœur humain ?","Elle a été réalisée en Afrique du Sud par le chirurgien Christiaan Barnard. Le patient a survécu 18 jours."],
+[1976,"En quelle année le Concorde a-t-il commencé ses vols commerciaux ?","Il reliait Paris à New York en environ 3 h 30, deux fois plus vite qu'un avion classique."],
+[1990,"En quelle année le télescope spatial Hubble a-t-il été lancé ?","Juste après son lancement, on s'est aperçu que son miroir avait un défaut. Des astronautes l'ont réparé en 1993."],
+[1997,"En quelle année l'ordinateur Deep Blue a-t-il battu le champion du monde d'échecs Garry Kasparov ?","C'était la première fois qu'un ordinateur battait un champion du monde en titre dans un match."],
+[2003,"En quelle année le séquençage du génome humain a-t-il été achevé ?","Le projet avait duré 13 ans et mobilisé des laboratoires du monde entier."],
+[2012,"En quelle année la découverte du boson de Higgs a-t-elle été annoncée ?","Elle a été faite au CERN, près de Genève, dans un accélérateur de particules de 27 km de circonférence."],
+[2022,"En quelle année ChatGPT a-t-il été rendu public ?","Il a dépassé les 100 millions d'utilisateurs en environ deux mois."],
+[1971,"En quelle année est sorti le premier microprocesseur commercial, l'Intel 4004 ?","Il contenait environ 2 300 transistors. Un processeur récent en contient des milliards."],
+);
+E_ARTS.push(
+[1831,"En quelle année Victor Hugo a-t-il publié « Notre-Dame de Paris » ?","Le succès du roman a contribué à sauver la cathédrale, alors en mauvais état."],
+[1844,"En quelle année a commencé la parution des « Trois Mousquetaires » d'Alexandre Dumas ?","Le roman a d'abord été publié en feuilleton dans un journal."],
+[1605,"En quelle année a été publiée la première partie de « Don Quichotte » de Cervantès ?","Don Quichotte se bat contre des moulins à vent qu'il prend pour des géants."],
+[1830,"En quelle année a eu lieu la « bataille d'Hernani », lors de la première de la pièce de Victor Hugo ?","Partisans et adversaires du romantisme se sont affrontés pendant les représentations."],
+[1885,"En quelle année Émile Zola a-t-il publié « Germinal » ?","Pour l'écrire, il est allé observer le travail des mineurs dans le Nord."],
+[1913,"En quelle année a été publié « Du côté de chez Swann », le premier tome de « À la recherche du temps perdu » de Proust ?","C'est dans ce livre qu'apparaît la célèbre madeleine trempée dans le thé."],
+[1942,"En quelle année Albert Camus a-t-il publié « L'Étranger » ?","Le roman commence par une phrase célèbre sur la mort de la mère du narrateur."],
+[1907,"En quelle année Picasso a-t-il peint « Les Demoiselles d'Avignon » ?","Ce tableau est souvent considéré comme le point de départ du cubisme."],
+[1889,"En quelle année Van Gogh a-t-il peint « La Nuit étoilée » ?","Il l'a peinte depuis sa chambre à l'asile de Saint-Rémy-de-Provence."],
+[1872,"En quelle année Claude Monet a-t-il peint « Impression, soleil levant » ?","Ce tableau du port du Havre a donné son nom au mouvement impressionniste."],
+[1665,"Vers quelle année Vermeer a-t-il peint « La Jeune Fille à la perle » ?","On ne sait pas qui était le modèle, et la « perle » serait peut-être en étain poli."],
+[1931,"En quelle année Salvador Dalí a-t-il peint « La Persistance de la mémoire », avec ses montres molles ?","Dalí disait avoir eu l'idée en regardant un camembert fondre au soleil."],
+[1962,"En quelle année Andy Warhol a-t-il exposé ses boîtes de soupe Campbell ?","Il y en avait 32, une pour chaque saveur vendue à l'époque."],
+[1793,"En quelle année le Louvre a-t-il ouvert ses portes en tant que musée ?","Il a été ouvert au public pendant la Révolution, dans l'ancien palais des rois."],
+[1977,"En quelle année le Centre Pompidou a-t-il été inauguré ?","Ses tuyaux colorés sont à l'extérieur : bleu pour l'air, vert pour l'eau, jaune pour l'électricité."],
+[1958,"En quelle année les Schtroumpfs sont-ils apparus pour la première fois ?","Ils sont apparus dans une aventure de Johan et Pirlouit, dessinée par Peyo."],
+[1938,"En quelle année est né le journal et personnage de Spirou ?","Spirou était à l'origine un groom, c'est-à-dire un employé d'hôtel en uniforme."],
+[1886,"En quelle année la statue de la Liberté a-t-elle été inaugurée à New York ?","Elle avait voyagé en pièces détachées, dans plus de 200 caisses, à bord d'un navire français."],
+[1163,"En quelle année a commencé la construction de la cathédrale Notre-Dame de Paris ?","Le chantier a duré près de deux siècles."],
+[1677,"En quelle année a été jouée pour la première fois la tragédie « Phèdre » de Racine ?","Après cette pièce, Racine a presque arrêté d'écrire pour le théâtre pendant de longues années."],
+[1957,"En quelle année Albert Camus a-t-il reçu le prix Nobel de littérature ?","Il avait 44 ans, ce qui faisait de lui l'un des plus jeunes lauréats de l'histoire."],
+[1954,"En quelle année Françoise Sagan a-t-elle publié « Bonjour tristesse » ?","Elle avait seulement 18 ans, et le livre a été un immense succès."],
+);
+E_MUSIQUE.push(
+[1956,"En quelle année Elvis Presley a-t-il connu son premier grand succès avec « Heartbreak Hotel » ?","À la télévision, on évitait parfois de le filmer en dessous de la taille, ses déhanchés choquant une partie du public."],
+[1964,"En quelle année les Beatles ont-ils joué pour la première fois à la télévision américaine (Ed Sullivan Show) ?","Environ 73 millions de téléspectateurs les ont regardés ce soir-là."],
+[1965,"En quelle année les Rolling Stones ont-ils sorti « (I Can't Get No) Satisfaction » ?","Keith Richards dit avoir trouvé le riff en se réveillant au milieu de la nuit."],
+[1967,"En quelle année les Beatles ont-ils sorti l'album « Sgt. Pepper's Lonely Hearts Club Band » ?","Sa pochette montre les Beatles entourés de dizaines de personnages célèbres en carton."],
+[1970,"En quelle année la séparation des Beatles a-t-elle été rendue publique ?","C'est Paul McCartney qui l'a annoncée, au printemps."],
+[1975,"En quelle année Queen a-t-il sorti « Bohemian Rhapsody » ?","La chanson dure près de 6 minutes et n'a pas de refrain."],
+[1981,"En quelle année la chaîne musicale MTV a-t-elle été lancée ?","Le premier clip diffusé s'appelait « Video Killed the Radio Star »."],
+[1983,"En quelle année Michael Jackson a-t-il fait son premier « moonwalk » à la télévision ?","Il l'a fait sur « Billie Jean », lors d'une émission anniversaire de la maison de disques Motown."],
+[1991,"En quelle année Nirvana a-t-il sorti l'album « Nevermind » ?","Sur la pochette, un bébé nage sous l'eau vers un billet d'un dollar."],
+[2001,"En quelle année Apple a-t-il lancé l'iPod ?","Le slogan promettait « 1 000 chansons dans votre poche »."],
+[2008,"En quelle année le service d'écoute Spotify a-t-il été lancé ?","Il a été créé en Suède. Aujourd'hui, il compte des centaines de millions d'utilisateurs."],
+[1963,"En quelle année Édith Piaf est-elle morte ?","Le même jour, son ami Jean Cocteau est mort lui aussi."],
+[1978,"En quelle année Claude François est-il mort ?","Il est mort électrocuté chez lui, en voulant redresser une ampoule alors qu'il était dans sa baignoire."],
+[1981,"En quelle année Georges Brassens est-il mort ?","Il repose au cimetière de Sète, sa ville natale, qu'il avait chanté dans « Supplique pour être enterré à la plage de Sète »."],
+[1991,"En quelle année Serge Gainsbourg est-il mort ?","Sa maison de la rue de Verneuil, à Paris, couverte de graffitis, est devenue un musée."],
+[1969,"En quelle année est sortie la chanson « Je t'aime… moi non plus » de Gainsbourg et Birkin ?","Le Vatican l'aurait condamnée et plusieurs radios l'ont interdite… ce qui a fait son succès."],
+[1997,"En quelle année Elton John a-t-il chanté « Candle in the Wind » en hommage à Lady Diana ?","Cette version est l'un des singles les plus vendus de l'histoire."],
+[1958,"En quelle année Chuck Berry a-t-il sorti « Johnny B. Goode » ?","La chanson fait partie des musiques envoyées dans l'espace à bord des sondes Voyager, en 1977."],
+[1787,"En quelle année a été joué pour la première fois l'opéra « Don Giovanni » de Mozart ?","La première a eu lieu à Prague, où Mozart était très apprécié."],
+[1875,"En quelle année a été joué pour la première fois l'opéra « Carmen » de Bizet ?","L'accueil a été plutôt froid. Bizet est mort trois mois plus tard, sans connaître son triomphe."],
+[1913,"En quelle année « Le Sacre du printemps » de Stravinsky a-t-il provoqué un scandale à Paris ?","Le public était si bruyant que les danseurs n'entendaient plus l'orchestre."],
+[1725,"En quelle année ont été publiées « Les Quatre Saisons » de Vivaldi ?","Chaque concerto était accompagné d'un poème décrivant la saison."],
+[2016,"En quelle année Bob Dylan a-t-il reçu le prix Nobel de littérature ?","Il a mis plusieurs jours à réagir et n'est pas allé à la cérémonie."],
+[1954,"En quelle année Bill Haley a-t-il enregistré « Rock Around the Clock » ?","La chanson est devenue un symbole du rock'n'roll après être apparue dans un film en 1955."],
+);
+E_CINEMA.push(
+[1902,"En quelle année Georges Méliès a-t-il réalisé « Le Voyage dans la Lune » ?","L'image de la fusée plantée dans l'œil de la Lune est devenue culte."],
+[1939,"En quelle année est sorti « Autant en emporte le vent » ?","Corrigé de l'inflation, il reste l'un des films les plus rentables de l'histoire."],
+[1941,"En quelle année est sorti « Citizen Kane » d'Orson Welles ?","Welles avait 25 ans et réalisait là son tout premier long métrage."],
+[1960,"En quelle année est sorti « À bout de souffle » de Jean-Luc Godard ?","Le film, avec Jean-Paul Belmondo, est un symbole de la Nouvelle Vague."],
+[1964,"En quelle année est sorti « Le Gendarme de Saint-Tropez » avec Louis de Funès ?","Ce premier film a été suivi de cinq autres aventures du gendarme Cruchot."],
+[1972,"En quelle année est sorti « Le Parrain » de Francis Ford Coppola ?","Le chat que Marlon Brando caresse dans la première scène traînait sur le plateau : il n'était pas prévu."],
+[1975,"En quelle année est sorti « Les Dents de la mer » de Steven Spielberg ?","Le requin mécanique tombait si souvent en panne que Spielberg a dû le montrer le moins possible… ce qui rend le film encore plus effrayant."],
+[1979,"En quelle année est sorti « Alien » de Ridley Scott ?","Le slogan disait : « Dans l'espace, personne ne vous entend crier »."],
+[1982,"En quelle année est sorti « E.T. l'extra-terrestre » ?","Les bonbons que mange E.T. ont vu leurs ventes exploser après la sortie du film."],
+[1985,"En quelle année est sorti « Retour vers le futur » ?","La voiture qui voyage dans le temps est une DeLorean, qui doit atteindre 88 miles à l'heure."],
+[1988,"En quelle année est sorti « Le Grand Bleu » de Luc Besson ?","Le film s'inspire de la rivalité entre deux plongeurs en apnée, Jacques Mayol et Enzo Maiorca."],
+[1993,"En quelle année est sorti le film « Les Visiteurs » ?","Le film a attiré près de 14 millions de spectateurs en France. « Okayyy ! »"],
+[1994,"En quelle année est sorti « Le Roi Lion » de Disney ?","C'est l'un des rares grands classiques Disney qui ne soit pas adapté d'une histoire existante."],
+[1995,"En quelle année est sorti « Toy Story » ?","C'était le premier long métrage entièrement réalisé en images de synthèse."],
+[1999,"En quelle année est sorti « Matrix » ?","Les effets au ralenti, surnommés « bullet time », ont été imités dans d'innombrables films."],
+[2001,"En quelle année est sorti le premier film « Harry Potter » ?","Daniel Radcliffe avait 11 ans au moment du tournage."],
+[2003,"En quelle année est sorti « Le Retour du roi », dernier volet du « Seigneur des anneaux » ?","Il a remporté 11 Oscars, un record partagé avec « Ben-Hur » et « Titanic »."],
+[2009,"En quelle année est sorti « Avatar » de James Cameron ?","Il est devenu le film le plus rentable de l'histoire, un record qu'il a perdu puis repris."],
+[2012,"En quelle année Jean Dujardin a-t-il reçu l'Oscar du meilleur acteur pour « The Artist » ?","C'était la première fois qu'un acteur français recevait cet Oscar."],
+[1984,"En quelle année la chaîne Canal+ a-t-elle été lancée ?","C'était la première chaîne payante de France. Il fallait un décodeur pour la regarder."],
+[1968,"En quelle année est sorti « Il était une fois dans l'Ouest » de Sergio Leone ?","La musique d'Ennio Morricone était parfois jouée sur le plateau pendant le tournage, pour mettre les acteurs dans l'ambiance."],
+[2019,"En quelle année le film « Parasite » a-t-il remporté la Palme d'or ?","Quelques mois plus tard, il est devenu le premier film non anglophone à remporter l'Oscar du meilleur film."],
+[1998,"En quelle année est sorti « Le Dîner de cons » ?","Le film est l'adaptation d'une pièce de théâtre de Francis Veber, qui l'a lui-même réalisé."],
+[1950,"En quelle année est sorti « Cendrillon » de Disney ?","Ce succès a sauvé le studio, alors en difficulté financière après la guerre."],
+);
+E_SPORT.push(
+[1900,"En quelle année les femmes ont-elles participé pour la première fois aux Jeux olympiques ?","C'était à Paris. La Britannique Charlotte Cooper est devenue la première championne olympique, en tennis."],
+[1936,"En quelle année Jesse Owens a-t-il gagné 4 médailles d'or aux JO de Berlin ?","Ses victoires sont restées un symbole face à la propagande nazie."],
+[1950,"En quelle année l'Uruguay a-t-il battu le Brésil au Maracanã en finale de Coupe du monde ?","Ce match, appelé le « Maracanazo », reste un traumatisme national au Brésil."],
+[1958,"En quelle année Pelé a-t-il gagné sa première Coupe du monde, à 17 ans ?","Il a marqué deux buts en finale contre la Suède."],
+[1968,"En quelle année Bob Beamon a-t-il sauté 8,90 m en longueur aux JO de Mexico ?","Il a amélioré le record du monde de 55 cm d'un coup. Ce record a tenu 23 ans."],
+[1984,"En quelle année Carl Lewis a-t-il remporté 4 médailles d'or aux JO de Los Angeles ?","Il a égalé l'exploit de Jesse Owens en 1936, dans les mêmes épreuves."],
+[1986,"En quelle année Maradona a-t-il marqué le but de la « main de Dieu » ?","Quatre minutes plus tard, dans le même match contre l'Angleterre, il a marqué un but élu « but du siècle »."],
+[1992,"En quelle année la « Dream Team » américaine de basket a-t-elle joué aux JO de Barcelone ?","C'était la première fois que les stars de la NBA pouvaient participer aux Jeux."],
+[1993,"En quelle année l'Olympique de Marseille a-t-il remporté la Ligue des champions ?","C'est le seul club français à avoir remporté la Ligue des champions… jusqu'au PSG en 2025."],
+[1995,"En quelle année l'Afrique du Sud a-t-elle remporté sa Coupe du monde de rugby à domicile ?","Nelson Mandela a remis le trophée au capitaine en portant le maillot des Springboks."],
+[1996,"En quelle année Marie-José Pérec a-t-elle gagné le 200 m et le 400 m aux JO d'Atlanta ?","Elle a été la première athlète à réaliser ce doublé depuis la création des JO modernes."],
+[2000,"En quelle année la France a-t-elle remporté l'Euro de football grâce au « but en or » de Trezeguet ?","La France a ainsi enchaîné un titre mondial et un titre européen."],
+[2003,"En quelle année Roger Federer a-t-il remporté son premier tournoi de Wimbledon ?","Il en a remporté 8 au total, un record chez les hommes."],
+[2005,"En quelle année Rafael Nadal a-t-il remporté son premier Roland-Garros ?","Il l'a gagné pour sa première participation, à 19 ans."],
+[1978,"En quelle année Bernard Hinault a-t-il remporté son premier Tour de France ?","On le surnommait « le Blaireau »."],
+[1985,"En quelle année un Français a-t-il remporté le Tour de France pour la dernière fois ?","C'était Bernard Hinault, pour sa cinquième victoire."],
+[2008,"En quelle année Michael Phelps a-t-il gagné 8 médailles d'or aux mêmes Jeux olympiques ?","C'était à Pékin. Il a battu le record de 7 médailles d'or de Mark Spitz."],
+[2016,"En quelle année la France a-t-elle perdu en finale de l'Euro, à domicile, face au Portugal ?","Le Portugal l'a emporté 1-0 en prolongation, malgré la blessure de Cristiano Ronaldo."],
+[2018,"En quelle année la France a-t-elle remporté sa deuxième Coupe du monde de football ?","Elle a battu la Croatie 4-2 en finale, à Moscou."],
+[2022,"En quelle année l'Argentine de Lionel Messi a-t-elle remporté la Coupe du monde ?","La finale contre la France, au Qatar, est souvent citée comme l'une des plus folles de l'histoire."],
+[1891,"En quelle année le basket a-t-il été inventé ?","Son inventeur, James Naismith, utilisait deux paniers à pêches fixés à un balcon."],
+[1863,"En quelle année ont été rédigées les premières règles officielles du football, en Angleterre ?","Elles ont été adoptées dans un pub de Londres, lors de la création de la Fédération anglaise."],
+[1877,"En quelle année a eu lieu le premier tournoi de Wimbledon ?","Il n'y avait que des hommes, et environ 200 spectateurs."],
+[1928,"En quelle année le stade Roland-Garros a-t-il été inauguré ?","Il a été construit pour accueillir la Coupe Davis, que les « Mousquetaires » français venaient de gagner."],
+[2023,"En quelle année la France a-t-elle accueilli la Coupe du monde de rugby ?","L'Afrique du Sud l'a remportée, en battant la Nouvelle-Zélande en finale au Stade de France."],
+[1968,"En quelle année Jean-Claude Killy a-t-il remporté trois médailles d'or aux JO de Grenoble ?","Il a gagné les trois épreuves de ski alpin : descente, slalom et slalom géant."],
+);
+E_POP.push(
+[1985,"En quelle année Coluche a-t-il lancé les Restos du cœur ?","Il pensait que l'opération ne durerait qu'un hiver."],
+[1946,"En quelle année le bikini a-t-il été présenté pour la première fois ?","Il porte le nom d'un atoll du Pacifique où avaient lieu des essais nucléaires, pour son effet « explosif »."],
+[1955,"En quelle année le tout premier parc Disneyland a-t-il ouvert, en Californie ?","Le jour de l'ouverture, il faisait si chaud que le bitume fraîchement posé collait aux chaussures."],
+[1985,"En quelle année est sorti le jeu vidéo « Super Mario Bros. » ?","Mario s'appelait d'abord « Jumpman » dans le jeu Donkey Kong."],
+[1989,"En quelle année la console Game Boy est-elle sortie ?","Elle était vendue avec Tetris, qui a fait son succès."],
+[1994,"En quelle année la première PlayStation est-elle sortie au Japon ?","Sony l'a développée après l'échec d'un projet de console commun avec Nintendo."],
+[2001,"En quelle année l'encyclopédie Wikipédia a-t-elle été créée ?","La version française est née quelques mois après la version anglaise."],
+[2006,"En quelle année Twitter a-t-il été lancé ?","Les messages étaient alors limités à 140 caractères, comme les SMS."],
+[2010,"En quelle année Instagram a-t-il été lancé ?","Les photos devaient être carrées, en hommage aux appareils Polaroid."],
+[2011,"En quelle année est sortie la version officielle du jeu Minecraft ?","C'est l'un des jeux vidéo les plus vendus de tous les temps."],
+[2017,"En quelle année le mode « Battle Royale » de Fortnite a-t-il été lancé ?","Il était gratuit, ce qui a beaucoup contribué à son succès."],
+[2020,"En quelle année la France a-t-elle connu son premier confinement général ?","Il a commencé le 17 mars et a duré près de deux mois."],
+[1975,"En quelle année Bill Gates et Paul Allen ont-ils fondé Microsoft ?","Le nom vient de « micro-computer software », logiciel pour micro-ordinateur."],
+[1908,"En quelle année la Ford T a-t-elle été lancée ?","Henry Ford aurait dit qu'on pouvait l'avoir de n'importe quelle couleur, « pourvu qu'elle soit noire »."],
+[1960,"En quelle année le « nouveau franc » a-t-il remplacé l'ancien en France ?","1 nouveau franc valait 100 anciens francs. Beaucoup ont continué à compter en anciens francs pendant des années."],
+[1971,"En quelle année le premier café Starbucks a-t-il ouvert, à Seattle ?","Au début, la boutique ne vendait que des grains de café, pas de boissons."],
+[1979,"En quelle année le baladeur Walkman de Sony a-t-il été lancé ?","Il permettait pour la première fois d'écouter sa musique partout avec un casque."],
+[1996,"En quelle année le Tamagotchi est-il sorti au Japon ?","Ce petit animal virtuel « mourait » si on ne s'en occupait pas : certaines écoles l'ont interdit."],
+[1950,"En quelle année le Club Méditerranée a-t-il été créé ?","Le premier village de vacances était fait de tentes militaires, à Majorque."],
+[1963,"En quelle année a ouvert le premier hypermarché de France ?","C'était un Carrefour, à Sainte-Geneviève-des-Bois, dans l'Essonne."],
+[2010,"En quelle année Apple a-t-il présenté le premier iPad ?","Steve Jobs l'a présenté assis dans un fauteuil, pour montrer qu'on l'utilisait confortablement."],
+[1976,"En quelle année Apple a-t-il été fondé ?","Steve Jobs et Steve Wozniak ont assemblé leurs premiers ordinateurs dans le garage des parents de Jobs."],
+[1954,"En quelle année l'abbé Pierre a-t-il lancé à la radio son célèbre appel pour les sans-abri ?","Cet hiver-là était glacial. Son appel du 1ᵉʳ février a déclenché une immense vague de dons."],
+);
+
 /* ================== QCM : [question, bonne réponse, [3 mauvaises], anecdote] ================== */
 const QC_CULTURE = [
 ["Combien de cases compte un échiquier ?","64",["48","81","100"],"Selon une légende, l'inventeur des échecs aurait demandé un grain de blé sur la 1ʳᵉ case, 2 sur la 2ᵉ, 4 sur la 3ᵉ… Il aurait fallu plus de blé que la Terre n'en a jamais produit !"],
@@ -1130,6 +1469,248 @@ const QC_LANGUE = [
 ["Que veut dire « avoir un poil dans la main » ?","Être paresseux",["Être très poilu","Être maladroit","Être avare"],"L'image : quelqu'un qui travaille si peu qu'un poil a eu le temps de lui pousser dans la paume."],
 ["Quel est le mot le plus utilisé de la langue française écrite ?","« de »",["« le »","« et »","« je »"],"Les petits mots comme « de », « la », « le » ou « et » représentent à eux seuls une grande partie de tous les mots écrits."],
 ];
+
+/* ================== QCM : questions supplémentaires ================== */
+QC_CULTURE.push(
+["Quelle est la monnaie du Royaume-Uni ?","La livre sterling",["L'euro","La couronne","Le dollar"],"Le Royaume-Uni n'a jamais adopté l'euro, même quand il faisait partie de l'Union européenne."],
+["Combien de faces a un dé à jouer classique ?","6",["4","8","12"],"Sur un dé classique, la somme de deux faces opposées fait toujours 7."],
+["Quel est l'ingrédient principal du guacamole ?","L'avocat",["La tomate","Le concombre","Le poivron"],"Le mot vient de l'aztèque « ahuacamolli », qui veut dire « sauce d'avocat »."],
+["Combien de cordes compte une guitare classique ?","6",["4","5","7"],"La guitare basse, elle, n'en a généralement que 4."],
+["Dans quel festival de cinéma remet-on la Palme d'or ?","Cannes",["Venise","Berlin","Deauville"],"À Venise, on remet le Lion d'or, et à Berlin l'Ours d'or."],
+["Quelles pâtes italiennes ont la forme de petits papillons ?","Les farfalle",["Les fusilli","Les penne","Les orecchiette"],"« Farfalla » veut dire papillon en italien. Les orecchiette, elles, sont de « petites oreilles »."],
+["Combien de jours compte une année bissextile ?","366",["365","364","367"],"Le jour en plus est le 29 février. Attention : l'année 2100 ne sera pas bissextile !"],
+["Qui a écrit « Les Misérables » ?","Victor Hugo",["Émile Zola","Honoré de Balzac","Alexandre Dumas"],"Le roman suit Jean Valjean, un ancien bagnard condamné pour avoir volé du pain."],
+["Quel est le plus grand musée d'art du monde par sa surface d'exposition ?","Le Louvre",["Le British Museum","Le Metropolitan Museum","L'Ermitage"],"Avant d'être un musée, le Louvre était un château fort, puis un palais royal."],
+["Combien de cartes compte un jeu de belote ?","32",["52","54","36"],"Le jeu de 52 cartes, lui, sert par exemple au bridge ou au poker."],
+["Quel héros de bande dessinée est toujours accompagné de son chien Milou ?","Tintin",["Spirou","Lucky Luke","Boule"],"Hergé aurait donné à Milou le surnom de son premier amour, Marie-Louise."],
+["Avec quel fruit fabrique-t-on le calvados ?","La pomme",["La poire","Le raisin","La prune"],"Cette eau-de-vie normande est obtenue en distillant du cidre. Certains calvados contiennent aussi un peu de poire."],
+["Combien d'heures compte une semaine ?","168",["148","172","186"],"7 jours × 24 heures = 168 heures."],
+["Quel est le plus long tunnel ferroviaire du monde ?","Le tunnel du Saint-Gothard",["Le tunnel sous la Manche","Le tunnel du Seikan","Le tunnel du Lötschberg"],"Ce tunnel suisse, inauguré en 2016, mesure 57 km et passe sous les Alpes."],
+["Pourquoi Michelin a-t-il créé son célèbre guide en 1900 ?","Pour donner envie aux automobilistes de rouler (et d'user leurs pneus)",["Pour noter les restaurants des hôtels de luxe","Pour vendre des cartes de France","Pour faire connaître la cuisine française à l'étranger"],"Au début, le guide était distribué gratuitement aux automobilistes, qui étaient encore très peu nombreux."],
+["Qui a peint le plafond de la chapelle Sixtine ?","Michel-Ange",["Raphaël","Léonard de Vinci","Botticelli"],"Contrairement à la légende, il ne l'a pas peint allongé, mais debout sur un échafaudage, la tête renversée en arrière."],
+["Quel pays a offert la statue de la Liberté aux États-Unis ?","La France",["Le Royaume-Uni","L'Espagne","L'Italie"],"Sa structure intérieure a été conçue par Gustave Eiffel. Elle est verte parce que son enveloppe en cuivre s'est oxydée."],
+["Combien de pièces chaque joueur a-t-il au début d'une partie d'échecs ?","16",["12","18","20"],"8 pions, 2 tours, 2 cavaliers, 2 fous, une dame et un roi."],
+["Que mesure l'échelle de Richter ?","La magnitude des séismes",["La force du vent","La hauteur des vagues","L'acidité d'un liquide"],"Elle est logarithmique : un séisme de magnitude 7 libère environ 30 fois plus d'énergie qu'un séisme de magnitude 6."],
+["Combien de zéros compte un milliard ?","9",["6","10","12"],"En français, un « billion » compte 12 zéros… alors qu'en anglais, « billion » veut dire milliard !"],
+["Quel célèbre détective a été créé par Arthur Conan Doyle ?","Sherlock Holmes",["Hercule Poirot","Le commissaire Maigret","Arsène Lupin"],"Poirot a été créé par Agatha Christie, Maigret par Georges Simenon et Lupin par Maurice Leblanc."],
+["Quel animal est le logo de la marque Lacoste ?","Un crocodile",["Un lézard","Un serpent","Un requin"],"Le tennisman René Lacoste était surnommé « le Crocodile » à cause d'un pari sur une valise en peau de crocodile."],
+["Combien de couleurs différentes compte un Rubik's Cube classique ?","6",["4","8","9"],"Il a été inventé en 1974 par le Hongrois Ernő Rubik, professeur d'architecture."],
+["Quelle est la langue officielle du Brésil ?","Le portugais",["L'espagnol","Le brésilien","L'anglais"],"C'est le pays qui compte le plus de lusophones au monde, bien plus que le Portugal."],
+["Combien d'étoiles compte le drapeau des États-Unis ?","50",["48","51","13"],"Une étoile par État. Les 13 bandes rappellent les 13 colonies qui ont fondé le pays."],
+["Pour quel événement la tour Eiffel a-t-elle été construite ?","L'Exposition universelle de 1889",["Les Jeux olympiques de 1900","Le centenaire de la mort de Napoléon","La fin de la Première Guerre mondiale"],"Elle devait être démontée au bout de 20 ans. Elle a été sauvée notamment grâce à ses antennes de radio."],
+["Quelle couleur obtient-on en mélangeant du bleu et du jaune ?","Le vert",["Le violet","L'orange","Le marron"],"En peinture, le bleu, le jaune et le rouge sont appelés couleurs primaires."],
+["Combien y a-t-il de joueurs dans une partie de tarot classique ?","4",["2","3","6"],"On peut aussi y jouer à 3 ou à 5, mais la version classique se joue à 4."],
+);
+QC_GEO.push(
+["Quel fleuve traverse Le Caire ?","Le Nil",["Le Niger","Le Congo","L'Euphrate"],"Presque toute la population égyptienne vit le long du Nil : le reste du pays est désertique."],
+["Quelle est la capitale du Canada ?","Ottawa",["Toronto","Montréal","Vancouver"],"C'est la reine Victoria qui l'a choisie en 1857, en partie pour ne pas avoir à départager Toronto et Montréal."],
+["Quelle ville est la capitale (« ville fédérale ») de la Suisse ?","Berne",["Genève","Zurich","Lausanne"],"La Constitution suisse ne parle pas de « capitale » : Berne est officiellement la « ville fédérale »."],
+["Quel est le plus grand lac d'Afrique ?","Le lac Victoria",["Le lac Tanganyika","Le lac Malawi","Le lac Tchad"],"Il est partagé entre l'Ouganda, le Kenya et la Tanzanie, et c'est l'une des sources du Nil."],
+["Combien de pays compte l'Union européenne ?","27",["25","28","30"],"Ils étaient 28 avant le départ du Royaume-Uni, en 2020."],
+["Quelle chaîne de montagnes sépare la France de l'Espagne ?","Les Pyrénées",["Les Alpes","Les Vosges","Le Jura"],"Le petit pays d'Andorre est niché au cœur des Pyrénées."],
+["Quelle est la capitale du Maroc ?","Rabat",["Casablanca","Marrakech","Fès"],"Casablanca est la plus grande ville du pays, mais le roi et le gouvernement siègent à Rabat."],
+["Dans quel pays se trouve Tombouctou ?","Le Mali",["Le Niger","La Mauritanie","Le Burkina Faso"],"La ville était si difficile à atteindre que « aller à Tombouctou » voulait dire aller au bout du monde."],
+["Dans quel océan se trouve Madagascar ?","L'océan Indien",["L'océan Atlantique","L'océan Pacifique","L'océan Austral"],"C'est la quatrième plus grande île du monde."],
+["Quelle ville est surnommée « la Grosse Pomme » ?","New York",["Chicago","Los Angeles","Boston"],"Le surnom a été popularisé dans les années 1920 par un journaliste sportif qui parlait des courses de chevaux."],
+["Quel détroit sépare l'Europe de l'Afrique ?","Le détroit de Gibraltar",["Le Bosphore","Le détroit de Messine","Le détroit d'Ormuz"],"À son point le plus étroit, il ne mesure qu'environ 14 km."],
+["Quelle est la capitale de la Nouvelle-Zélande ?","Wellington",["Auckland","Christchurch","Queenstown"],"C'est la capitale la plus australe du monde."],
+["Quel volcan actif domine la Sicile ?","L'Etna",["Le Vésuve","Le Stromboli","Le Vulcano"],"C'est le plus haut volcan actif d'Europe (hors Caucase) et l'un des plus actifs du monde."],
+["Quelle est la capitale de la Norvège ?","Oslo",["Stockholm","Copenhague","Bergen"],"Stockholm est la capitale de la Suède et Copenhague celle du Danemark."],
+["Quel est le plus grand pays d'Amérique du Sud ?","Le Brésil",["L'Argentine","Le Pérou","La Colombie"],"Il occupe presque la moitié du continent et touche tous les pays d'Amérique du Sud sauf deux : le Chili et l'Équateur."],
+["Dans quelle ville se trouve la Sagrada Família ?","Barcelone",["Madrid","Séville","Valence"],"Ce chantier imaginé par Gaudí a commencé en 1882… et n'est toujours pas tout à fait terminé."],
+["Quel est le département français le plus peuplé ?","Le Nord",["Paris","Les Bouches-du-Rhône","Le Rhône"],"Il compte environ 2,6 millions d'habitants, un peu plus que Paris."],
+["Quelle est la plus grande île de la Méditerranée ?","La Sicile",["La Sardaigne","Chypre","La Corse"],"La Corse n'arrive qu'en quatrième position."],
+["Quelle est la capitale de l'Argentine ?","Buenos Aires",["Santiago","Montevideo","Córdoba"],"Son nom veut dire « bons vents » ou « bon air » en espagnol."],
+["Quel fleuve traverse Bordeaux ?","La Garonne",["La Dordogne","La Loire","Le Lot"],"Elle se jette dans l'estuaire de la Gironde, le plus grand estuaire d'Europe de l'Ouest."],
+["Quel est le désert le plus aride du monde (hors régions polaires) ?","Le désert d'Atacama",["Le Sahara","Le désert de Gobi","Le Namib"],"Dans certaines stations météo du Chili, on n'a jamais enregistré la moindre pluie."],
+["Quelle est la capitale du Viêt Nam ?","Hanoï",["Hô Chi Minh-Ville","Da Nang","Hué"],"Hô Chi Minh-Ville, l'ancienne Saïgon, est plus peuplée mais n'est pas la capitale."],
+["Quel pays est surnommé « le pays du Soleil-Levant » ?","Le Japon",["La Chine","La Corée du Sud","La Thaïlande"],"Le nom japonais du pays, Nihon, signifie « l'origine du soleil »."],
+["Quel canal relie la Méditerranée à la mer Rouge ?","Le canal de Suez",["Le canal de Panama","Le canal de Corinthe","Le canal de Kiel"],"Il a été inauguré en 1869 sous la direction du Français Ferdinand de Lesseps."],
+["Quelle est la capitale de l'Irlande ?","Dublin",["Belfast","Cork","Galway"],"Belfast est la capitale de l'Irlande du Nord, qui fait partie du Royaume-Uni."],
+["Quelle mer, très salée, permet de flotter sans effort ?","La mer Morte",["La mer Rouge","La mer Noire","La mer Caspienne"],"Elle est environ dix fois plus salée que l'océan, et sa rive est le point le plus bas des terres émergées."],
+["Quel pays a pour capitale Lisbonne ?","Le Portugal",["L'Espagne","Le Brésil","L'Italie"],"En 1755, un terrible séisme suivi d'un tsunami a détruit une grande partie de la ville."],
+["Quel fleuve passe à Lyon en plus du Rhône ?","La Saône",["La Loire","L'Isère","Le Doubs"],"Les deux cours d'eau se rejoignent au sud de la ville, au quartier du Confluent."],
+);
+QC_HISTOIRE.push(
+["Qui a été le premier homme à marcher sur la Lune ?","Neil Armstrong",["Buzz Aldrin","Youri Gagarine","Michael Collins"],"Buzz Aldrin l'a suivi quelques minutes plus tard, tandis que Michael Collins restait en orbite."],
+["Quelle reine d'Égypte a été l'alliée de Jules César puis de Marc Antoine ?","Cléopâtre",["Néfertiti","Hatchepsout","Néfertari"],"Cléopâtre a vécu plus près de nous dans le temps que de la construction de la pyramide de Khéops !"],
+["Quel roi de France est associé à la « poule au pot » du dimanche ?","Henri IV",["Louis XII","François Iᵉʳ","Saint Louis"],"Il aurait souhaité que chaque paysan puisse manger une poule au pot tous les dimanches."],
+["Quel général carthaginois a traversé les Alpes avec des éléphants ?","Hannibal",["Hamilcar","Scipion","Vercingétorix"],"C'était en 218 av. J.-C., pour attaquer Rome. La plupart des éléphants n'ont pas survécu."],
+["Quel chef gaulois s'est rendu à Jules César après le siège d'Alésia ?","Vercingétorix",["Ambiorix","Brennus","Ariovist"],"C'était en 52 av. J.-C. Il a ensuite été emmené à Rome et exécuté quelques années plus tard."],
+["Quelle femme a été la première à recevoir un prix Nobel ?","Marie Curie",["Rosalind Franklin","Irène Joliot-Curie","Ada Lovelace"],"Elle en a même reçu deux : en physique (1903) et en chimie (1911)."],
+["Qui a fondé l'Empire mongol ?","Gengis Khan",["Kubilaï Khan","Tamerlan","Attila"],"À son apogée, l'Empire mongol était le plus vaste empire d'un seul tenant de l'histoire."],
+["Quelle ville romaine a été ensevelie par l'éruption du Vésuve en 79 ?","Pompéi",["Ostie","Carthage","Syracuse"],"Les cendres ont figé la ville : on y a retrouvé des pains dans les fours et des graffitis sur les murs."],
+["Quel président américain a été assassiné à Dallas ?","John F. Kennedy",["Abraham Lincoln","William McKinley","Richard Nixon"],"Il a été abattu le 22 novembre 1963, alors qu'il traversait la ville en voiture décapotable."],
+["Quel roi de France a été guillotiné en 1793 ?","Louis XVI",["Louis XV","Louis XVIII","Charles X"],"Il a été exécuté le 21 janvier 1793, place de la Révolution, l'actuelle place de la Concorde."],
+["Comment appelait-on les guerriers au service des seigneurs japonais ?","Les samouraïs",["Les ninjas","Les shoguns","Les sumos"],"Ils suivaient un code d'honneur appelé le bushido, « la voie du guerrier »."],
+["Quelle grande épidémie a ravagé l'Europe au milieu du XIVᵉ siècle ?","La peste noire",["Le choléra","La variole","La grippe espagnole"],"Elle aurait tué entre un tiers et la moitié des Européens en quelques années."],
+["Quelle civilisation avait pour capitale Tenochtitlan ?","Les Aztèques",["Les Incas","Les Mayas","Les Olmèques"],"La ville était bâtie sur un lac. Mexico a été construite sur ses ruines."],
+["Quel empereur romain a fait construire un mur au nord de l'Angleterre ?","Hadrien",["Trajan","Auguste","Néron"],"Le mur d'Hadrien mesurait environ 120 km et marquait la frontière nord de l'Empire."],
+["Quel savant a été condamné par l'Église pour avoir défendu l'idée que la Terre tourne autour du Soleil ?","Galilée",["Copernic","Kepler","Newton"],"Son procès a eu lieu en 1633. La phrase « Et pourtant, elle tourne » lui est attribuée, mais il ne l'a probablement jamais dite."],
+["Qui a fondé la ville de Québec en 1608 ?","Samuel de Champlain",["Jacques Cartier","La Fayette","Montcalm"],"Jacques Cartier avait exploré la région environ 70 ans plus tôt."],
+["Quel révolutionnaire a dirigé la révolution bolchevique de 1917 en Russie ?","Lénine",["Staline","Raspoutine","Gorbatchev"],"Son corps embaumé est toujours exposé dans un mausolée sur la place Rouge, à Moscou."],
+["Quelle cité grecque était célèbre pour son éducation militaire très stricte ?","Sparte",["Athènes","Corinthe","Delphes"],"Le mot « spartiate », qui veut dire austère et rude, vient de là."],
+["Quel roi d'Angleterre a eu six épouses ?","Henri VIII",["Henri V","Richard III","Édouard VI"],"Deux d'entre elles ont été décapitées. Pour pouvoir divorcer, il a rompu avec l'Église catholique."],
+["Quel navigateur portugais a ouvert la route maritime des Indes en contournant l'Afrique ?","Vasco de Gama",["Magellan","Bartolomeu Dias","Christophe Colomb"],"Il a atteint l'Inde en 1498. Bartolomeu Dias avait franchi le cap de Bonne-Espérance dix ans plus tôt."],
+["Quelle bataille navale de 1805 a vu la victoire de l'amiral anglais Nelson ?","Trafalgar",["Aboukir","Lépante","Waterloo"],"Nelson a gagné la bataille mais y a été tué. Une célèbre place de Londres porte le nom de cette victoire."],
+["Quel peuple a fondé Marseille, vers 600 av. J.-C. ?","Des Grecs venus de Phocée",["Des Romains","Des Phéniciens","Des Gaulois"],"C'est pour cela qu'on surnomme Marseille « la cité phocéenne »."],
+["Quel monument parisien célèbre les victoires des armées de Napoléon ?","L'Arc de triomphe",["Le Panthéon","Le Sacré-Cœur","L'Opéra Garnier"],"La tombe du Soldat inconnu y a été installée en 1921, et sa flamme est ravivée chaque soir."],
+["Quel chef d'État français a fait construire le château de Versailles tel qu'on le connaît ?","Louis XIV",["Louis XIII","Louis XV","François Iᵉʳ"],"Au départ, ce n'était qu'un petit pavillon de chasse construit pour son père, Louis XIII."],
+["Quel était le nom du plan de débarquement allié en Normandie, le 6 juin 1944 ?","Overlord",["Barbarossa","Market Garden","Tempête du désert"],"Le débarquement lui-même portait le nom de code « Neptune »."],
+["Quel personnage a dirigé l'Inde vers l'indépendance par la non-violence ?","Gandhi",["Nehru","Mandela","Bouddha"],"L'Inde est devenue indépendante en 1947. Gandhi a été assassiné l'année suivante."],
+["Dans quelle ville a été signé l'armistice du 11 novembre 1918 ?","Dans une forêt près de Compiègne",["À Versailles","À Paris","À Verdun"],"Il a été signé dans un wagon de train. Hitler a choisi ce même wagon pour faire signer l'armistice de 1940."],
+["Quel roi franc s'est fait baptiser à Reims vers l'an 500 ?","Clovis",["Charlemagne","Pépin le Bref","Dagobert"],"Après lui, presque tous les rois de France ont été sacrés à Reims."],
+);
+QC_SCIENCES.push(
+["Quelle planète est surnommée « la planète rouge » ?","Mars",["Vénus","Jupiter","Mercure"],"Sa couleur vient de l'oxyde de fer, c'est-à-dire de la rouille, qui recouvre son sol."],
+["Quel est le symbole chimique du fer ?","Fe",["Fr","F","Ir"],"Il vient du latin « ferrum »."],
+["Combien de chromosomes compte une cellule humaine ordinaire ?","46",["23","44","48"],"Ils vont par paires : 23 viennent de la mère et 23 du père."],
+["Quel est l'os le plus long du corps humain ?","Le fémur",["Le tibia","L'humérus","Le péroné"],"C'est l'os de la cuisse. Il représente environ un quart de la taille d'une personne."],
+["Combien de temps la Terre met-elle pour faire le tour du Soleil ?","Environ 365 jours",["24 heures","Environ 28 jours","Environ 12 ans"],"En 24 heures, la Terre fait un tour sur elle-même, ce qui donne le jour et la nuit."],
+["Lequel de ces animaux est un mammifère ?","Le dauphin",["Le requin","Le manchot","Le thon"],"Le dauphin respire de l'air et allaite ses petits, comme tous les mammifères."],
+["Combien de dents compte un adulte, dents de sagesse comprises ?","32",["28","30","36"],"Les enfants n'ont que 20 dents de lait."],
+["Quel est le plus grand organe du corps humain ?","La peau",["Le foie","L'intestin","Les poumons"],"Chez un adulte, elle pèse plusieurs kilos et couvre près de 2 m²."],
+["Quelle planète a les anneaux les plus visibles ?","Saturne",["Jupiter","Uranus","Neptune"],"En réalité, les quatre planètes géantes ont des anneaux, mais ceux de Saturne sont de loin les plus spectaculaires."],
+["Comment s'appelle notre galaxie ?","La Voie lactée",["Andromède","Le Grand Nuage de Magellan","La galaxie du Triangle"],"Andromède, notre grande voisine, devrait entrer en collision avec elle… dans plusieurs milliards d'années."],
+["Quel métal est liquide à température ambiante ?","Le mercure",["Le plomb","L'étain","Le zinc"],"Autrefois, on l'utilisait dans les thermomètres. Il est aujourd'hui interdit car il est toxique."],
+["Combien d'yeux a une abeille ?","5",["2","4","8"],"Deux gros yeux composés sur les côtés, et trois petits yeux simples sur le dessus de la tête."],
+["Quel est le plus grand oiseau du monde ?","L'autruche",["L'émeu","Le condor","L'albatros"],"Elle peut dépasser 2,5 m et pondre des œufs de plus d'un kilo."],
+["Que mesure un baromètre ?","La pression de l'air",["La température","L'humidité","La vitesse du vent"],"Quand la pression baisse, le mauvais temps arrive souvent."],
+["Quelle est l'étoile la plus proche de la Terre ?","Le Soleil",["Proxima du Centaure","Sirius","L'étoile Polaire"],"Question piège ! Après le Soleil, la plus proche est Proxima du Centaure, à un peu plus de 4 années-lumière."],
+["Contre quelle maladie Louis Pasteur a-t-il mis au point un vaccin en 1885 ?","La rage",["La variole","La polio","La tuberculose"],"Il a sauvé Joseph Meister, un garçon de 9 ans qui avait été mordu par un chien enragé."],
+["Quel est le seul mammifère capable de vraiment voler ?","La chauve-souris",["L'écureuil volant","Le colugo","Le pétauriste"],"Les écureuils volants ne font que planer. La chauve-souris, elle, bat des ailes."],
+["Quel gaz les plantes rejettent-elles grâce à la photosynthèse ?","L'oxygène",["Le dioxyde de carbone","L'azote","Le méthane"],"Les plantes absorbent le dioxyde de carbone et, grâce à la lumière, rejettent de l'oxygène."],
+["Combien de litres de sang environ contient le corps d'un adulte ?","5",["2","10","15"],"Le cœur pompe l'équivalent de tout ce sang environ une fois par minute."],
+["Quelle est la planète la plus éloignée du Soleil ?","Neptune",["Uranus","Pluton","Saturne"],"Pluton a perdu son statut de planète en 2006 : on la classe désormais parmi les « planètes naines »."],
+["Comment appelle-t-on le cri du cerf ?","Le brame",["Le barrissement","Le hennissement","Le feulement"],"Le barrissement est le cri de l'éléphant, et le feulement celui du tigre."],
+["Combien de temps la lumière de la Lune met-elle environ pour nous parvenir ?","Un peu plus d'une seconde",["8 minutes","1 heure","1 journée"],"C'est la lumière du Soleil qui met environ 8 minutes à nous parvenir."],
+["Quelle unité mesure la fréquence ?","Le hertz",["Le watt","Le décibel","Le joule"],"Elle porte le nom du physicien allemand Heinrich Hertz, qui a étudié les ondes radio."],
+["Quel est le plus grand félin du monde ?","Le tigre",["Le lion","Le jaguar","Le léopard"],"Le tigre de l'Amour, en Sibérie, peut dépasser 250 kg."],
+["Quelle couche de l'atmosphère nous protège des rayons UV ?","La couche d'ozone",["La couche d'azote","La ionosphère","La couche de nuages"],"Un « trou » s'y forme chaque printemps au-dessus de l'Antarctique, mais il se résorbe lentement depuis l'interdiction de certains gaz."],
+["Quel savant a découvert la loi de la gravitation, selon la légende en voyant tomber une pomme ?","Isaac Newton",["Galilée","Albert Einstein","Johannes Kepler"],"La pomme ne lui serait pas tombée sur la tête : il l'aurait seulement vue tomber d'un arbre."],
+["Quel animal a la plus longue gestation ?","L'éléphant",["La baleine bleue","La girafe","Le rhinocéros"],"Une éléphante porte son petit pendant près de 22 mois."],
+["Quel est l'élément chimique le plus abondant dans l'Univers ?","L'hydrogène",["L'oxygène","Le carbone","L'hélium"],"Il représente environ les trois quarts de la matière ordinaire de l'Univers. Les étoiles en sont principalement faites."],
+);
+QC_ECRANS.push(
+["Qui a réalisé le film « Jurassic Park » ?","Steven Spielberg",["James Cameron","George Lucas","Robert Zemeckis"],"Les dinosaures du film mêlaient images de synthèse, très nouvelles à l'époque, et marionnettes géantes."],
+["Dans quelle maison de Poudlard est Harry Potter ?","Gryffondor",["Serpentard","Poufsouffle","Serdaigle"],"Le Choixpeau avait d'abord hésité à l'envoyer à Serpentard."],
+["Quel film français muet a remporté l'Oscar du meilleur film en 2012 ?","The Artist",["Intouchables","La Môme","Le Fabuleux Destin d'Amélie Poulain"],"Jean Dujardin y a aussi gagné l'Oscar du meilleur acteur, une première pour un acteur français."],
+["Quel chanteur est surnommé « le roi du rock'n'roll » ?","Elvis Presley",["Chuck Berry","Little Richard","Jerry Lee Lewis"],"Sa maison de Graceland, à Memphis, est l'une des maisons les plus visitées des États-Unis."],
+["Quel groupe a chanté « Yellow Submarine » ?","Les Beatles",["Les Rolling Stones","Queen","The Who"],"Le titre a aussi donné son nom à un film d'animation très coloré sorti en 1968."],
+["Quelle chanteuse a interprété « My Heart Will Go On », la chanson du film Titanic ?","Céline Dion",["Lara Fabian","Mariah Carey","Whitney Houston"],"Elle a enregistré la chanson en une seule prise, qui pensait-elle n'être qu'un essai."],
+["Quel acteur incarne le capitaine Jack Sparrow ?","Johnny Depp",["Orlando Bloom","Brad Pitt","Leonardo DiCaprio"],"Il s'est inspiré en partie du guitariste des Rolling Stones, Keith Richards, qui joue d'ailleurs son père dans la saga."],
+["Quelle héroïne perd sa pantoufle de verre en quittant le bal ?","Cendrillon",["Blanche-Neige","La Belle au bois dormant","Raiponce"],"Dans le conte de Charles Perrault, publié en 1697, la pantoufle était déjà en verre."],
+["Dans « Le Roi Lion », comment s'appelle le père de Simba ?","Mufasa",["Scar","Rafiki","Zazu"],"Scar est son oncle, Rafiki le vieux singe sage et Zazu le calao."],
+["Comment s'appelle le petit robot nettoyeur du film Pixar de 2008 ?","WALL-E",["EVE","R2-D2","Baymax"],"Pendant les 40 premières minutes du film, il n'y a presque aucun dialogue."],
+["Qui a chanté « Thriller » ?","Michael Jackson",["Prince","Stevie Wonder","Lionel Richie"],"L'album « Thriller » est souvent cité comme l'album le plus vendu de l'histoire."],
+["Dans quelle ville se déroule la série « Friends » ?","New York",["Los Angeles","Chicago","Boston"],"La série a pourtant été entièrement tournée en studio… à Los Angeles."],
+["Qui a composé l'opéra « La Flûte enchantée » ?","Mozart",["Beethoven","Verdi","Wagner"],"Il l'a composé en 1791, l'année de sa mort, à seulement 35 ans."],
+["Quel est le prénom de l'héroïne du film de Jean-Pierre Jeunet qui travaille dans un café de Montmartre ?","Amélie",["Juliette","Marion","Mathilde"],"Le café des Deux Moulins, où le film a été tourné, existe vraiment, rue Lepic à Paris."],
+["Quelle série met en scène une famille jaune vivant à Springfield ?","Les Simpson",["Les Griffin","South Park","Bob's Burgers"],"Diffusée depuis 1989, c'est la plus longue série animée de l'histoire de la télévision américaine."],
+["Qui a chanté « La Bohème » ?","Charles Aznavour",["Georges Brassens","Jacques Brel","Gilbert Bécaud"],"La chanson évoque la vie des jeunes peintres pauvres de Montmartre."],
+["Quel pays a remporté l'Eurovision 1974 avec le groupe ABBA ?","La Suède",["La Norvège","Le Danemark","La Finlande"],"Leur chanson s'appelait « Waterloo », du nom de la célèbre bataille."],
+["Quel est le métier d'Indiana Jones ?","Archéologue",["Paléontologue","Détective","Pilote d'avion"],"Il est professeur d'université… quand il n'est pas en train d'éviter des pièges dans des temples."],
+["Quel acteur incarne Obélix dans « Astérix et Obélix contre César » (1999) ?","Gérard Depardieu",["Christian Clavier","Jean Reno","Gérard Jugnot"],"Christian Clavier y joue Astérix. Le film a attiré près de 9 millions de spectateurs en France."],
+["Quel duo français a composé « Get Lucky » avec Pharrell Williams ?","Daft Punk",["Justice","Air","Cassius"],"Les deux musiciens apparaissaient toujours cachés derrière des casques de robots."],
+["Quel chanteur belge a écrit « Ne me quitte pas » ?","Jacques Brel",["Salvatore Adamo","Arno","Maurane"],"La chanson a été reprise des centaines de fois, y compris en anglais par Frank Sinatra et Nina Simone."],
+["Dans quelle série des enfants affrontent-ils des monstres venus du « Monde à l'envers » ?","Stranger Things",["Dark","Mercredi","The Walking Dead"],"La série se déroule dans les années 1980, dans la ville imaginaire de Hawkins."],
+["Qui a réalisé le film « Pulp Fiction » ?","Quentin Tarantino",["Martin Scorsese","Francis Ford Coppola","David Fincher"],"Le film a remporté la Palme d'or à Cannes en 1994."],
+["Quel personnage s'écrie « Vers l'infini et au-delà ! » ?","Buzz l'Éclair",["Woody","Rex","Monsieur Patate"],"« Toy Story », sorti en 1995, a été le tout premier long métrage entièrement réalisé en images de synthèse."],
+["Quel est le vrai prénom de la chanteuse Madonna ?","Madonna",["Louise","Maria","Veronica"],"Question piège ! Elle s'appelle vraiment Madonna Louise Ciccone, comme sa mère."],
+["Combien de cordes a un violon ?","4",["5","6","3"],"Le violoncelle et l'alto en ont aussi 4."],
+["Quel film d'animation japonais du studio Ghibli met en scène une grosse créature grise et douce dans la forêt ?","Mon voisin Totoro",["Le Voyage de Chihiro","Princesse Mononoké","Ponyo sur la falaise"],"Totoro est devenu le logo du studio Ghibli."],
+["Quelle chanteuse française a chanté « Je ne regrette rien » ?","Édith Piaf",["Dalida","Barbara","Juliette Gréco"],"Le titre exact de la chanson est « Non, je ne regrette rien »."],
+);
+QC_SPORT.push(
+["Combien de sets faut-il gagner pour remporter un match masculin en Grand Chelem ?","3",["2","4","5"],"Les matchs se jouent donc en 5 sets maximum, et peuvent durer plus de 5 heures."],
+["Quel boxeur disait « voler comme un papillon, piquer comme une abeille » ?","Mohamed Ali",["Mike Tyson","Joe Frazier","George Foreman"],"Il s'appelait Cassius Clay avant de changer de nom en 1964."],
+["Combien de minutes dure un match de rugby, hors arrêts de jeu ?","80",["60","90","70"],"Deux mi-temps de 40 minutes."],
+["Quel cycliste français a remporté le Tour de France en 1957 puis de 1961 à 1964 ?","Jacques Anquetil",["Bernard Hinault","Louison Bobet","Laurent Fignon"],"Il a été le premier coureur à remporter cinq fois le Tour de France."],
+["Combien de joueurs compte une équipe de volley-ball sur le terrain ?","6",["5","7","9"],"Les joueurs tournent d'une position à chaque fois que leur équipe récupère le service."],
+["Dans quel sport parle-t-on de « strike » et de « spare » ?","Le bowling",["Le golf","Le curling","Le billard"],"Un « strike », c'est faire tomber les 10 quilles du premier coup."],
+["Quelle ville a accueilli les Jeux olympiques d'hiver de 1992 ?","Albertville",["Grenoble","Chamonix","Annecy"],"Grenoble les avait accueillis en 1968, et Chamonix en 1924, pour les tout premiers Jeux d'hiver."],
+["Combien de temps dure un round de boxe professionnelle ?","3 minutes",["2 minutes","5 minutes","1 minute"],"Entre deux rounds, les boxeurs ont une minute de repos."],
+["Quel nageur détient le record de médailles d'or olympiques ?","Michael Phelps",["Mark Spitz","Ryan Lochte","Léon Marchand"],"L'Américain a remporté 23 médailles d'or entre 2004 et 2016."],
+["Dans quel pays le judo a-t-il été inventé ?","Le Japon",["La Chine","La Corée du Sud","La Thaïlande"],"Il a été créé en 1882 par Jigoro Kano. Le mot veut dire « la voie de la souplesse »."],
+["Combien de quilles faut-il faire tomber au bowling ?","10",["9","12","8"],"Elles sont disposées en triangle : 1, 2, 3 puis 4 quilles."],
+["Quel athlète détient le record du monde du 100 m (9,58 s) ?","Usain Bolt",["Carl Lewis","Tyson Gay","Yohan Blake"],"Il a établi ce record en 2009 à Berlin, à une vitesse moyenne de plus de 37 km/h."],
+["À quelle hauteur se trouve un panier de basket ?","3,05 m",["2,75 m","3,50 m","2,90 m"],"Cela correspond à 10 pieds, la hauteur choisie par l'inventeur du basket en 1891."],
+["Quel pays a remporté la Coupe du monde de football 2022 au Qatar ?","L'Argentine",["La France","La Croatie","Le Maroc"],"La finale contre la France s'est jouée aux tirs au but, après un triplé de Kylian Mbappé."],
+["Quel pays a remporté la Coupe du monde de football 2018 ?","La France",["La Croatie","La Belgique","Le Brésil"],"La France a battu la Croatie 4-2 en finale, à Moscou."],
+["Dans quel sport s'illustre Antoine Dupont ?","Le rugby",["Le football","Le handball","Le basket"],"Il a aussi été champion olympique de rugby à 7 aux Jeux de Paris 2024."],
+["Quel joueur a remporté Roland-Garros 14 fois ?","Rafael Nadal",["Novak Djokovic","Roger Federer","Carlos Alcaraz"],"On le surnommait « le roi de la terre battue »."],
+["Quelle est la longueur d'une piscine olympique ?","50 m",["25 m","100 m","33 m"],"Elle contient environ 2 500 m³ d'eau, soit 2,5 millions de litres."],
+["Dans quel sport joue Victor Wembanyama ?","Le basket",["Le volley-ball","Le handball","Le football"],"Il mesure environ 2,24 m et joue en NBA avec les San Antonio Spurs."],
+["Combien de joueurs, gardien compris, compte une équipe de handball sur le terrain ?","7",["6","5","11"],"Le handball moderne s'est développé en Europe du Nord à la fin du XIXᵉ siècle."],
+["Quelle course automobile se dispute chaque année au Mans ?","Les 24 Heures du Mans",["Le Grand Prix de France de F1","Le Paris-Dakar","Le rallye Monte-Carlo"],"Plusieurs pilotes se relaient au volant de la même voiture pendant une journée et une nuit entières."],
+["Dans quel pays le rugby est-il né ?","L'Angleterre",["La Nouvelle-Zélande","La France","L'Écosse"],"Il tient son nom de la ville de Rugby, où un élève aurait pris le ballon à la main en 1823, selon la légende."],
+["Quelle nage est la plus rapide en natation ?","Le crawl",["Le papillon","La brasse","Le dos"],"Dans les épreuves de « nage libre », presque tous les nageurs choisissent le crawl."],
+["Quel sport combine ski de fond et tir à la carabine ?","Le biathlon",["Le combiné nordique","Le triathlon","Le pentathlon"],"Le Français Martin Fourcade en est l'un des plus grands champions."],
+["Au judo, quelle ceinture vient juste avant la noire ?","La marron",["La bleue","La verte","La rouge"],"Les très hauts gradés peuvent porter une ceinture rouge et blanche, puis rouge."],
+["Quel pays a remporté le plus de Coupes du monde de rugby ?","L'Afrique du Sud",["La Nouvelle-Zélande","L'Australie","L'Angleterre"],"Les Springboks l'ont remportée quatre fois : en 1995, 2007, 2019 et 2023. La Nouvelle-Zélande compte trois titres."],
+["Quel sport pratique-t-on lors du tournoi de Wimbledon ?","Le tennis",["Le golf","Le cricket","Le polo"],"C'est le seul tournoi du Grand Chelem joué sur gazon, et la tenue blanche y est obligatoire."],
+["Combien de temps dure un match de basket en NBA (temps de jeu) ?","48 minutes",["40 minutes","60 minutes","36 minutes"],"Quatre quarts-temps de 12 minutes. Dans les compétitions internationales, ce sont 4 fois 10 minutes."],
+);
+QC_ENERGIE.push(
+["Quelle unité mesure la tension électrique ?","Le volt",["L'ampère","Le watt","L'ohm"],"Elle porte le nom d'Alessandro Volta, l'inventeur de la pile."],
+["Quelle unité mesure la résistance électrique ?","L'ohm",["Le volt","Le hertz","Le farad"],"Son symbole est la lettre grecque oméga : Ω."],
+["Qui a commercialisé l'ampoule à incandescence, à la fin des années 1870 ?","Thomas Edison",["Nikola Tesla","Graham Bell","George Westinghouse"],"Edison n'a pas inventé l'ampoule à lui seul, mais il a mis au point un modèle durable et tout un système pour l'alimenter."],
+["Quel inventeur défendait le courant alternatif face à Edison ?","Nikola Tesla",["André-Marie Ampère","Guglielmo Marconi","Henry Ford"],"Cette rivalité a été surnommée « la guerre des courants ». Le courant alternatif l'a emporté."],
+["Quel est le barrage hydroélectrique le plus puissant du monde ?","Le barrage des Trois-Gorges",["Le barrage d'Itaipu","Le barrage Hoover","Le barrage d'Assouan"],"Situé en Chine sur le Yangzi Jiang, il dépasse les 22 000 mégawatts."],
+["Quelle est la première source d'électricité renouvelable en France ?","L'hydraulique",["L'éolien","Le solaire","La biomasse"],"Les barrages et centrales au fil de l'eau sont surtout installés dans les Alpes, les Pyrénées et le Massif central."],
+["Quel appareil permet d'élever ou d'abaisser la tension électrique ?","Le transformateur",["Le disjoncteur","L'alternateur","Le compteur"],"Grâce à lui, on peut transporter l'électricité en très haute tension, puis la ramener à 230 V pour les maisons."],
+["Quel appareil coupe automatiquement le courant en cas de surcharge ?","Le disjoncteur",["Le transformateur","L'interrupteur","Le compteur"],"Il protège l'installation : sans lui, les fils pourraient chauffer et provoquer un incendie."],
+["Comment s'appelle le compteur électrique communicant installé dans les foyers français ?","Linky",["Gazpar","Tempo","Volta"],"Gazpar est son équivalent pour le gaz."],
+["Quelle est la centrale nucléaire la plus puissante de France ?","Gravelines",["Flamanville","Tricastin","Cattenom"],"Située dans le Nord, au bord de la mer du Nord, elle compte six réacteurs."],
+["Quel matériau compose la plupart des panneaux solaires ?","Le silicium",["Le cuivre","Le lithium","Le graphite"],"Le silicium est fabriqué à partir de sable de quartz très pur."],
+["Quel métal léger a donné son nom aux batteries des smartphones et des voitures électriques ?","Le lithium",["Le plomb","Le nickel","Le cobalt"],"C'est le métal le plus léger. Les vieilles batteries de voiture, elles, sont au plomb."],
+["À combien de kilowatts correspond un mégawatt ?","1 000",["100","10 000","1 000 000"],"Une grande éolienne moderne peut produire plusieurs mégawatts."],
+["Quel phénomène permet à un alternateur de produire de l'électricité ?","L'induction électromagnétique",["L'effet photoélectrique","La fission nucléaire","L'électrolyse"],"Michael Faraday l'a découverte en 1831 : un aimant qui bouge près d'une bobine crée un courant."],
+["Pourquoi un oiseau posé sur une ligne électrique n'est-il pas électrocuté ?","Parce qu'il ne touche qu'un seul fil",["Parce que ses pattes sont isolantes","Parce que ses plumes le protègent","Parce que le courant est coupé quand il se pose"],"Le courant ne passe pas par lui car il n'est pas en contact avec un autre fil ou avec le sol."],
+["Quelle énergie renouvelable utilise la chaleur du sous-sol ?","La géothermie",["La biomasse","L'hydrolienne","La thermodynamique solaire"],"En Islande, la géothermie chauffe presque tous les logements."],
+["Quelle usine bretonne produit de l'électricité grâce aux marées depuis 1966 ?","L'usine marémotrice de la Rance",["Le barrage de Guerlédan","La centrale de Brennilis","L'usine du Mont-Saint-Michel"],"Pendant plus de 40 ans, ce fut la plus grande usine marémotrice du monde."],
+["Quelle est la formule de la puissance électrique ?","P = U × I",["P = U / I","P = R × I","P = U + I"],"La puissance (en watts) est égale à la tension (en volts) multipliée par l'intensité (en ampères)."],
+["Quel savant a montré avec un cerf-volant que la foudre est de nature électrique ?","Benjamin Franklin",["Alessandro Volta","Thomas Edison","Michael Faraday"],"Il a aussi inventé le paratonnerre. L'expérience était extrêmement dangereuse !"],
+["Que signifie le sigle EDF ?","Électricité de France",["Énergie durable française","Électricité et distribution de France","Énergies de France"],"L'entreprise a été créée en 1946, lors de la nationalisation de l'électricité."],
+["De quelles couleurs est le fil de terre dans une installation électrique en France ?","Vert et jaune",["Bleu","Rouge","Noir"],"Le fil bleu est le neutre. La phase est souvent rouge, marron ou noire."],
+["À quoi sert un onduleur dans une installation solaire ?","À transformer le courant continu en courant alternatif",["À stocker l'électricité","À orienter les panneaux vers le soleil","À nettoyer les panneaux"],"Les panneaux produisent du courant continu, alors que nos prises fonctionnent en courant alternatif."],
+["Que signifie STEP, pour certaines installations hydrauliques ?","Station de transfert d'énergie par pompage",["Station thermique d'électricité de pointe","Système de transport électrique protégé","Station de traitement des eaux potables"],"On pompe l'eau vers un bassin en hauteur quand l'électricité est abondante, puis on la turbine quand on en a besoin."],
+["Comment appelle-t-on le grésillement des lignes à haute tension par temps humide ?","L'effet couronne",["L'effet Joule","L'effet de serre","L'effet Doppler"],"De petites décharges électriques se produisent dans l'air autour des câbles. On peut parfois les voir la nuit."],
+["Quel effet transforme l'électricité en chaleur dans un grille-pain ?","L'effet Joule",["L'effet couronne","L'effet Peltier","L'effet photoélectrique"],"Il porte le nom du physicien anglais James Joule. C'est aussi lui qui fait chauffer les câbles électriques."],
+["Quel pays européen produit environ 90 % de son électricité grâce à l'eau ?","La Norvège",["La Suède","La Suisse","L'Autriche"],"Le pays compte plus de 1 500 centrales hydroélectriques."],
+["Quel gaz à effet de serre est principalement rejeté par les centrales au charbon ?","Le dioxyde de carbone",["L'ozone","L'hélium","L'oxygène"],"Le charbon est l'énergie qui émet le plus de CO₂ pour produire un kilowattheure."],
+["Quelle énergie utilise une éolienne ?","Le vent",["Le soleil","Les marées","La chaleur du sol"],"Le mot vient d'Éole, le dieu des vents dans la mythologie grecque."],
+);
+QC_LANGUE.push(
+["Que signifie « tomber dans les pommes » ?","S'évanouir",["Faire une chute","Être très gourmand","Tomber amoureux"],"L'expression viendrait de « être dans les pâmes », c'est-à-dire en pâmoison."],
+["Que veut dire « avoir la main verte » ?","Être doué pour le jardinage",["Être jaloux","Être avare","Être malade"],"En anglais, on dit « avoir le pouce vert » (« green thumb »)."],
+["Que signifie « mettre les pieds dans le plat » ?","Aborder maladroitement un sujet délicat",["Renverser son assiette","Manger trop vite","Faire la cuisine"],"Au départ, le « plat » désignait la partie peu profonde d'une mare : y mettre les pieds éclaboussait tout le monde."],
+["Quel est le pluriel de « bijou » ?","Bijoux",["Bijous","Bijou","Bijouxs"],"Bijou, caillou, chou, genou, hibou, joujou, pou : les 7 noms en -ou qui prennent un X au pluriel."],
+["Combien de lettres compte le mot « anticonstitutionnellement » ?","25",["23","27","21"],"On l'a longtemps présenté comme le plus long mot français, mais d'autres mots sont encore plus longs."],
+["Que veut dire « être dans la lune » ?","Être distrait",["Être très heureux","Être fatigué","Être en colère"],"On dit aussi « être dans les nuages »."],
+["Comment appelle-t-on un mot de même sens qu'un autre ?","Un synonyme",["Un antonyme","Un homonyme","Un paronyme"],"Un antonyme est un mot de sens contraire, comme « grand » et « petit »."],
+["Que signifie « casser sa pipe » ?","Mourir",["Arrêter de fumer","Se mettre en colère","Faire faillite"],"Une explication populaire évoque les soldats blessés qui mordaient une pipe en terre pendant les opérations."],
+["Que veut dire « avoir le melon » ?","Être prétentieux",["Avoir très chaud","Avoir mal à la tête","Avoir de la chance"],"On dit aussi « avoir la grosse tête »."],
+["Que signifie « faire la grasse matinée » ?","Dormir tard le matin",["Manger un gros petit déjeuner","Travailler tôt","Faire du sport le matin"],"Le mot « gras » avait autrefois le sens d'abondant, de confortable."],
+["Que veut dire « avoir une langue de vipère » ?","Dire du mal des autres",["Parler très vite","Parler plusieurs langues","Avoir mauvaise haleine"],"La vipère est associée au venin : ses paroles font mal."],
+["Comment s'appelle la peur des araignées ?","L'arachnophobie",["La claustrophobie","L'agoraphobie","L'acrophobie"],"La claustrophobie est la peur des lieux clos, et l'acrophobie celle du vide."],
+["Que signifie « donner sa langue au chat » ?","Renoncer à trouver la réponse",["Révéler un secret","Se taire","Manger en cachette"],"Au XVIIᵉ siècle, Madame de Sévigné disait plutôt « jeter sa langue aux chiens »."],
+["Combien de syllabes compte un alexandrin ?","12",["10","8","14"],"Son nom viendrait du « Roman d'Alexandre », un poème du Moyen Âge écrit dans ce vers."],
+["Quelle est la nature du mot « rapidement » ?","Un adverbe",["Un adjectif","Un nom","Un verbe"],"Beaucoup d'adverbes se forment en ajoutant « -ment » au féminin d'un adjectif."],
+["Quelle orthographe est correcte ?","Dilemme",["Dilemne","Dilème","Dillemme"],"Le mot vient du grec et contient deux M, comme « deux lemmes »."],
+["Quelle orthographe est correcte ?","Rémunération",["Rénumération","Rémunérassion","Rémmunération"],"Le mot vient du latin « munus », qui veut dire cadeau ou charge, et non de « numéro »."],
+["Quelle phrase est correctement accordée ?","Les fleurs que j'ai cueillies",["Les fleurs que j'ai cueilli","Les fleurs que j'ai cueillis","Les fleurs que j'ai cueillient"],"Avec l'auxiliaire avoir, le participe passé s'accorde avec le complément d'objet direct placé avant le verbe."],
+["Que veut dire « poser une colle » ?","Poser une question difficile",["Faire une bêtise","Recoller un objet","Rester immobile"],"À l'école, une « colle » désigne aussi une interrogation… ou une retenue !"],
+["De quelle langue vient le mot « algèbre » ?","L'arabe",["Le grec","Le latin","L'hébreu"],"Il vient de « al-jabr », un mot du titre d'un traité de mathématiques écrit à Bagdad au IXᵉ siècle."],
+["Lequel de ces mots vient de la langue des Aztèques ?","Chocolat",["Café","Thé","Sucre"],"Il viendrait du nahuatl, la langue des Aztèques, tout comme le mot « tomate »."],
+["Que signifie « avoir un cœur d'artichaut » ?","Tomber facilement amoureux",["Être très généreux","Être insensible","Avoir mauvais caractère"],"Comme l'artichaut, on donne une feuille à chacun… autrement dit un morceau de son cœur à tout le monde."],
+["Comment appelle-t-on les habitants de Pont-à-Mousson ?","Les Mussipontains",["Les Pontois","Les Moussonnais","Les Pontimoussonnais"],"Le nom vient de la forme latine de la ville, « Mussipons »."],
+["Comment appelle-t-on les habitants de Charleville-Mézières ?","Les Carolomacériens",["Les Charlevillois","Les Méziérois","Les Ardennais"],"Le nom réunit le latin de Charles (« Carolus ») et celui de Mézières (« Maceriae »)."],
+["Quel est le féminin de « canard » ?","Cane",["Canarde","Canette","Canardine"],"Le petit du canard s'appelle le caneton."],
+["Que veut dire « rouler sa bosse » ?","Voyager beaucoup et avoir de l'expérience",["Être bossu","Faire du vélo","Se plaindre sans cesse"],"L'image serait celle du colporteur qui porte son baluchon sur le dos de ville en ville."],
+["Que signifie « mettre la puce à l'oreille » ?","Éveiller un soupçon",["Faire un cadeau","Chuchoter un secret","Se gratter"],"Au Moyen Âge, l'expression avait plutôt le sens d'éveiller un désir amoureux."],
+["Combien de temps compte le mode indicatif en français ?","8",["6","10","4"],"4 temps simples (présent, imparfait, passé simple, futur) et 4 temps composés."],
+);
 
 /* ================== JEUX ET THÈMES ================== */
 const GAMES = {
@@ -1725,7 +2306,8 @@ const relayout = () => requestAnimationFrame(()=>resize());
 // =====================================================================
 //                               ÉCRAN (hôte)
 // =====================================================================
-const HS = {games:new Set(['geo','chrono','qcm']), themes:new Set(['insolite','c-histoire','q-culture']), code:null, peer:null, players:new Map(), phase:'lobby', order:[], i:-1, nq:10, dur:30, q:null, startedAt:0, endsAt:0, answers:new Map(), timer:null, round:[], prevRanks:new Map(), pick:null};
+const HS = {banned:new Set(), seq:0, btMode:'random', games:new Set(['geo','chrono','qcm']), themes:new Set(['insolite','c-histoire','q-culture']), code:null, peer:null, players:new Map(), phase:'lobby', order:[], i:-1, nq:10, dur:30, q:null, startedAt:0, endsAt:0, answers:new Map(), timer:null, round:[], prevRanks:new Map(), pick:null};
+HS.nq=20;
 function makeCode(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<4;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
 function joinURL(){ return location.origin+location.pathname+'?salle='+HS.code; }
 function hostInit(){
@@ -1743,13 +2325,15 @@ function hostInit(){
     if (HS.games.has(g)){ if (HS.games.size>1) HS.games.delete(g); }
     else { HS.games.add(g); const f=THEMES.find(t=>t.game===g); if (f && !THEMES.some(t=>t.game===g && HS.themes.has(t.id))) HS.themes.add(f.id); if (g==='blind' && !f) btOpenManage(); }
     renderSetup(); });
-  $('#s-themes').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; if(b.dataset.act==='bt'){ btOpenManage(); return; } const id=b.dataset.id, g=themeOf(id).game;
+  $('#s-themes').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; if(b.dataset.act==='bt'){ btOpenManage(); return; } if(b.dataset.btm){ HS.btMode=b.dataset.btm; renderSetup(); return; } const id=b.dataset.id, g=themeOf(id).game;
     if (HS.themes.has(id)){ if (THEMES.filter(t=>t.game===g && HS.themes.has(t.id)).length>1) HS.themes.delete(id); } else HS.themes.add(id);
     renderSetup(); });
   renderSetup(); btInitManage(); btLoad().then(renderSetup);
   $('#h-start').onclick=startGame;
   $('#h-players').addEventListener('click',e=>{ const c=e.target.closest('.chip'); if(c) openPicker(c.dataset.pid); });
   $('#ap-close').onclick=()=>$('#avpick').classList.add('hidden');
+  $('#ap-kick').onclick=()=>{ const b=$('#ap-kick'); if(!b.dataset.sure){ b.dataset.sure='1'; b.textContent='⚠️ Confirmer : sortir '+(HS.players.get(HS.pick)||{}).name+' ?'; return; } kickPlayer(HS.pick); $('#avpick').classList.add('hidden'); };
+  $('#h-side').addEventListener('click',e=>{ const c=e.target.closest('.chip[data-pid]'); if(c) openPicker(c.dataset.pid); });
   $('#avpick').addEventListener('click',e=>{ if(e.target.id==='avpick') $('#avpick').classList.add('hidden'); });
   $('#ap-grid').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) setAvatar(HS.pick,{type:'emoji',v:b.dataset.v}); });
   $('#ap-file').addEventListener('change',e=>{ const f=e.target.files[0]; e.target.value=''; if(f) photoToAvatar(f).then(v=>setAvatar(HS.pick,{type:'img',v})).catch(()=>{}); });
@@ -1769,13 +2353,13 @@ function renderSetup(){
   }
   if (HS.games.has('chrono')) h+=`<div class="tgrp">⏳ Chrono : deviner l'année</div>${THEMES.filter(t=>t.game==='chrono').map(tbtn).join('')}`;
   if (HS.games.has('qcm')) h+=`<div class="tgrp">❓ QCM : choisir la bonne réponse</div>${THEMES.filter(t=>t.game==='qcm').map(tbtn).join('')}`;
-  if (HS.games.has('blind')) h+=`<div class="tgrp">🎵 Blind test : reconnaître le morceau (tes playlists)</div>${THEMES.filter(t=>t.game==='blind').map(tbtn).join('')}<button data-act="bt" class="bt-chip">🎛️ ${BT.songs.length?'Gérer mes musiques':'Ajouter mes musiques (MP3)…'}</button>`;
+  if (HS.games.has('blind')) h+=`<div class="tgrp">🎵 Blind test : reconnaître le morceau (tes playlists)</div>${THEMES.filter(t=>t.game==='blind').map(tbtn).join('')}<button data-act="bt" class="bt-chip">🎛️ ${BT.songs.length?'Gérer mes musiques':'Ajouter mes musiques (MP3)…'}</button><div class="btmode"><span>Question posée :</span>${[['title','🎵 Le titre'],['artist','🎤 Le chanteur'],['random','🎲 Au hasard'],['both','➕ Titre puis chanteur']].map(([v,l])=>`<button data-btm="${v}" class="${HS.btMode===v?'on':''}">${l}</button>`).join('')}</div>`;
   $('#s-themes').innerHTML=h;
   const r=[];
   if (HS.games.has('geo')) r.push(`🌍 <b>GéoGlobe</b> : 0 si le repère est dans le bon pays, sinon 1 point tous les 4 km (France : 1 point tous les 400 m)`);
   if (HS.games.has('chrono')) r.push(`⏳ <b>Chrono</b> : 10 points par année d'écart`);
   if (HS.games.has('qcm')) r.push(`❓ <b>QCM</b> : bonne réponse = 0 à 200 points selon la rapidité, mauvaise = 1 000`);
-  if (HS.games.has('blind')) r.push(`🎵 <b>Blind test</b> : la musique passe sur les enceintes du PC ; même barème que le QCM`);
+  if (HS.games.has('blind')) r.push(`🎵 <b>Blind test</b> : la musique passe sur les enceintes du PC ; même barème que le QCM${HS.btMode==='both'?' (2 questions par morceau : le titre, puis le chanteur)':''}`);
   $('#h-rules').innerHTML=r.join('<br>')+`<br>Chaque question vaut au maximum <b>1 000 points</b> (et 1 000 sans réponse). <b>Le moins de points gagne !</b>`;
 }
 function setStatus(txt){ $('#h-status').textContent=txt; }
@@ -1811,12 +2395,13 @@ function hostMsg(conn,m){
   if (!m || typeof m!=='object') return;
   if (m.t==='join'){
     const pid=String(m.pid||'').slice(0,40); if(!pid) return;
+    if (HS.banned.has(pid)){ const bye=()=>{ try{ conn.send({t:'kicked'}); }catch(_){}; setTimeout(()=>{ try{conn.close()}catch(_){} },400); }; if(conn.open) bye(); else conn.on('open',bye); return; }
     const name=(String(m.name||'').trim().slice(0,16))||'Joueur';
     let p=HS.players.get(pid);
     if (!p){
       const scores=[...HS.players.values()].map(x=>x.score);
-      p={pid,name,color:PCOL[HS.players.size%PCOL.length],avatar:{type:'emoji',v:AVATARS[HS.players.size%AVATARS.length]},score:(HS.phase==='lobby'||!scores.length)?0:Math.max(...scores),connected:true,conn,last:null};
-      HS.players.set(pid,p);
+      p={pid,name,color:PCOL[HS.seq%PCOL.length],avatar:{type:'emoji',v:AVATARS[HS.seq%AVATARS.length]},score:(HS.phase==='lobby'||!scores.length)?0:Math.max(...scores),connected:true,conn,last:null};
+      HS.players.set(pid,p); HS.seq++;
     } else { if(p.conn && p.conn!==conn) try{p.conn.close()}catch(_){}; p.conn=conn; p.connected=true; p.name=name; }
     conn.pid=pid;
     const syncNow=()=>{ send(p,{t:'welcome',name:p.name,color:p.color,avatar:p.avatar}); broadcastRoster(); syncPlayer(p); };
@@ -1884,10 +2469,10 @@ function startGameInner(){
   }
   // une pile par jeu, puis on pioche à tour de rôle pour bien mélanger
   const piles={};
-  for (const th of THEMES) if (HS.games.has(th.game) && HS.themes.has(th.id)) for (const q of th.qs){ const n = th.game==='blind' ? btQuestion(th,q) : normQ(th,q); if(n) (piles[th.game]=piles[th.game]||[]).push(n); }
+  for (const th of THEMES) if (HS.games.has(th.game) && HS.themes.has(th.id)) for (const q of th.qs){ const u = th.game==='blind' ? btUnit(th,q) : [normQ(th,q)]; if(u && u.length) (piles[th.game]=piles[th.game]||[]).push(u); }
   Object.values(piles).forEach(shuffleArr);
   const order=[]; let keys=shuffleArr(Object.keys(piles));
-  while (order.length<HS.nq && keys.some(k=>piles[k].length)){ for (const k of keys){ if(order.length>=HS.nq) break; if(piles[k].length) order.push(piles[k].pop()); } keys=shuffleArr(keys); }
+  while (order.length<HS.nq && keys.some(k=>piles[k].length)){ for (const k of keys){ if(order.length>=HS.nq) break; const u=piles[k].pop(); if(u && order.length+u.length<=HS.nq) order.push(...u); } keys=shuffleArr(keys); }
   if (!order.length){ lobbyAlert('Aucune question dans les thèmes choisis : coche au moins un thème.'); return; }
   HS.order=order;
   HS.i=-1; for (const p of HS.players.values()){ p.score=0; p.last=null; }
@@ -1912,7 +2497,7 @@ function nextQuestion(){
     if (q.kind==='chrono') st.innerHTML=`<div class="waiting"><div class="bigicon">⏳</div><div>Les joueurs remontent le temps…</div><div class="row2" id="h-wait-avs"></div><div id="h-wait-count"></div></div>`;
     else st.innerHTML=(q.kind==='blind'?`<div class="bt-now"><div class="vinyl"></div><div class="eq">${'<i></i>'.repeat(14)}</div><div class="bt-txt" id="bt-txt">Écoutez bien…</div><button class="btn ghost" id="bt-replay">🔁 Relancer</button></div><div id="bt-click" class="hidden">🔊 Clique ici pour lancer la musique</div>`:'')+`<div class="qgrid${q.kind==='blind'?' bt':''}" id="qgrid">${q.opts.map((o,i)=>`<div class="qopt ${QCLS[i]}" data-i="${i}"><span class="sh">${QSH[i]}</span><div>${esc(o)}</div><div class="avs"></div></div>`).join('')}</div>`;
   }
-  if (q.kind==='blind'){ btReplay(); $('#bt-replay').onclick=btReplay; $('#bt-click').onclick=btReplay; } else btStop();
+  if (q.kind==='blind'){ if (!(q.cont && BT.playing===q.song && BT.audio && !BT.audio.paused)) btReplay(); $('#bt-replay').onclick=btReplay; $('#bt-click').onclick=btReplay; } else btStop();
   refreshHostUI(); relayout();
   setTimeout(()=>{ if(!st.classList.contains('hidden')) st.style.top=($('#h-top').getBoundingClientRect().bottom+12)+'px'; },60);
   for (const p of HS.players.values()){ p.last=null; syncPlayer(p); }
@@ -2005,7 +2590,7 @@ function drawFrise(animate){
   if (animate) setTimeout(show,40); else show();
 }
 function showBoard(){
-  HS.phase='scores'; btStop();
+  HS.phase='scores'; { const nx=HS.order[HS.i+1]; if (!(nx && nx.cont && HS.q && nx.song===HS.q.song)) btStop(); }
   const ranking=[...HS.players.values()].sort((a,b)=>a.score-b.score);
   const roundPts=new Map(HS.round.map(r=>[r.p.pid,r.pts]));
   $('#board-card').innerHTML = `<h2>Classement après ${HS.i+1} question${HS.i?'s':''}</h2>
@@ -2041,6 +2626,7 @@ function openPicker(pid){
   const p=HS.players.get(pid); if(!p) return; HS.pick=pid;
   $('#ap-name').textContent=p.name; $('#ap-prev').innerHTML=avHTML(p,64);
   $('#ap-grid').innerHTML=AVATARS.map(v=>`<button data-v="${v}" class="${p.avatar&&p.avatar.type==='emoji'&&p.avatar.v===v?'on':''}">${v}</button>`).join('');
+  const k=$('#ap-kick'); delete k.dataset.sure; k.textContent='🚪 Sortir '+p.name+' de la partie';
   $('#avpick').classList.remove('hidden');
 }
 function setAvatar(pid,av){
@@ -2054,6 +2640,15 @@ function photoToAvatar(file){
     im.onload=()=>{ const S=144, c=document.createElement('canvas'); c.width=c.height=S; const k=Math.min(im.width,im.height);
       c.getContext('2d').drawImage(im,(im.width-k)/2,(im.height-k)/2,k,k,0,0,S,S); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',.8)); };
     im.onerror=rej; im.src=url; });
+}
+function kickPlayer(pid){
+  const p=HS.players.get(pid); if(!p) return;
+  HS.banned.add(pid);
+  send(p,{t:'kicked'}); const c=p.conn; setTimeout(()=>{ try{ c && c.close(); }catch(_){} },400);
+  HS.players.delete(pid); HS.answers.delete(pid);
+  G.pins=G.pins.filter(x=>x.pid!==pid); req();
+  broadcastRoster(); refreshHostUI();
+  if (HS.phase==='question' && connectedPlayers().length && connectedPlayers().every(x=>HS.answers.has(x.pid))) setTimeout(()=>{ if(HS.phase==='question') reveal(); },500);
 }
 function hostNext(){
   if (HS.phase==='question') reveal();
@@ -2074,11 +2669,11 @@ function playerInit(){
   const go=()=>{ const n=$('#p-name').value.trim(); if(!n){ $('#p-joinmsg').textContent='Entre ton prénom 🙂'; return; } P.name=n.slice(0,16); try{ localStorage.setItem('qp-name',P.name); }catch(e){} $('#p-joinbtn').disabled=true; $('#p-joinmsg').textContent='Connexion…'; $('#p-joinmsg').style.color='var(--muted)'; P.joined=true; connectPlayer(); };
   $('#p-joinbtn').onclick=go;
   $('#p-name').addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
-  document.addEventListener('visibilitychange',()=>{ if(!document.hidden && P.joined && (!P.conn || !P.conn.open)) connectPlayer(); });
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden && !P.kicked && P.joined && (!P.conn || !P.conn.open)) connectPlayer(); });
 }
 function setConn(ok){ $('#p-conn').classList.toggle('hidden', ok || !P.joined || P.state==='join'); }
 function connectPlayer(){
-  clearTimeout(P.retry);
+  clearTimeout(P.retry); if (P.kicked) return;
   if (typeof Peer==='undefined'){ $('#p-joinmsg').textContent="Impossible de charger le module de connexion."; $('#p-joinbtn').disabled=false; return; }
   const dial=()=>{
     const conn=P.peer.connect(PEER_PREFIX+ROOM.toLowerCase(),{reliable:true});
@@ -2111,6 +2706,13 @@ function setPanel(html){ $('#p-panel').innerHTML=html; relayout(); }
 function showTop(show){ $('#p-top').classList.toggle('hidden',!show); $('#zoombox').classList.toggle('hidden',!show && !G.reveal); relayout(); }
 function playerMsg(m){
   if (!m || typeof m!=='object') return;
+  if (m.t==='kicked'){
+    P.kicked=true; P.joined=false; clearTimeout(P.retry); clearInterval(P.timer); P.state='kicked';
+    try{ P.peer && P.peer.destroy(); }catch(_){}
+    $('#p-join').classList.add('hidden'); $('#p-conn').classList.add('hidden');
+    showAlt(`<div class="card pcard pmsg" style="margin:auto 0"><span class="big">🚪 Tu as été retiré de la partie</span>L'animateur t'a fait sortir de cette partie.<br>Merci d'avoir joué !</div>`);
+    return;
+  }
   if (m.t==='roster'){ P.roster=new Map((m.list||[]).map(x=>[x.pid,x])); req(); return; }
   if (m.t==='me'){ P.color=m.color; P.name=m.name; P.avatar=m.avatar; meBadge(); const w=$('#p-wait-av'); if(w) w.innerHTML=avHTML(P,90); req(); return; }
   if (m.t==='welcome'){
@@ -2347,19 +2949,37 @@ function btInitManage(){
   });
 }
 // --- question : 4 propositions (titre ou artiste) tirées de toutes les musiques ---
-function btQuestion(th, s){
+function btQuestion(th, s, force){
   const pool=BT.songs.filter(x=>x.id!==s.id);
   const pick=(field)=>{ const good=s[field]; const seen=new Set([normTxt(good)]); const out=[];
     const cands=shuffleArr(pool.filter(x=>x.playlist===s.playlist)).concat(shuffleArr(pool.filter(x=>x.playlist!==s.playlist)));
     for (const x of cands){ const k=normTxt(x[field]); if(!k || seen.has(k)) continue; seen.add(k); out.push(x[field]); if(out.length===3) break; }
     return out.length===3 ? out : null; };
   const artistOK = s.artist && s.artist!=='Artiste inconnu';
-  let field = artistOK && Math.random()<.4 ? 'artist' : 'title';
-  let wrong=pick(field); if(!wrong && field==='title' && artistOK){ field='artist'; wrong=pick(field); } if(!wrong && field==='artist'){ field='title'; wrong=pick(field); }
+  let field = force || (artistOK && Math.random()<.5 ? 'artist' : 'title');
+  if (field==='artist' && !artistOK){ if(force) return null; field='title'; }
+  let wrong=pick(field);
+  if (!wrong && force) return null;
+  if(!wrong && field==='title' && artistOK){ field='artist'; wrong=pick(field); } if(!wrong && field==='artist'){ field='title'; wrong=pick(field); }
   if (!wrong) return null;
   const opts=shuffleArr([s[field],...wrong]);
-  return {kind:'blind', theme:th.id, song:s.id, field, text: field==='title' ? '🎧 Quel est le titre de ce morceau ?' : '🎧 Qui interprète ce morceau ?',
+  return {kind:'blind', theme:th.id, song:s.id, field, text: field==='title' ? '🎧 Quel est le titre de ce morceau ?' : '🎤 Qui chante ce morceau ?',
     opts, ans:opts.indexOf(s[field]), answerFull:`${s.title} — ${s.artist}`, anec:''};
+}
+// une « unité » = 1 question, ou 2 (titre puis chanteur) sur le même morceau
+function btUnit(th, s){
+  const m=HS.btMode;
+  if (m==='title' || m==='artist'){ const q=btQuestion(th,s,m) || btQuestion(th,s); return q?[q]:null; }
+  if (m==='both'){
+    const a=btQuestion(th,s,'title'), b=btQuestion(th,s,'artist');
+    if (a && b){
+      a.text='🎧 Quel est le titre de ce morceau ?'; a.answerFull=s.title; a.pairFirst=true;
+      b.text='🎤 Et qui chante ce morceau ?'; b.cont=true;
+      return [a,b];
+    }
+    const q=a||b||btQuestion(th,s); return q?[q]:null;
+  }
+  const q=btQuestion(th,s); return q?[q]:null;
 }
 // --- lecture sur les enceintes du PC ---
 function btStopPreview(){ if (BT.preview){ BT.preview=null; btStop(true); } }
@@ -2368,19 +2988,19 @@ function btStop(now){
   if (now){ a.pause(); return; }
   BT.fade=setInterval(()=>{ a.volume=Math.max(0,a.volume-.08); if(a.volume<=0.01){ clearInterval(BT.fade); a.pause(); } },60);
 }
-function btPlay(s, fromStart){
+function btPlay(s, fromStart, need){
   if (!BT.audio){ BT.audio=new Audio(); BT.audio.preload='auto'; }
   const a=BT.audio; clearInterval(BT.fade); a.pause();
   if (BT.url) URL.revokeObjectURL(BT.url);
   BT.url=URL.createObjectURL(s.blob); BT.playing=s.id;
   a.src=BT.url; a.volume=0;
   a.onloadedmetadata=()=>{
-    const d=a.duration, need=HS.dur+20;
+    const d=a.duration; need=need||HS.dur+20;
     if (!fromStart && isFinite(d) && d>need+10){ const lo=Math.min(d*.2,d-need), hi=Math.max(lo,Math.min(d*.5,d-need)); a.currentTime=lo+Math.random()*(hi-lo); }
     a.play().then(()=>{ BT.fade=setInterval(()=>{ a.volume=Math.min(1,a.volume+.06); if(a.volume>=1) clearInterval(BT.fade); },60); }).catch(()=>{ const n=$('#bt-click'); if(n) n.classList.remove('hidden'); });
   };
 }
-function btReplay(){ const q=HS.q; if(!q || q.kind!=='blind') return; const s=BT.songs.find(x=>x.id===q.song); if(s) btPlay(s); const n=$('#bt-click'); if(n) n.classList.add('hidden'); }
+function btReplay(){ const q=HS.q; if(!q || q.kind!=='blind') return; const s=BT.songs.find(x=>x.id===q.song); if(s) btPlay(s, false, q.pairFirst ? HS.dur*2+45 : HS.dur+20); const n=$('#bt-click'); if(n) n.classList.add('hidden'); }
 
 // ---------- Go ----------
 resize();
